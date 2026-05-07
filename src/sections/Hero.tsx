@@ -5,18 +5,18 @@ import { GeometricMark } from "../components/GeometricMark";
 import { useParallax } from "../hooks/useParallax";
 
 export function Hero() {
-  const offset = useParallax(0.035);
+  const parallax = useParallax(0.035);
 
   return (
     <section id="hero" className="grain relative overflow-hidden pt-24 sm:pt-28">
       <div
-        className="absolute -right-20 top-24 h-72 w-72 rounded-full bg-blush/45 blur-3xl"
-        style={{ transform: `translateY(${offset}px)` }}
+        ref={parallax(1)}
+        className="absolute -right-20 top-24 h-72 w-72 will-change-transform rounded-full bg-blush/45 blur-3xl"
         aria-hidden="true"
       />
       <div
-        className="absolute -left-24 bottom-12 h-80 w-80 bg-flame/25 blur-3xl"
-        style={{ transform: `translateY(${-offset}px)` }}
+        ref={parallax(-1)}
+        className="absolute -left-24 bottom-12 h-80 w-80 will-change-transform bg-flame/25 blur-3xl"
         aria-hidden="true"
       />
 

@@ -95,7 +95,10 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" className="relative overflow-hidden bg-[var(--surface)] py-16 transition-colors duration-500 sm:py-20 lg:py-24">
+    <section
+      id="contact"
+      className="cv-auto relative overflow-hidden bg-[var(--surface)] py-16 transition-colors duration-500 sm:py-20 lg:py-24"
+    >
       <Container className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
           <SectionHeading

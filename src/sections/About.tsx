@@ -16,7 +16,10 @@ const values = ["Clean UI", "Responsive systems", "Motion details"];
 
 export function About() {
   return (
-    <section id="about" className="about-section relative overflow-hidden py-16 sm:py-20 lg:py-24">
+    <section
+      id="about"
+      className="cv-auto about-section relative overflow-hidden py-16 sm:py-20 lg:py-24"
+    >
       <div className="absolute left-0 top-16 h-40 w-20 rounded-r-full bg-flame/30 blur-sm" aria-hidden="true" />
       <div className="clip-triangle absolute bottom-10 right-4 h-28 w-28 bg-blush/35" aria-hidden="true" />
 

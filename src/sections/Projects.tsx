@@ -81,7 +81,10 @@ export function Projects() {
   }, [selectedProject]);
 
   return (
-    <section id="work" className="relative overflow-hidden bg-[var(--surface)] py-16 transition-colors duration-500 sm:py-20 lg:py-24">
+    <section
+      id="work"
+      className="cv-auto relative overflow-hidden bg-[var(--surface)] py-16 transition-colors duration-500 sm:py-20 lg:py-24"
+    >
       <div className="absolute inset-x-0 top-0 h-px bg-[var(--line)]" aria-hidden="true" />
       <Container>
         <div className="mb-8 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">

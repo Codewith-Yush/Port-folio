@@ -29,7 +29,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   scroll-padding-top: 6rem;
 }
 
@@ -74,6 +74,18 @@ textarea {
     radial-gradient(circle at 1px 1px, #D14836 1px, transparent 0);
   background-size: 18px 18px;
   mix-blend-mode: multiply;
+}
+
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 900px;
+}
+
+@supports not (content-visibility: auto) {
+  .cv-auto {
+    content-visibility: visible;
+    contain: layout paint;
+  }
 }
 
 .dark .grain::after {

@@ -110,7 +110,7 @@ export function Skills() {
   }, [selectedService]);
 
   return (
-    <section id="skills" className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
+    <section id="skills" className="cv-auto relative overflow-hidden py-16 sm:py-20 lg:py-24">
       <Container>
         <SectionHeading
           eyebrow="Skills & services"
