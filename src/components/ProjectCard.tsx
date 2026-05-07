@@ -22,7 +22,7 @@ export function ProjectCard({ project, index, isActive, onSelect }: ProjectCardP
           src={project.image}
           alt=""
           loading="lazy"
-          className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+          className="h-full w-full object-contain transition duration-700 group-hover:scale-105"
         />
       </div>
       <div className="p-6 sm:p-7">

@@ -45,7 +45,7 @@ export const projects: Project[] = [
     stack: ["React", "Next.js", "Tailwind"],
     description:
       "A modern AI-powered content platform designed for creators, brands, and digital storytelling.",
-    image: "/projects/orbit-studio.svg",
+    image: "images/projects/ai-creator.png",
     role: "Frontend development and UI design",
     year: "2026",
     impact:
