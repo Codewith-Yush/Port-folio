@@ -1,18 +1,18 @@
 import { Container } from "../components/Container";
 
 const paragraphs = [
-  "I am Ayush Singh, a frontend-focused developer who enjoys turning clean ideas into fast, polished, and responsive digital experiences.",
-  "My work blends React, TypeScript, layout systems, motion, accessibility, and visual detail so interfaces feel sharp without becoming complicated.",
-  "I build with a simple mindset: every screen should be clear, every interaction should feel intentional, and every component should be easy to improve later.",
+  "I am Ayush Singh, a passionate web developer and AI creator focused on building modern, responsive, and visually engaging digital experiences.",
+  "My work combines frontend development, creative design, AI-powered content, and clean user interfaces to create experiences that feel modern and impactful.",
+  "I believe every website should be fast, minimal, user-friendly, and designed with both creativity and functionality in mind.",
 ];
 
 const stats = [
-  { value: "12+", label: "Projects" },
-  { value: "3+", label: "Years learning & building" },
-  { value: "20+", label: "Core skills" },
+  { value: "15+", label: "Projects Completed" },
+  { value: "4+", label: "Years of Learning" },
+  { value: "25+", label: "Skills & Tools" },
 ];
 
-const values = ["Clean UI", "Responsive systems", "Motion details"];
+const values = ["Modern UI", "Creative Design", "AI Innovation"];
 
 export function About() {
   return (
@@ -29,10 +29,10 @@ export function About() {
             About me
           </p>
           <h2 className="max-w-3xl text-balance text-4xl font-black leading-[0.95] text-[var(--ink)] sm:text-5xl lg:text-6xl">
-            I design clean frontend experiences with structure, motion, and purpose.
+            I create modern digital experiences with creativity, technology, and purpose.
           </h2>
           <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-flame dark:text-blush">
-            Minimal interfaces, strong systems, and details that make a portfolio feel alive.
+            Clean websites, AI-powered creativity, and user-focused design experiences.
           </p>
 
           <div className="mt-7 grid gap-4">
@@ -65,7 +65,7 @@ export function About() {
               Mindset
             </p>
             <p className="mt-2 max-w-52 text-sm font-bold leading-6 text-[var(--ink)]">
-              Build the smallest clean system that can carry the strongest visual idea.
+              Build modern experiences that combine creativity, performance, and meaningful design.
             </p>
           </div>
 

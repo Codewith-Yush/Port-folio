@@ -24,19 +24,25 @@ export function Hero() {
         <div className="hero-copy relative z-10 animate-reveal">
           <p className="hero-pill mb-5 inline-flex items-center gap-3 border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-flame dark:text-blush">
             <span className="h-2 w-2 rounded-full bg-blush" aria-hidden="true" />
-            Available for selected projects
+            Available for freelance projects
           </p>
+
           <AnimatedHeroName />
+
           <p className="mt-5 text-2xl font-black uppercase tracking-[0.18em] text-flame dark:text-blush sm:text-3xl">
-            Frontend Engineer
+            Web Developer • AI Creator • Power BI Enthusiast
           </p>
+
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted)] sm:text-xl">
-            I build precise, high-performance interfaces where strong visual systems meet calm, usable product thinking.
+            I create modern websites, AI-powered content, and clean digital experiences
+            that combine creativity, performance, and user-focused design.
           </p>
+
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-            <Button href="#work">View Work</Button>
+            <Button href="#work">View My Work</Button>
+
             <Button href="#contact" variant="secondary">
-              Contact
+              Let’s Connect
             </Button>
           </div>
         </div>

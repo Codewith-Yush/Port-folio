@@ -41,141 +41,141 @@ export const navItems = [
 
 export const projects: Project[] = [
   {
-    title: "Orbit Studio",
-    stack: ["React", "TypeScript", "Tailwind"],
+    title: "AI Creator Hub",
+    stack: ["React", "Next.js", "Tailwind"],
     description:
-      "A modular creative dashboard with animated panels, realtime filters, and crisp responsive states.",
+      "A modern AI-powered content platform designed for creators, brands, and digital storytelling.",
     image: "/projects/orbit-studio.svg",
-    role: "Frontend architecture and UI motion",
+    role: "Frontend development and UI design",
     year: "2026",
     impact:
-      "Built a focused studio dashboard that helps creators move from idea to polished campaign without losing visual context.",
+      "Built a creative platform that helps users manage content creation, branding, and digital engagement more efficiently.",
     features: [
-      "Layered workspace with responsive panels",
-      "Animated filter states and saved views",
-      "Reusable card and toolbar system",
+      "Responsive and modern dashboard layout",
+      "Smooth animations and interactive sections",
+      "Reusable UI components with clean structure",
     ],
     metrics: [
-      { value: "38%", label: "faster campaign setup" },
-      { value: "12", label: "reusable UI modules" },
+      { value: "40%", label: "improved user engagement" },
+      { value: "15+", label: "reusable components created" },
     ],
   },
   {
-    title: "Pulse Commerce",
-    stack: ["Next.js", "Node", "Design Systems"],
+    title: "Vision Commerce",
+    stack: ["Next.js", "Node.js", "Tailwind"],
     description:
-      "A conversion-focused commerce interface with fast product discovery and polished checkout flows.",
+      "A fast and responsive ecommerce experience focused on clean design and smooth user interactions.",
     image: "/projects/pulse-commerce.svg",
-    role: "Product UI, checkout flow, performance",
+    role: "UI development and responsive optimization",
     year: "2025",
     impact:
-      "Designed a sharp commerce experience that keeps product discovery quick, visual, and easy to complete on mobile.",
+      "Created a user-friendly shopping experience optimized for mobile users and fast product discovery.",
     features: [
-      "Fast product filtering and comparison",
-      "High-trust checkout interaction states",
-      "Mobile-first product card layout",
+      "Modern product browsing interface",
+      "Responsive mobile-first design",
+      "Optimized checkout interaction flow",
     ],
     metrics: [
-      { value: "24%", label: "checkout friction reduced" },
-      { value: "1.8s", label: "target interaction load" },
+      { value: "28%", label: "better conversion experience" },
+      { value: "1.6s", label: "average interaction speed" },
     ],
   },
   {
-    title: "Signal Atlas",
-    stack: ["React", "Charts", "API Design"],
+    title: "Insight Analytics",
+    stack: ["Power BI", "React", "API Integration"],
     description:
-      "An analytics workspace that turns dense operational data into calm, scannable decision surfaces.",
+      "An analytics dashboard built to transform complex business data into simple and actionable insights.",
     image: "/projects/signal-atlas.svg",
-    role: "Data UI, charts, API integration",
+    role: "Dashboard design and data visualization",
     year: "2025",
     impact:
-      "Created a clean analytics surface where teams can scan trends, compare signals, and make decisions quickly.",
+      "Developed a clean analytics workspace for tracking performance, trends, and business growth.",
     features: [
-      "Metric cards with progressive disclosure",
-      "Chart-ready API data structure",
-      "Accessible status and alert patterns",
+      "Interactive Power BI dashboards",
+      "Real-time data visualization",
+      "Clean and accessible chart layouts",
     ],
     metrics: [
-      { value: "3x", label: "faster signal scanning" },
-      { value: "9", label: "dashboard states covered" },
+      { value: "3x", label: "faster data analysis" },
+      { value: "10+", label: "dashboard modules designed" },
     ],
   },
 ];
 
 export const skillGroups: SkillGroup[] = [
   {
-    title: "Frontend",
+    title: "Web Development",
     skills: [
-      { name: "React architecture", level: 94 },
-      { name: "TypeScript", level: 90 },
-      { name: "Interface systems", level: 92 },
+      { name: "React & Next.js", level: 92 },
+      { name: "HTML, CSS & JavaScript", level: 95 },
+      { name: "Responsive UI Design", level: 90 },
     ],
   },
   {
-    title: "Backend",
+    title: "AI & Content",
     skills: [
-      { name: "API integration", level: 84 },
-      { name: "Node workflows", level: 78 },
-      { name: "Performance tuning", level: 86 },
+      { name: "AI Video Generation", level: 88 },
+      { name: "Canva Designing", level: 94 },
+      { name: "Content Creation", level: 90 },
     ],
   },
   {
-    title: "Tools",
+    title: "Analytics & Tools",
     skills: [
-      { name: "Design systems", level: 91 },
-      { name: "Testing strategy", level: 82 },
-      { name: "Delivery automation", level: 80 },
+      { name: "Power BI Dashboards", level: 86 },
+      { name: "Data Visualization", level: 84 },
+      { name: "Git & GitHub", level: 82 },
     ],
   },
 ];
 
 export const services: Service[] = [
   {
-    title: "Product Interfaces",
+    title: "Website Development",
     description:
-      "Sharp, accessible web products designed around real workflows and long-term maintainability.",
+      "Modern, responsive, and high-performance websites designed for businesses, creators, and personal brands.",
     icon: "blocks",
     outcome:
-      "A polished interface system that feels premium, loads fast, and stays easy to extend as the product grows.",
-    timeline: "2-6 weeks",
+      "A clean and professional website experience that looks premium, performs fast, and works across all devices.",
+    timeline: "2-5 weeks",
     deliverables: [
-      "Responsive page and component build",
-      "Accessible interaction states",
-      "Reusable Tailwind component patterns",
+      "Responsive website development",
+      "Modern UI and smooth interactions",
+      "Optimized performance and layouts",
     ],
-    process: ["Audit", "Layout system", "Component build", "Responsive polish"],
-    bestFor: ["Portfolios", "Dashboards", "SaaS products"],
+    process: ["Planning", "UI Design", "Development", "Final Optimization"],
+    bestFor: ["Portfolios", "Business Websites", "Landing Pages"],
   },
   {
-    title: "Motion Systems",
+    title: "AI Content Creation",
     description:
-      "Subtle transitions and microinteractions that make complex UI feel direct and responsive.",
+      "Creative AI-generated visuals and videos built for social media growth and modern digital branding.",
     icon: "motion",
     outcome:
-      "A smooth motion layer that guides attention without slowing the experience or making the interface feel busy.",
-    timeline: "1-3 weeks",
+      "High-quality content that helps brands and creators stand out with engaging visuals and modern storytelling.",
+    timeline: "1-2 weeks",
     deliverables: [
-      "Entrance and scroll animations",
-      "Hover and press microinteractions",
-      "Reduced-motion safe fallbacks",
+      "AI-generated short videos",
+      "Social media content design",
+      "Creative promotional visuals",
     ],
-    process: ["Motion map", "Timing system", "Interaction pass", "Performance check"],
-    bestFor: ["Landing pages", "Portfolios", "Interactive sections"],
+    process: ["Research", "Content Planning", "AI Generation", "Final Editing"],
+    bestFor: ["Instagram Reels", "YouTube Shorts", "Brand Promotion"],
   },
   {
-    title: "Frontend Foundations",
+    title: "Power BI Dashboards",
     description:
-      "Component architecture, state patterns, and performance budgets that scale without drama.",
+      "Interactive dashboards and reports that transform raw data into meaningful business insights.",
     icon: "systems",
     outcome:
-      "A cleaner frontend base with predictable structure, typed data, and fewer fragile one-off UI decisions.",
-    timeline: "3-8 weeks",
+      "Professional dashboards that help businesses track performance, analyze trends, and make smarter decisions.",
+    timeline: "2-4 weeks",
     deliverables: [
-      "Component architecture plan",
-      "Typed data and state patterns",
-      "Build and performance cleanup",
+      "Interactive Power BI dashboards",
+      "Data visualization reports",
+      "Business performance analytics",
     ],
-    process: ["Code review", "Refactor map", "System build", "Quality pass"],
-    bestFor: ["Growing apps", "Team handoff", "Legacy UI cleanup"],
+    process: ["Data Collection", "Visualization Setup", "Dashboard Design", "Reporting"],
+    bestFor: ["Business Analytics", "Sales Reports", "Performance Tracking"],
   },
 ];
