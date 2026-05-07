@@ -19,7 +19,12 @@ export function ServiceIcon({ icon }: ServiceIconProps) {
       <span className="grid h-12 w-12 grid-cols-2 gap-1" aria-hidden="true">
         <span className="bg-flame" />
         <span className="rounded-full bg-blush" />
-        <span className="clip-triangle bg-ember" />
+        <span
+          className="bg-ember"
+          style={{
+            clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+          }}
+        />
         <span className="bg-flame/70" />
       </span>
     );

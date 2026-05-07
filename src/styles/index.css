@@ -188,6 +188,7 @@ textarea {
   animation: uiverse-spin_4991 4s infinite;
 }
 
+
 @keyframes uiverse-spin_4991 {
   10% {
     transform: translateY(-102%);
