@@ -92,6 +92,311 @@ textarea {
   mix-blend-mode: screen;
 }
 
+/* Initial page loader overlay */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 18% 22%, color-mix(in srgb, #FF9398 18%, transparent), transparent 45%),
+    radial-gradient(circle at 82% 68%, color-mix(in srgb, #DF6C4F 18%, transparent), transparent 52%),
+    var(--page);
+  color: var(--ink);
+  opacity: 1;
+  transform: translateZ(0);
+  transition: opacity 520ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.loader-overlay--exit {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-overlay__grain {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.085;
+  background-image: radial-gradient(circle at 1px 1px, #D14836 1px, transparent 0);
+  background-size: 18px 18px;
+  mix-blend-mode: multiply;
+}
+
+.dark .loader-overlay__grain {
+  mix-blend-mode: screen;
+}
+
+.loader-overlay__content {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 0.9rem;
+  padding: 1.25rem 1.5rem;
+}
+
+/* Loader card (Uiverse.io by kennyotsu) - namespaced */
+.uiverse-loader-card {
+  --bg-color: #111;
+  background-color: var(--bg-color);
+  padding: 1rem 2rem;
+  border-radius: 1.25rem;
+  box-shadow:
+    0 26px 90px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.uiverse-loader {
+  color: rgb(124, 124, 124);
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: 25px;
+  box-sizing: content-box;
+  height: 40px;
+  padding: 10px 10px;
+  display: flex;
+  border-radius: 8px;
+  align-items: center;
+  gap: 6px;
+}
+
+.uiverse-words {
+  overflow: hidden;
+  position: relative;
+  height: 40px;
+}
+
+.uiverse-words::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    var(--bg-color) 10%,
+    transparent 30%,
+    transparent 70%,
+    var(--bg-color) 90%
+  );
+  z-index: 20;
+}
+
+.uiverse-word {
+  display: block;
+  height: 100%;
+  padding-left: 6px;
+  color: #956afa;
+  animation: uiverse-spin_4991 4s infinite;
+}
+
+@keyframes uiverse-spin_4991 {
+  10% {
+    transform: translateY(-102%);
+  }
+
+  25% {
+    transform: translateY(-100%);
+  }
+
+  35% {
+    transform: translateY(-202%);
+  }
+
+  50% {
+    transform: translateY(-200%);
+  }
+
+  60% {
+    transform: translateY(-302%);
+  }
+
+  75% {
+    transform: translateY(-300%);
+  }
+
+  85% {
+    transform: translateY(-402%);
+  }
+
+  100% {
+    transform: translateY(-400%);
+  }
+}
+
+/* Uiverse-inspired CTA buttons (applied via .uiverse-btn) */
+.uiverse-btn {
+  --uiverse-accent: #44d8a4;
+  --uiverse-bg: white;
+  --uiverse-fg: #568fa6;
+  position: relative;
+  overflow: hidden;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--uiverse-fg);
+  background-color: var(--uiverse-bg);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.uiverse-btn--primary {
+  --uiverse-bg: white;
+  --uiverse-fg: #568fa6;
+}
+
+.uiverse-btn--secondary {
+  --uiverse-bg: color-mix(in srgb, var(--surface) 92%, white);
+  --uiverse-fg: color-mix(in srgb, var(--ink) 74%, #568fa6);
+}
+
+.dark .uiverse-btn--secondary {
+  --uiverse-bg: color-mix(in srgb, var(--surface) 82%, black);
+  --uiverse-fg: color-mix(in srgb, var(--ink) 82%, #b6f1df);
+}
+
+.uiverse-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 50px color-mix(in srgb, #000 14%, transparent);
+}
+
+.uiverse-btn:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+.uiverse-btn:disabled,
+.uiverse-btn[aria-disabled="true"] {
+  filter: grayscale(0.15);
+}
+
+.uiverse-btn::before,
+.uiverse-btn::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  background-color: var(--uiverse-accent);
+  transition: all 0.3s cubic-bezier(0.35, 0.1, 0.25, 1);
+}
+
+.uiverse-btn::before {
+  right: 0;
+  top: 0;
+  transition: all 0.5s cubic-bezier(0.35, 0.1, 0.25, 1);
+}
+
+.uiverse-btn::after {
+  left: 0;
+  bottom: 0;
+}
+
+.uiverse-btn__frame {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+}
+
+.uiverse-btn__frame::before,
+.uiverse-btn__frame::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 0;
+  background-color: var(--uiverse-accent);
+  transition: all 0.3s cubic-bezier(0.35, 0.1, 0.25, 1);
+}
+
+.uiverse-btn__frame::before {
+  right: 0;
+  top: 0;
+  transition: all 0.5s cubic-bezier(0.35, 0.1, 0.25, 1);
+}
+
+.uiverse-btn__frame::after {
+  left: 0;
+  bottom: 0;
+}
+
+.uiverse-btn__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.uiverse-btn__inner p {
+  padding: 0;
+  margin: 0;
+  transition: all 0.4s cubic-bezier(0.35, 0.1, 0.25, 1);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.uiverse-btn__inner p::before,
+.uiverse-btn__inner p::after {
+  position: absolute;
+  width: 100%;
+  transition: all 0.4s cubic-bezier(0.35, 0.1, 0.25, 1);
+  z-index: 1;
+  left: 0;
+  text-align: center;
+}
+
+.uiverse-btn__inner p::before {
+  content: attr(data-title);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.uiverse-btn__inner p::after {
+  content: attr(data-text);
+  top: 150%;
+  color: var(--uiverse-accent);
+}
+
+.uiverse-btn:hover::before,
+.uiverse-btn:hover::after {
+  width: 100%;
+}
+
+.uiverse-btn:hover .uiverse-btn__frame::before,
+.uiverse-btn:hover .uiverse-btn__frame::after {
+  height: 100%;
+}
+
+.uiverse-btn:hover .uiverse-btn__inner p::before {
+  top: -50%;
+  transform: rotate(5deg);
+}
+
+.uiverse-btn:hover .uiverse-btn__inner p::after {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uiverse-btn,
+  .uiverse-btn::before,
+  .uiverse-btn::after,
+  .uiverse-btn__frame::before,
+  .uiverse-btn__frame::after,
+  .uiverse-btn__inner p,
+  .uiverse-btn__inner p::before,
+  .uiverse-btn__inner p::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Theme toggle (Uiverse-inspired, adapted for navbar) */
 .uiverse-toggleWrapper {
   position: relative;
