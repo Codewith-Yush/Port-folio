@@ -22,9 +22,20 @@ const ownerEmail = "ayushsingh7360@gmail.com";
 const contactEndpoint = `https://formsubmit.co/ajax/${ownerEmail}`;
 
 const socialLinks = [
-  { label: "LinkedIn", href: "https://www.linkedin.com/" },
-  { label: "GitHub", href: "https://github.com/" },
-  { label: "Email", href: `mailto:${ownerEmail}` },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/ayush-singh-643a4b25a",
+    target: "_blank",
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/codewith-Yush",
+    target: "_blank",
+  },
+  {
+    label: "Email",
+    href: `mailto:${ownerEmail}`,
+  },
 ];
 
 function validate(form: FormState) {
