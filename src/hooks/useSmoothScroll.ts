@@ -1,7 +1,5 @@
 import { useEffect } from "react";
 
-const headerOffset = 96;
-
 function getHashTarget(anchor: HTMLAnchorElement) {
   const href = anchor.getAttribute("href");
 
@@ -10,6 +8,10 @@ function getHashTarget(anchor: HTMLAnchorElement) {
   }
 
   return document.querySelector<HTMLElement>(href);
+}
+
+function scrollToTarget(target: HTMLElement) {
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 export function useSmoothScroll() {
@@ -36,21 +38,28 @@ export function useSmoothScroll() {
       }
 
       event.preventDefault();
-
-      const top =
-        target.getBoundingClientRect().top + window.scrollY - headerOffset;
-
       window.history.pushState(null, "", anchor.getAttribute("href") ?? "");
-      window.scrollTo({
-        top: Math.max(top, 0),
-        behavior: "smooth",
-      });
+      scrollToTarget(target);
     };
 
-    document.addEventListener("click", handleClick);
+    const handleHashOnLoad = () => {
+      const { hash } = window.location;
+      if (!hash) {
+        return;
+      }
+
+      const target = document.querySelector<HTMLElement>(hash);
+      if (target) {
+        window.requestAnimationFrame(() => scrollToTarget(target));
+      }
+    };
+
+    document.addEventListener("click", handleClick, { passive: false });
+    window.addEventListener("load", handleHashOnLoad);
 
     return () => {
       document.removeEventListener("click", handleClick);
+      window.removeEventListener("load", handleHashOnLoad);
     };
   }, []);
 }

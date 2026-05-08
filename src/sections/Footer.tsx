@@ -253,6 +253,16 @@ export function Footer() {
         repeat: -1,
         ease: "none",
       });
+
+      /* footer title loop */
+      gsap.to(nameRef.current, {
+        y: 6,
+        rotationZ: 0.4,
+        duration: 4,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
     }, footerRef);
 
     return () => ctx.revert();
@@ -304,21 +314,21 @@ export function Footer() {
         <div className="mb-10 text-center">
           <h2
             ref={nameRef}
-            className="font-black tracking-tight text-[var(--ink)]"
+            className="font-black tracking-tight text-[var(--ink)] footer-name-loop"
             style={{
               fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
               lineHeight: 1.05,
               perspective: "600px",
             }}
           >
-            Ayush Singh
+            See you again soon 👋
           </h2>
 
           <p
             ref={taglineRef}
             className="mt-3 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--muted)]"
           >
-            Frontend Developer & UI/UX Enthusiast
+           Hope you enjoyed the experience.
           </p>
         </div>
 
@@ -385,8 +395,7 @@ export function Footer() {
           className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-between sm:text-left"
         >
           <p className="text-xs font-bold text-[var(--muted)]">
-            © {new Date().getFullYear()} Ayush Singh. Built with React &
-            Tailwind CSS.
+            © {new Date().getFullYear()} Thanks for scrolling till the end. Feel free to connect, collaborate, or just say hello.
           </p>
 
           <p className="text-xs text-[var(--muted)]">

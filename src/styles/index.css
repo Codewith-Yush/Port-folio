@@ -29,17 +29,30 @@
 }
 
 html {
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
   scroll-padding-top: 6rem;
+  overscroll-behavior-y: contain;
 }
 
 body {
   margin: 0;
   min-width: 320px;
+  touch-action: pan-y pinch-zoom;
+  -webkit-overflow-scrolling: touch;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
   background: var(--page);
   text-rendering: geometricPrecision;
+}
+
+section {
+  scroll-margin-top: 6rem;
+}
+
+@media (max-width: 768px) {
+  section {
+    scroll-margin-top: 5.25rem;
+  }
 }
 
 button,
@@ -1138,6 +1151,81 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+.animated-name,
+.footer-name-loop {
+  display: inline-block;
+  transform-origin: center;
+}
+
+.animated-name {
+  animation: ayush-wave 4.2s ease-in-out infinite;
+}
+
+.footer-name-loop {
+  animation: footerNameLoop 4.4s ease-in-out infinite;
+}
+
+@keyframes ayush-wave {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    color: inherit;
+    letter-spacing: 0.1em;
+  }
+
+  20% {
+    transform: translateY(-0.12rem) rotate(-0.2deg);
+    color: #D14836;
+    letter-spacing: 0.14em;
+  }
+
+  40% {
+    transform: translateY(0.08rem) rotate(0.2deg);
+    color: #FF9398;
+    letter-spacing: 0.12em;
+  }
+
+  60% {
+    transform: translateY(-0.08rem) rotate(-0.1deg);
+    color: #DF6C4F;
+    letter-spacing: 0.13em;
+  }
+
+  80% {
+    transform: translateY(0.04rem) rotate(0.1deg);
+    color: #D14836;
+    letter-spacing: 0.1em;
+  }
+}
+
+@keyframes footerNameLoop {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    color: var(--ink);
+    text-shadow: 0 0 0 rgba(255, 147, 152, 0);
+  }
+  15% {
+    transform: translateY(-4px) rotate(-0.5deg);
+    color: #D14836;
+    text-shadow: 0 10px 20px rgba(209, 72, 54, 0.12);
+  }
+  35% {
+    transform: translateY(4px) rotate(0.4deg);
+    color: #FF9398;
+    text-shadow: 0 14px 30px rgba(255, 147, 152, 0.14);
+  }
+  60% {
+    transform: translateY(-2px) rotate(-0.2deg);
+    color: #DF6C4F;
+    text-shadow: 0 8px 18px rgba(255, 183, 160, 0.16);
+  }
+  80% {
+    transform: translateY(2px) rotate(0.25deg);
+    color: #D14836;
+    text-shadow: 0 12px 24px rgba(255, 147, 152, 0.18);
+  }
+}
+
 @keyframes heartbeat {
   0%,100% { transform: scale(1); }
   14%     { transform: scale(1.3); }

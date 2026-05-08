@@ -112,7 +112,7 @@ export function Header() {
           <span className="grid h-10 w-10 place-items-center bg-flame text-white transition duration-300 group-hover:rotate-6">
             AS
           </span>
-          <span className="hidden sm:block">Ayush Singh</span>
+          <span className="hidden sm:block animated-name">Ayush Singh</span>
         </a>
 
         <nav
