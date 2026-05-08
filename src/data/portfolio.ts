@@ -61,11 +61,11 @@ export const projects: Project[] = [
     ],
   },
   {
-    title: "Vision Commerce",
-    stack: ["Next.js", "Node.js", "Tailwind"],
+    title: "Ai agent web Design",
+    stack: ["React", "Node.js", "Tailwind"],
     description:
-      "A fast and responsive ecommerce experience focused on clean design and smooth user interactions.",
-    image: "/projects/pulse-commerce.svg",
+      "A smooth and responsive web  experience focused on clean design and smooth user interactions.",
+    image: "/images/projects/web.png",
     role: "UI development and responsive optimization",
     year: "2025",
     impact:
