@@ -343,10 +343,10 @@ export function Footer() {
         />
 
         {/* nav + socials */}
-        <div className="flex flex-col items-center gap-8 sm:flex-row sm:justify-between">
+        <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-end sm:justify-between">
           <nav
             ref={navRef}
-            className="flex flex-wrap justify-center gap-x-6 gap-y-3"
+            className="flex flex-wrap justify-center gap-4 gap-y-3 text-center sm:justify-start"
           >
             {navItems.map((item) => (
               <a
@@ -360,7 +360,7 @@ export function Footer() {
           </nav>
 
           {/* socials */}
-          <div ref={socialsRef} className="flex items-center gap-4">
+          <div ref={socialsRef} className="flex flex-wrap justify-center gap-3">
             {SOCIALS.map((s) => (
               <a
                 key={s.label}
@@ -368,7 +368,7 @@ export function Footer() {
                 aria-label={s.label}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="social-icon flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-colors hover:border-[#DF6C4F] hover:text-[#D14836]"
+                className="social-icon flex h-10 w-10 min-w-[2.5rem] items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-colors hover:border-[#DF6C4F] hover:text-[#D14836]"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -392,9 +392,9 @@ export function Footer() {
         {/* bottom */}
         <div
           ref={bottomRef}
-          className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-between sm:text-left"
+          className="flex w-full flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:items-center sm:text-left"
         >
-          <p className="text-xs font-bold text-[var(--muted)]">
+          <p className="max-w-3xl text-xs font-bold leading-6 break-words text-[var(--muted)]">
             © {new Date().getFullYear()} Thanks for scrolling till the end. Feel free to connect, collaborate, or just say hello.
           </p>
 
