@@ -39,7 +39,7 @@ export function useSmoothScroll() {
         lerp: 0.08, // Gives that heavy, cinematic premium scroll feel
         smoothWheel: true,
         wheelMultiplier: 1,
-        smoothTouch: false, // Don't hijack native touch scrolling to keep mobile UX perfect
+         // Don't hijack native touch scrolling to keep mobile UX perfect
       }
     });
 
