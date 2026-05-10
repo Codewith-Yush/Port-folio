@@ -33,15 +33,13 @@ export function useSmoothScroll() {
       return () => document.removeEventListener("click", handleFallbackClick);
     }
 
-    // Initialize premium global smooth scrolling
-    const locomotiveScroll = new LocomotiveScroll({
-      lenisOptions: {
-        lerp: 0.08, // Gives that heavy, cinematic premium scroll feel
-        smoothWheel: true,
-        wheelMultiplier: 1,
-         // Don't hijack native touch scrolling to keep mobile UX perfect
-      }
-    });
+  const locomotiveScroll = new LocomotiveScroll({
+  lenisOptions: {
+    lerp: 0.08,
+    smoothWheel: true,
+    wheelMultiplier: 1,
+  }
+});
 
     const handleClick = (event: MouseEvent) => {
       const anchor = (event.target as Element | null)?.closest("a");
