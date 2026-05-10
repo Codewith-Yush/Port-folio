@@ -32,410 +32,182 @@ const SOCIALS = [
 
 export function Footer() {
   const footerRef = useRef<HTMLElement>(null);
-  const nameRef = useRef<HTMLHeadingElement>(null);
-  const taglineRef = useRef<HTMLParagraphElement>(null);
-  const dividerRef = useRef<HTMLDivElement>(null);
-  const navRef = useRef<HTMLElement>(null);
-  const socialsRef = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const particlesRef = useRef<HTMLDivElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
+  const parallaxWrapperRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLHeadingElement>(null);
+  const topBarRef = useRef<HTMLDivElement>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
+  const bottomBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      /* floating particles */
-      const dots =
-        particlesRef.current?.querySelectorAll<HTMLSpanElement>(".fp");
+    let ctx = gsap.context(() => {
+      let mm = gsap.matchMedia();
 
-      dots?.forEach((d) => {
-        gsap.to(d, {
-          y: gsap.utils.random(-30, 30),
-          x: gsap.utils.random(-18, 18),
-          opacity: gsap.utils.random(0.25, 0.9),
-          duration: gsap.utils.random(3, 6),
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-          delay: gsap.utils.random(0, 2),
-        });
-      });
-
-      /* ambient glow pulse */
-      gsap.to(glowRef.current, {
-        scale: 1.2,
-        opacity: 0.2,
-        duration: 4,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-
-      /* split text */
-      const split = SplitText.create(nameRef.current!, {
-        type: "chars",
-      });
-
-      /* timeline */
+      // Setup split text for the huge footer text
+      const splitText = new SplitText(textRef.current, { type: "chars" });
+      
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: footerRef.current,
           start: "top 85%",
-          end: "bottom top",
-          toggleActions: "restart none restart none",
-        },
-        defaults: {
-          ease: "expo.out",
-        },
-      });
-
-      /* reset state before animation */
-      gsap.set(split.chars, {
-        opacity: 0,
-        y: 60,
-        rotateX: -90,
-      });
-
-      gsap.set(
-        [
-          taglineRef.current,
-          dividerRef.current,
-          navRef.current?.querySelectorAll("a"),
-          socialsRef.current?.querySelectorAll(".social-icon"),
-          bottomRef.current,
-        ],
-        {
-          opacity: 0,
+          end: "bottom bottom",
+          toggleActions: "play none none reverse",
         }
-      );
+      });
 
-      /* name animation */
-      tl.to(split.chars, {
-        opacity: 1,
+      // Reset states
+      gsap.set(splitText.chars, { y: 150, opacity: 0 });
+      gsap.set([topBarRef.current, linksRef.current, bottomBarRef.current], { opacity: 0, y: 30 });
+
+      // Base Animations (All Devices)
+      tl.to(splitText.chars, {
         y: 0,
-        rotateX: 0,
-        stagger: 0.045,
-        duration: 1,
-      });
+        opacity: 1,
+        duration: 1.2,
+        stagger: 0.04,
+        ease: "expo.out"
+      })
+      .to(topBarRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.8")
+      .to(linksRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
+      .to(bottomBarRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.6");
 
-      /* tagline */
-      tl.to(
-        taglineRef.current,
-        {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          duration: 0.8,
-        },
-        "-=0.5"
-      );
-
-      /* divider */
-      tl.fromTo(
-        dividerRef.current,
-        {
-          scaleX: 0,
-          transformOrigin: "left center",
-        },
-        {
-          scaleX: 1,
-          opacity: 1,
-          duration: 1,
-        },
-        "-=0.4"
-      );
-
-      /* nav links */
-      const navLinks = navRef.current?.querySelectorAll("a");
-
-      tl.fromTo(
-        navLinks!,
-        {
-          opacity: 0,
-          y: 20,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          stagger: 0.08,
-          duration: 0.7,
-        },
-        "-=0.5"
-      );
-
-      /* social icons */
-      const icons =
-        socialsRef.current?.querySelectorAll<HTMLAnchorElement>(
-          ".social-icon"
+      // Desktop Only: Parallax effect to save performance on mobile
+      mm.add("(min-width: 768px)", () => {
+        gsap.fromTo(parallaxWrapperRef.current, 
+          { y: -30 },
+          {
+            y: 30,
+            ease: "none",
+            scrollTrigger: {
+              trigger: footerRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            }
+          }
         );
-
-      tl.fromTo(
-        icons!,
-        {
-          opacity: 0,
-          scale: 0.4,
-          rotate: -25,
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          rotate: 0,
-          stagger: 0.08,
-          duration: 0.6,
-          ease: "back.out(2)",
-        },
-        "-=0.45"
-      );
-
-      /* copyright */
-      tl.fromTo(
-        bottomRef.current,
-        {
-          opacity: 0,
-          y: 18,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-        },
-        "-=0.35"
-      );
-
-      /* nav hover */
-      navLinks?.forEach((link) => {
-        const enter = () => {
-          gsap.to(link, {
-            color: "#DF6C4F",
-            x: 4,
-            duration: 0.25,
-          });
-        };
-
-        const leave = () => {
-          gsap.to(link, {
-            color: "",
-            x: 0,
-            duration: 0.25,
-          });
-        };
-
-        link.addEventListener("mouseenter", enter);
-        link.addEventListener("mouseleave", leave);
       });
 
-      /* social hover */
-      icons?.forEach((icon) => {
-        const enter = () => {
-          gsap.to(icon, {
-            scale: 1.18,
-            rotate: 8,
-            duration: 0.3,
-            ease: "back.out(2)",
+      // Devices with hover support: Magnetic interaction
+      mm.add("(hover: hover)", () => {
+        const socials = linksRef.current?.querySelectorAll(".magnetic-item");
+        const navLinks = topBarRef.current?.querySelectorAll("a");
+        const cleanupFns: (() => void)[] = [];
+
+        socials?.forEach(item => {
+          const icon = item.querySelector("svg");
+          
+          const onMouseMove = (e: any) => {
+            const rect = item.getBoundingClientRect();
+            const x = (e.clientX - rect.left) - rect.width / 2;
+            const y = (e.clientY - rect.top) - rect.height / 2;
+            gsap.to(item, { x: x * 0.4, y: y * 0.4, duration: 0.3, ease: "power2.out" });
+            if(icon) gsap.to(icon, { x: x * 0.2, y: y * 0.2, duration: 0.3, ease: "power2.out" });
+          };
+          
+          const onMouseLeave = () => {
+            gsap.to(item, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
+            if(icon) gsap.to(icon, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
+          };
+
+          item.addEventListener("mousemove", onMouseMove);
+          item.addEventListener("mouseleave", onMouseLeave);
+
+          cleanupFns.push(() => {
+            item.removeEventListener("mousemove", onMouseMove);
+            item.removeEventListener("mouseleave", onMouseLeave);
           });
-        };
+        });
+        
+        navLinks?.forEach(link => {
+          const onMouseMove = (e: any) => {
+            const rect = link.getBoundingClientRect();
+            const x = (e.clientX - rect.left) - rect.width / 2;
+            const y = (e.clientY - rect.top) - rect.height / 2;
+            gsap.to(link, { x: x * 0.2, y: y * 0.2, duration: 0.3, ease: "power2.out", opacity: 1 });
+          };
+          
+          const onMouseLeave = () => {
+            gsap.to(link, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)", opacity: 0.7 });
+          };
 
-        const leave = () => {
-          gsap.to(icon, {
-            scale: 1,
-            rotate: 0,
-            duration: 0.3,
+          link.addEventListener("mousemove", onMouseMove);
+          link.addEventListener("mouseleave", onMouseLeave);
+
+          cleanupFns.push(() => {
+            link.removeEventListener("mousemove", onMouseMove);
+            link.removeEventListener("mouseleave", onMouseLeave);
           });
-        };
+        });
 
-        icon.addEventListener("mouseenter", enter);
-        icon.addEventListener("mouseleave", leave);
+        return () => cleanupFns.forEach(fn => fn());
       });
 
-      /* footer floating effect */
-      gsap.to(footerRef.current, {
-        backgroundPosition: "200% center",
-        duration: 12,
-        repeat: -1,
-        ease: "none",
-      });
-
-      /* footer title loop */
-      gsap.to(nameRef.current, {
-        y: 6,
-        rotationZ: 0.4,
-        duration: 4,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
     }, footerRef);
-
     return () => ctx.revert();
   }, []);
 
   return (
-    <footer
-      ref={footerRef}
-      className="relative overflow-hidden border-t border-[var(--line)] bg-[var(--page)] transition-colors duration-500"
-    >
-      {/* glow */}
-      <div
-        ref={glowRef}
-        className="pointer-events-none absolute left-1/2 top-0 h-[32rem] w-[32rem] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.13]"
-        style={{
-          background:
-            "radial-gradient(circle, #DF6C4F 0%, transparent 70%)",
-        }}
-      />
+    <footer ref={footerRef} className="relative bg-[var(--page)] text-[var(--ink)] pt-16 md:pt-24 pb-8 md:pb-12 overflow-hidden border-t border-black/10 dark:border-white/10">
+       <Container>
+         {/* Top Bar: Nav Links */}
+         <div ref={topBarRef} className="flex flex-col md:flex-row justify-between md:items-center pb-8 border-b border-black/10 dark:border-white/10 mb-12 md:mb-16 gap-6">
+            <span className="text-xs uppercase tracking-[0.2em] font-bold text-[var(--ink)] opacity-70">Explore</span>
+            <div className="flex flex-wrap gap-x-6 gap-y-4 md:gap-x-8">
+              {navItems.map((item) => (
+                <a key={item.href} href={item.href} className="group relative overflow-hidden text-sm font-semibold text-[var(--ink)] opacity-70 hover:opacity-100 transition-opacity inline-block">
+                  <span className="block transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-full">{item.label}</span>
+                  <span className="absolute inset-0 block translate-y-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 text-[#DF6C4F]">{item.label}</span>
+                </a>
+              ))}
+            </div>
+         </div>
 
-      {/* particles */}
-      <div
-        ref={particlesRef}
-        className="pointer-events-none absolute inset-0"
-      >
-        {Array.from({ length: 18 }).map((_, i) => (
-          <span
-            key={i}
-            className="fp absolute rounded-full"
-            style={{
-              width: `${3 + (i % 4)}px`,
-              height: `${3 + (i % 4)}px`,
-              top: `${10 + ((i * 17) % 78)}%`,
-              left: `${5 + ((i * 23) % 92)}%`,
-              background:
-                i % 3 === 0
-                  ? "#DF6C4F"
-                  : i % 3 === 1
-                  ? "#FF9398"
-                  : "#D14836",
-              opacity: 0.25,
-            }}
-          />
-        ))}
-      </div>
-
-      <Container className="relative z-10 pb-10 pt-16">
-        {/* heading */}
-        <div className="mb-10 text-center">
-          <h2
-            ref={nameRef}
-            className="font-black tracking-tight text-[var(--ink)] footer-name-loop"
-            style={{
-              fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
-              lineHeight: 1.05,
-              perspective: "600px",
-            }}
-          >
-            See you again soon 👋
-          </h2>
-
-          <p
-            ref={taglineRef}
-            className="mt-3 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--muted)]"
-          >
-           Hope you enjoyed the experience.
-          </p>
-        </div>
-
-        {/* divider */}
-        <div
-          ref={dividerRef}
-          className="mx-auto mb-10 h-px w-full max-w-xl"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, #DF6C4F 40%, #FF9398 60%, transparent)",
-          }}
-        />
-
-        {/* nav + socials */}
-        <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-end sm:justify-between">
-          <nav
-            ref={navRef}
-            className="flex flex-wrap justify-center gap-4 gap-y-3 text-center sm:justify-start"
-          >
-            {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="text-xs font-black uppercase tracking-[0.18em] text-[var(--muted)]"
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-
-          {/* socials */}
-          <div ref={socialsRef} className="flex flex-wrap justify-center gap-3">
-            {SOCIALS.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                aria-label={s.label}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-icon flex h-10 w-10 min-w-[2.5rem] items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-colors hover:border-[#DF6C4F] hover:text-[#D14836]"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.7}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <path d={s.icon} />
-                </svg>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* divider */}
-        <div className="my-8 h-px w-full bg-[var(--line)]" />
-
-        {/* bottom */}
-        <div
-          ref={bottomRef}
-          className="flex w-full flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:items-center sm:text-left"
-        >
-          <p className="max-w-3xl text-xs font-bold leading-6 break-words text-[var(--muted)]">
-            © {new Date().getFullYear()} Thanks for scrolling till the end. Feel free to connect, collaborate, or just say hello.
-          </p>
-
-          <p className="text-xs text-[var(--muted)]">
-            Crafted with{" "}
-            <span
-              className="inline-block text-[#D14836]"
-              style={{
-                animation: "heartbeat 1.5s ease-in-out infinite",
-              }}
+         {/* Huge Text */}
+         <div ref={parallaxWrapperRef} className="flex justify-center items-center mb-16 md:mb-24 overflow-hidden py-4 cursor-default group">
+            <h2 ref={textRef} 
+                className="text-[clamp(4rem,14vw,12rem)] font-black leading-none tracking-tighter uppercase inline-block whitespace-nowrap text-transparent bg-clip-text" 
+                style={{ 
+                  WebkitTextStroke: "2px var(--ink)",
+                  backgroundImage: "linear-gradient(to right, var(--ink) 50%, transparent 50%)",
+                  backgroundSize: "200% 100%",
+                  backgroundPosition: "100% 0",
+                  transition: "background-position 0.6s cubic-bezier(0.16, 1, 0.3, 1)"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundPosition = "0 0"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundPosition = "100% 0"}
             >
-              ♥
-            </span>{" "}
-            & lots of coffee.
-          </p>
-        </div>
-      </Container>
+               LET'S TALK
+            </h2>
+         </div>
 
-      <style>{`
-        @keyframes heartbeat {
-          0%,100% {
-            transform: scale(1);
-          }
+         {/* Bottom section with Socials & Copyright */}
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 md:gap-12">
+            <div ref={bottomBarRef} className="flex flex-col gap-2 order-2 md:order-1">
+               <span className="text-sm font-semibold text-[var(--ink)] opacity-70">© {new Date().getFullYear()} Ayush Singh. All rights reserved.</span>
+               <span className="text-sm text-[var(--ink)] opacity-70 flex items-center gap-1 font-medium">
+                 Crafted with <span className="text-red-500 animate-pulse">♥</span>
+               </span>
+            </div>
 
-          14% {
-            transform: scale(1.3);
-          }
-
-          28% {
-            transform: scale(1);
-          }
-
-          42% {
-            transform: scale(1.2);
-          }
-
-          70% {
-            transform: scale(1);
-          }
-        }
-      `}</style>
+            <div ref={linksRef} className="flex flex-wrap gap-4 order-1 md:order-2">
+              {SOCIALS.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  aria-label={s.label}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group magnetic-item relative overflow-hidden flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full border border-black/10 dark:border-white/10 text-[var(--ink)] opacity-80 hover:opacity-100 transition-all duration-300 bg-transparent hover:border-[var(--ink)]"
+                >
+                  <span className="absolute inset-0 bg-[var(--ink)] rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] -z-10" />
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 pointer-events-none transition-colors duration-500 group-hover:text-[var(--page)]">
+                    <path d={s.icon} />
+                  </svg>
+                </a>
+              ))}
+            </div>
+         </div>
+       </Container>
     </footer>
   );
 }
