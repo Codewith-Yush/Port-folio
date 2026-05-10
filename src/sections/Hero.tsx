@@ -1,104 +1,105 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { Button } from "../components/Button";
-import { AnimatedHeroName } from "../components/AnimatedHeroName";
 import { Container } from "../components/Container";
-import { GeometricMark } from "../components/GeometricMark";
-import { useParallax } from "../hooks/useParallax";
 
 gsap.registerPlugin(SplitText);
 
+function TypewriterText({ text, startDelay = 0 }: { text: string; startDelay?: number }) {
+  const [displayed, setDisplayed] = useState("");
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval>;
+    
+    const timeoutId = setTimeout(() => {
+      setStarted(true);
+      let i = 0;
+      intervalId = setInterval(() => {
+        setDisplayed(text.substring(0, i + 1));
+        i++;
+        if (i === text.length) clearInterval(intervalId);
+      }, 40); // Fast, premium typing speed
+    }, startDelay);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [text, startDelay]);
+
+  return (
+    <span className="inline-block relative">
+      <span dangerouslySetInnerHTML={{ __html: displayed.replace(/&/g, '<span class="text-flame">&</span>') }} />
+      {started && <span className="absolute -right-3 top-0 h-full w-[3px] bg-flame animate-[pulse_0.8s_ease-in-out_infinite]" />}
+    </span>
+  );
+}
+
 export function Hero() {
-  const parallax = useParallax(0.035);
   const heroRef = useRef<HTMLElement>(null);
-  const pillRef = useRef<HTMLParagraphElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const roleRef = useRef<HTMLParagraphElement>(null);
   const descRef = useRef<HTMLDivElement>(null);
-  const btnsRef = useRef<HTMLDivElement>(null);
-  const visualRef = useRef<HTMLDivElement>(null);
-  const bg1Ref = useRef<HTMLDivElement>(null);
-  const bg2Ref = useRef<HTMLDivElement>(null);
+  const pillRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let ctx = gsap.context(() => {
       let mm = gsap.matchMedia();
-      const tl = gsap.timeline({ defaults: { ease: "expo.out" }, delay: 0.1 });
+      const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
 
-      const splitSubtitle = new SplitText(subtitleRef.current, { type: "words,chars" });
-      const splitDesc = new SplitText(descRef.current, { type: "lines" });
-
-      // Initial States
-      gsap.set([pillRef.current, btnsRef.current, visualRef.current], { opacity: 0, y: 40 });
-      gsap.set(splitSubtitle.chars, { opacity: 0, y: 30, rotateX: -90 });
-      gsap.set(splitDesc.lines, { opacity: 0, y: 20 });
-      gsap.set([bg1Ref.current, bg2Ref.current], { scale: 0.5, opacity: 0 });
-
-      // Entrance Sequence
-      tl.to([bg1Ref.current, bg2Ref.current], {
+      // 1. Cinematic Blur Reveal for Title
+      const splitTitle = new SplitText(titleRef.current, { type: "chars" });
+      gsap.set(splitTitle.chars, { opacity: 0, filter: "blur(20px)", scale: 1.5, y: 40 });
+      gsap.set([pillRef.current, roleRef.current, descRef.current, ctaRef.current], { opacity: 0, y: 30 });
+      
+      tl.to(splitTitle.chars, {
+        opacity: 1,
+        filter: "blur(0px)",
         scale: 1,
-        opacity: 1,
-        duration: 2,
+        y: 0,
+        duration: 1.5,
+        stagger: 0.05,
         ease: "power3.out",
-        stagger: 0.3
-      }, 0)
-      .to(pillRef.current, { opacity: 1, y: 0, duration: 1 }, 0.4)
-      .to(splitSubtitle.chars, {
-        opacity: 1,
-        y: 0,
-        rotateX: 0,
-        stagger: 0.02,
-        duration: 0.8,
-      }, 0.8) // Delayed slightly to let AnimatedHeroName play out
-      .to(splitDesc.lines, {
-        opacity: 1,
-        y: 0,
-        stagger: 0.1,
-        duration: 0.8
-      }, 1.2)
-      .to(btnsRef.current, { opacity: 1, y: 0, duration: 0.8 }, 1.4)
-      .to(visualRef.current, { opacity: 1, y: 0, duration: 1.5, ease: "power4.out" }, 0.6);
+      }, 0.2)
+      .to(pillRef.current, { opacity: 1, y: 0, duration: 1 }, 1.0)
+      .to(roleRef.current, { opacity: 1, y: 0, duration: 1 }, 1.2)
+      .to(descRef.current, { opacity: 1, y: 0, duration: 1 }, 1.4)
+      .to(ctaRef.current, { opacity: 1, y: 0, duration: 1 }, 1.6);
 
-      // Ambient floating for background blobs
-      gsap.to(bg1Ref.current, {
-        y: 40,
-        x: 30,
-        duration: 4,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-      });
-      gsap.to(bg2Ref.current, {
-        y: -40,
-        x: -20,
-        duration: 5,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-      });
+      // 2. Interactive Mouse Glow tracking & Ambient Particles (Desktop Only for Performance)
+      mm.add("(min-width: 768px)", () => {
+        const handleMouseMove = (e: MouseEvent) => {
+          if (!glowRef.current) return;
+          const x = (e.clientX - window.innerWidth / 2) * 0.5;
+          const y = (e.clientY - window.innerHeight / 2) * 0.5;
+          
+          gsap.to(glowRef.current, {
+            x: x,
+            y: y,
+            duration: 1.5,
+            ease: "power3.out",
+          });
+        };
+        window.addEventListener("mousemove", handleMouseMove);
 
-      // Magnetic Hover Effects for Buttons
-      mm.add("(hover: hover)", () => {
-        const buttons = btnsRef.current?.querySelectorAll("a");
-        const cleanups: (() => void)[] = [];
-        buttons?.forEach(btn => {
-          const onMouseMove = (e: any) => {
-            const rect = btn.getBoundingClientRect();
-            const x = (e.clientX - rect.left) - rect.width / 2;
-            const y = (e.clientY - rect.top) - rect.height / 2;
-            gsap.to(btn, { x: x * 0.25, y: y * 0.25, duration: 0.4, ease: "power2.out" });
-          };
-          const onMouseLeave = () => {
-            gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
-          };
-          btn.addEventListener("mousemove", onMouseMove);
-          btn.addEventListener("mouseleave", onMouseLeave);
-          cleanups.push(() => {
-            btn.removeEventListener("mousemove", onMouseMove);
-            btn.removeEventListener("mouseleave", onMouseLeave);
+        const particles = document.querySelectorAll(".hero-particle");
+        particles.forEach((p) => {
+          gsap.to(p, {
+            y: "random(-150, 150)",
+            x: "random(-150, 150)",
+            rotation: "random(-180, 180)",
+            duration: "random(5, 12)",
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
           });
         });
-        return () => cleanups.forEach(fn => fn());
+
+        return () => window.removeEventListener("mousemove", handleMouseMove);
       });
 
     }, heroRef);
@@ -107,42 +108,75 @@ export function Hero() {
   }, []);
 
   return (
-    <section id="hero" ref={heroRef} className="grain relative overflow-hidden pt-20 sm:pt-28 min-h-[100svh] flex items-center">
-      <div ref={parallax(1)} className="absolute -right-20 top-24 h-72 w-72 will-change-transform z-0">
-         <div ref={bg1Ref} className="h-full w-full rounded-full bg-blush/45 blur-3xl" aria-hidden="true" />
-      </div>
-      <div ref={parallax(-1)} className="absolute -left-24 bottom-12 h-80 w-80 will-change-transform z-0">
-         <div ref={bg2Ref} className="h-full w-full rounded-full bg-flame/25 blur-3xl" aria-hidden="true" />
-      </div>
-
-      <Container className="grid items-center gap-8 py-10 sm:py-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10 lg:py-16 w-full z-10 relative">
-        <div className="hero-copy relative z-10">
-          <p ref={pillRef} className="hero-pill mb-5 inline-flex items-center gap-3 border border-black/10 dark:border-white/10 bg-[var(--surface)] px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-flame dark:text-blush shadow-sm transition-all duration-300 hover:shadow-md hover:border-black/30 dark:hover:border-white/30 cursor-default">
-            <span className="h-2 w-2 rounded-full bg-blush animate-pulse" aria-hidden="true" />
-            Available for freelance projects
-          </p>
-
-          <AnimatedHeroName />
-
-          <p ref={subtitleRef} className="mt-5 text-xl font-black uppercase tracking-[0.18em] text-flame dark:text-blush sm:text-2xl" style={{ perspective: "600px" }}>
-            Web Developer • AI Creator • Power BI Enthusiast
-          </p>
-
-          <div ref={descRef} className="mt-6 max-w-2xl text-lg leading-8 text-[var(--ink)] opacity-70 sm:text-xl font-medium">
-            <p>I create modern websites, AI-powered content, and clean digital experiences</p>
-            <p>that combine creativity, performance, and user-focused design.</p>
-          </div>
-
-          <div ref={btnsRef} className="mt-10 flex flex-col gap-5 sm:flex-row">
-            <Button href="#work">View My Work</Button>
-            <Button href="#contact" variant="secondary">
-              Let’s Connect
-            </Button>
-          </div>
+    <section ref={heroRef} className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-[var(--page)] pt-32 md:pt-40 pb-16">
+      
+      {/* Dynamic Animated Geometric Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Subtle grid mesh */}
+        <div className="absolute inset-0 opacity-[0.04] dark:opacity-[0.06]" style={{ backgroundImage: "linear-gradient(var(--ink) 1px, transparent 1px), linear-gradient(90deg, var(--ink) 1px, transparent 1px)", backgroundSize: "60px 60px", backgroundPosition: "center center" }} />
+        
+        {/* Mouse Reactive Glow Core */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[1000px] max-h-[1000px]">
+           <div ref={glowRef} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-gradient-to-br from-flame/10 to-blush/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" />
         </div>
+        
+        {/* Floating Particles */}
+        {Array.from({ length: 20 }).map((_, i) => (
+           <div 
+             key={i} 
+             className={`hero-particle absolute rounded-full ${i % 3 === 0 ? 'bg-flame' : i % 3 === 1 ? 'bg-blush' : 'bg-[var(--ink)]'} opacity-20 dark:opacity-30 blur-[1px] hidden md:block`} 
+             style={{ 
+               width: Math.random() * 6 + 2 + 'px', 
+               height: Math.random() * 6 + 2 + 'px', 
+               top: Math.random() * 100 + '%', 
+               left: Math.random() * 100 + '%',
+               willChange: "transform"
+             }} 
+           />
+        ))}
+      </div>
 
-        <div ref={visualRef} className="relative mx-auto w-full group">
-          <GeometricMark />
+      <Container className="relative z-10 w-full">
+        <div className="flex flex-col items-center text-center">
+          
+          {/* Availability Badge */}
+          <div ref={pillRef} className="mb-6 md:mb-10 inline-flex items-center gap-3 px-4 py-2 rounded-full border border-black/10 dark:border-white/10 bg-[var(--surface)]/50 backdrop-blur-xl shadow-sm hover:shadow-md transition-shadow">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[var(--ink)]">Available for New Projects</span>
+          </div>
+
+          {/* Cinematic Name */}
+          <h1 ref={titleRef} className="text-[clamp(4.5rem,12vw,14rem)] font-black tracking-tighter leading-[0.85] uppercase text-[var(--ink)]">
+            Ayush <br /> <span className="text-transparent bg-clip-text bg-gradient-to-br from-flame via-flame to-blush">Singh</span>
+          </h1>
+
+          {/* Role with Typing Effect */}
+          <p ref={roleRef} className="mt-8 md:mt-12 text-lg md:text-2xl lg:text-3xl font-black uppercase tracking-[0.15em] text-[var(--ink)] opacity-90 h-10">
+            <TypewriterText text="Freelancer & MSc Data Science Student" startDelay={1800} />
+          </p>
+
+          <div ref={descRef} className="mt-4 md:mt-6 max-w-2xl text-base md:text-lg lg:text-xl font-medium leading-relaxed text-[var(--ink)] opacity-90">
+            Bridging the gap between cutting-edge data architecture and award-winning frontend design. I build digital experiences that perform flawlessly and look spectacular.
+          </div>
+
+          {/* CTA & Socials */}
+          <div ref={ctaRef} className="mt-10 md:mt-16 flex flex-col sm:flex-row items-center gap-6 md:gap-8">
+            <Button href="#work" className="px-10 py-5 text-sm tracking-[0.2em] shadow-[0_0_40px_rgba(223,108,79,0.3)] hover:shadow-[0_0_60px_rgba(223,108,79,0.5)]">
+              Explore Portfolio
+            </Button>
+            
+            <div className="flex items-center gap-4">
+              {['GitHub', 'LinkedIn', 'Twitter'].map(social => (
+                 <a key={social} href="#" aria-label={social} className="w-12 h-12 rounded-full border border-black/10 dark:border-white/10 flex items-center justify-center text-[10px] font-black uppercase tracking-wider bg-[var(--surface)]/50 backdrop-blur-md hover:bg-[var(--ink)] hover:text-[var(--page)] hover:scale-110 transition-all duration-300">
+                   {social.slice(0, 2)}
+                 </a>
+              ))}
+            </div>
+          </div>
+
         </div>
       </Container>
     </section>

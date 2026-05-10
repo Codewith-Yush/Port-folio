@@ -34,6 +34,12 @@ export default function App() {
           }
           placeholder={<div className="h-24" />}
         />
+        <LazySection
+          loader={() =>
+            import("./sections/LiveActivity").then((module) => ({ default: module.LiveActivity }))
+          }
+          placeholder={<div className="h-[50vh]" />}
+        />
       </main>
       <Footer />
     </div>

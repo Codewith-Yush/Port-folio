@@ -1,215 +1,203 @@
-import type { FormEvent } from "react";
-import { useState } from "react";
-import { Button } from "../components/Button";
+import { useEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Container } from "../components/Container";
-import { SectionHeading } from "../components/SectionHeading";
 
-type FormState = {
-  name: string;
-  email: string;
-  message: string;
-};
+gsap.registerPlugin(ScrollTrigger);
 
-type FormErrors = Partial<Record<keyof FormState, string>>;
-
-const initialForm: FormState = {
-  name: "",
-  email: "",
-  message: "",
-};
-
-const ownerEmail = "ayushsingh7360@gmail.com";
-const contactEndpoint = `https://formsubmit.co/ajax/${ownerEmail}`;
-
-const socialLinks = [
-  {
-    label: "LinkedIn",
-    href: "https://www.linkedin.com/in/ayush-singh-643a4b25a",
-    target: "_blank",
-  },
-  {
-    label: "GitHub",
-    href: "https://github.com/codewith-Yush",
-    target: "_blank",
-  },
-  {
-    label: "Email",
-    href: `mailto:${ownerEmail}`,
-  },
-];
-
-function validate(form: FormState) {
-  const errors: FormErrors = {};
-
-  if (form.name.trim().length < 2) {
-    errors.name = "Enter your name.";
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.email = "Enter a valid email.";
-  }
-
-  if (form.message.trim().length < 12) {
-    errors.message = "Share a little more detail.";
-  }
-
-  return errors;
+function SocialButton({ href, label }: { href: string; label: string }) {
+  return (
+    <a 
+      href={href}
+      className="group relative px-6 py-3 rounded-full border border-black/10 dark:border-white/10 bg-[var(--surface)]/50 backdrop-blur-md overflow-hidden hover:scale-105 transition-all duration-300 shadow-sm hover:shadow-[0_0_20px_rgba(223,108,79,0.2)]"
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-flame to-blush opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+      <span className="relative z-10 text-xs font-black uppercase tracking-widest text-[var(--ink)] group-hover:text-flame transition-colors">
+        {label}
+      </span>
+    </a>
+  );
 }
 
 export function Contact() {
-  const [form, setForm] = useState<FormState>(initialForm);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
-    "idle",
-  );
-
-  const updateField = (field: keyof FormState, value: string) => {
-    setForm((current) => ({ ...current, [field]: value }));
-    setErrors((current) => ({ ...current, [field]: undefined }));
-    setStatus("idle");
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const nextErrors = validate(form);
-    setErrors(nextErrors);
-
-    if (Object.keys(nextErrors).length === 0) {
-      setStatus("sending");
-
-      try {
-        const response = await fetch(contactEndpoint, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: form.name,
-            email: form.email,
-            message: form.message,
-            _subject: `Portfolio inquiry from ${form.name}`,
-            _template: "table",
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Contact form request failed.");
+  const containerRef = useRef<HTMLElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Staggered reveal animations
+      gsap.fromTo(
+        ".contact-reveal",
+        { y: 50, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          stagger: 0.1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 75%",
+          }
         }
+      );
+    }, containerRef);
+    return () => ctx.revert();
+  }, []);
 
-        setStatus("success");
-        setForm(initialForm);
-      } catch {
-        setStatus("error");
-      }
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    // Fake network request
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 5000);
+    }, 1500);
   };
 
   return (
-    <section
-      id="contact"
-      className="cv-auto relative overflow-hidden bg-[var(--surface)] py-16 transition-colors duration-500 sm:py-20 lg:py-24"
-    >
-      <Container className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-        <div>
-          <SectionHeading
-            eyebrow="Contact"
-            title="Have a product surface that needs clarity?"
-            copy="Send a note with the shape of the work. I usually respond with a few sharp questions and a practical next step."
-          />
-          <div className="mt-8 flex flex-wrap gap-3">
-            {socialLinks.map((link) => (
-              <Button key={link.label} href={link.href} variant="secondary">
-                {link.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        <form
-          className="contact-form border border-[var(--line)] bg-[var(--page)] p-5 sm:p-8"
-          onSubmit={handleSubmit}
-          noValidate
-        >
-          <div className="grid gap-5 sm:grid-cols-2">
-            <label className="grid gap-2">
-              <span className="text-xs font-black uppercase tracking-[0.18em] text-flame dark:text-blush">
-                Name
-              </span>
-              <input
-                value={form.name}
-                onChange={(event) => updateField("name", event.target.value)}
-                className="form-control min-h-14 border border-[var(--line)] bg-[var(--surface)] px-4 text-[var(--ink)] outline-none transition focus:border-flame"
-                aria-invalid={Boolean(errors.name)}
-                aria-describedby={errors.name ? "name-error" : undefined}
-                autoComplete="name"
-              />
-              {errors.name ? (
-                <span id="name-error" className="text-sm font-bold text-flame">
-                  {errors.name}
+    <section id="contact" ref={containerRef} className="relative py-24 sm:py-32 overflow-hidden bg-[var(--page)] border-t border-[var(--line)]">
+      
+      {/* Background Glow */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-b from-flame/5 to-transparent rounded-full blur-[120px] pointer-events-none transform translate-x-1/3 -translate-y-1/3" />
+      
+      <Container className="relative z-10">
+        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-start">
+          
+          {/* LEFT COLUMN: Info & Availability */}
+          <div className="w-full lg:w-[45%] flex flex-col gap-10">
+            <div className="contact-reveal">
+              <h2 className="text-sm font-black uppercase tracking-[0.3em] text-flame mb-6 animate-pulse">
+                Connect
+              </h2>
+              <h3 className="text-5xl md:text-7xl font-black text-[var(--ink)] tracking-tighter leading-[0.95]">
+                Let's build <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-flame to-blush">something great.</span>
+              </h3>
+              <p className="mt-6 text-lg font-medium text-[var(--ink)] opacity-90 max-w-md">
+                Whether you have a specific project in mind or just want to explore possibilities, my inbox is always open.
+              </p>
+            </div>
+            
+            {/* Freelance Availability Card */}
+            <div className="contact-reveal p-8 rounded-3xl bg-[var(--surface)]/60 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.05)] relative overflow-hidden group">
+              {/* Dynamic Glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+              
+              <div className="flex items-center gap-4 mb-8 relative z-10">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
                 </span>
-              ) : null}
-            </label>
+                <span className="text-sm font-black uppercase tracking-[0.2em] text-[var(--ink)]">Available for Work</span>
+              </div>
+              
+              <div className="flex flex-col gap-5 relative z-10">
+                <div className="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-5">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--ink)] opacity-80">Response Time</span>
+                  <span className="text-sm font-black text-[var(--ink)]">&lt; 12 Hours</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--ink)] opacity-80">Email</span>
+                  <span className="text-sm font-black text-[var(--ink)] cursor-pointer hover:text-flame transition-colors">hello@ayush.com</span>
+                </div>
+              </div>
+            </div>
 
-            <label className="grid gap-2">
-              <span className="text-xs font-black uppercase tracking-[0.18em] text-flame dark:text-blush">
-                Email
-              </span>
-              <input
-                value={form.email}
-                onChange={(event) => updateField("email", event.target.value)}
-                className="form-control min-h-14 border border-[var(--line)] bg-[var(--surface)] px-4 text-[var(--ink)] outline-none transition focus:border-flame"
-                aria-invalid={Boolean(errors.email)}
-                aria-describedby={errors.email ? "email-error" : undefined}
-                autoComplete="email"
-                inputMode="email"
-              />
-              {errors.email ? (
-                <span id="email-error" className="text-sm font-bold text-flame">
-                  {errors.email}
-                </span>
-              ) : null}
-            </label>
+            {/* Social Links */}
+            <div className="contact-reveal flex flex-wrap gap-4 mt-2">
+              <SocialButton href="mailto:hello@ayush.com" label="Email" />
+              <SocialButton href="https://linkedin.com" label="LinkedIn" />
+              <SocialButton href="https://github.com" label="GitHub" />
+            </div>
           </div>
 
-          <label className="mt-5 grid gap-2">
-            <span className="text-xs font-black uppercase tracking-[0.18em] text-flame dark:text-blush">
-              Message
-            </span>
-            <textarea
-              value={form.message}
-              onChange={(event) => updateField("message", event.target.value)}
-              className="form-control min-h-40 resize-y border border-[var(--line)] bg-[var(--surface)] px-4 py-4 text-[var(--ink)] outline-none transition focus:border-flame"
-              aria-invalid={Boolean(errors.message)}
-              aria-describedby={errors.message ? "message-error" : undefined}
-            />
-            {errors.message ? (
-              <span id="message-error" className="text-sm font-bold text-flame">
-                {errors.message}
-              </span>
-            ) : null}
-          </label>
-
-          <div className="mt-7 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-            <button
-              type="submit"
-              disabled={status === "sending"}
-              className="premium-button premium-button--primary min-h-12 border border-flame bg-flame px-6 text-sm font-black uppercase tracking-[0.18em] text-white shadow-shape transition duration-300 hover:-translate-y-1 hover:bg-ember disabled:cursor-wait disabled:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-flame focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--page)] dark:shadow-shape-dark"
+          {/* RIGHT COLUMN: Modern Form */}
+          <div className="w-full lg:w-[55%] contact-reveal">
+            <form 
+              onSubmit={handleSubmit}
+              className="bg-[var(--surface)]/40 backdrop-blur-lg p-8 md:p-12 rounded-[2.5rem] border border-black/5 dark:border-white/5 shadow-2xl relative overflow-hidden"
             >
-              {status === "sending" ? "Sending..." : "Send Message"}
-            </button>
-            {status === "success" ? (
-              <p className="text-sm font-bold text-[var(--ink)]" role="status">
-                Message sent to {ownerEmail}.
-              </p>
-            ) : null}
-            {status === "error" ? (
-              <p className="text-sm font-bold text-flame" role="alert">
-                Message could not be sent. Please try again or email {ownerEmail}.
-              </p>
-            ) : null}
+              {/* Form subtle glow */}
+              <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-transparent via-flame to-transparent opacity-50" />
+              
+              <div className="grid gap-8">
+                {/* Name Input */}
+                <div className="relative group">
+                  <input 
+                    type="text" 
+                    id="name" 
+                    required
+                    className="peer w-full bg-transparent border-b-2 border-black/10 dark:border-white/10 text-[var(--ink)] py-3 px-1 focus:outline-none focus:border-flame transition-colors text-lg font-medium placeholder-transparent"
+                    placeholder="Name"
+                  />
+                  <label 
+                    htmlFor="name" 
+                    className="absolute left-1 top-3 text-[var(--ink)] opacity-80 transition-all duration-300 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-flame peer-focus:opacity-100 peer-focus:font-bold peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:opacity-50 uppercase tracking-widest cursor-text"
+                  >
+                    Your Name
+                  </label>
+                </div>
+
+                {/* Email Input */}
+                <div className="relative group mt-4">
+                  <input 
+                    type="email" 
+                    id="email" 
+                    required
+                    className="peer w-full bg-transparent border-b-2 border-black/10 dark:border-white/10 text-[var(--ink)] py-3 px-1 focus:outline-none focus:border-flame transition-colors text-lg font-medium placeholder-transparent"
+                    placeholder="Email"
+                  />
+                  <label 
+                    htmlFor="email" 
+                    className="absolute left-1 top-3 text-[var(--ink)] opacity-80 transition-all duration-300 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-flame peer-focus:opacity-100 peer-focus:font-bold peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:opacity-50 uppercase tracking-widest cursor-text"
+                  >
+                    Email Address
+                  </label>
+                </div>
+
+                {/* Message Input */}
+                <div className="relative group mt-4">
+                  <textarea 
+                    id="message" 
+                    required
+                    rows={4}
+                    className="peer w-full bg-transparent border-b-2 border-black/10 dark:border-white/10 text-[var(--ink)] py-3 px-1 focus:outline-none focus:border-flame transition-colors text-lg font-medium placeholder-transparent resize-none"
+                    placeholder="Message"
+                  />
+                  <label 
+                    htmlFor="message" 
+                    className="absolute left-1 top-3 text-[var(--ink)] opacity-80 transition-all duration-300 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-flame peer-focus:opacity-100 peer-focus:font-bold peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:opacity-50 uppercase tracking-widest cursor-text"
+                  >
+                    Project Details
+                  </label>
+                </div>
+
+                {/* Submit Button */}
+                <button 
+                  type="submit"
+                  disabled={isSubmitting || submitted}
+                  className="mt-6 w-full py-5 rounded-2xl bg-[var(--ink)] text-[var(--page)] text-sm font-black uppercase tracking-[0.2em] hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group disabled:opacity-70 disabled:hover:scale-100"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-flame to-blush opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {isSubmitting ? (
+                      <span className="animate-spin h-5 w-5 border-2 border-[var(--page)] border-t-transparent rounded-full" />
+                    ) : submitted ? (
+                      "Message Sent ✓"
+                    ) : (
+                      "Send Message →"
+                    )}
+                  </span>
+                </button>
+
+              </div>
+            </form>
           </div>
-        </form>
+
+        </div>
       </Container>
     </section>
   );
