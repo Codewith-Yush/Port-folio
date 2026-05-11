@@ -81,7 +81,7 @@ export function LiveActivity() {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative py-24 sm:py-32 overflow-hidden bg-[var(--page)] border-t border-[var(--line)]">
+    <section ref={containerRef} className="relative py-12 sm:py-16 overflow-hidden bg-[var(--page)] border-t border-[var(--line)]">
       {/* Subtle Data Grid Background */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" 

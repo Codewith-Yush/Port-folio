@@ -167,7 +167,7 @@ export function About() {
     <section
       id="about"
       ref={containerRef}
-      className="cv-auto about-section relative overflow-hidden py-16 sm:py-20 lg:py-24"
+      className="cv-auto about-section relative overflow-hidden py-12 sm:py-16"
     >
       <div className="absolute left-0 top-16 h-40 w-20 rounded-r-full bg-flame/30 blur-sm" aria-hidden="true" />
       <div className="clip-triangle absolute bottom-10 right-4 h-28 w-28 bg-blush/35" aria-hidden="true" />

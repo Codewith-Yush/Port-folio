@@ -49,7 +49,7 @@ export function Contact() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+    
     const formData = new FormData(e.currentTarget);
     // You can also add custom subjects or other Web3Forms features here
     // formData.append("subject", "New Contact from Portfolio");
@@ -61,25 +61,26 @@ export function Contact() {
       });
 
       const data = await response.json();
+      console.log("Web3Forms Response:", data);
 
       if (data.success) {
         setSubmitted(true);
         e.currentTarget.reset();
         setTimeout(() => setSubmitted(false), 5000);
       } else {
-        console.error("Error", data);
-        alert("Something went wrong. Please try again.");
+        console.error("Web3Forms Error:", data);
+        alert(`Submission failed: ${data.message || "Unknown error"}. Check if your Access Key is correct and you have restarted the dev server.`);
       }
     } catch (error) {
       console.error("Submit Error:", error);
-      alert("Network error. Please check your connection.");
+      alert("Network error. Please check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <section id="contact" ref={containerRef} className="relative py-24 sm:py-32 overflow-hidden bg-[var(--page)] border-t border-[var(--line)]">
+    <section id="contact" ref={containerRef} className="relative py-12 sm:py-16 overflow-hidden bg-[var(--page)] border-t border-[var(--line)]">
       
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-gradient-to-b from-flame/5 to-transparent rounded-full blur-[80px] sm:blur-[120px] pointer-events-none transform translate-x-1/4 -translate-y-1/4 sm:translate-x-1/3 sm:-translate-y-1/3" />
@@ -145,7 +146,7 @@ export function Contact() {
               <input 
                 type="hidden" 
                 name="access_key" 
-                value={import.meta.env.VITE_WEB3FORMS_KEY || "YOUR_ACCESS_KEY_HERE"} 
+                value="f003de15-e17c-4733-b00c-c5010bf8521d" 
               />
               
               {/* Form subtle glow */}
