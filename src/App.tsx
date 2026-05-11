@@ -40,6 +40,7 @@ export default function App() {
           }
           placeholder={<div className="h-[50vh]" />}
         />
+
       </main>
       <Footer />
     </div>

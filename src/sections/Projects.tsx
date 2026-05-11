@@ -161,7 +161,7 @@ export function Projects() {
           className="w-full lg:w-[100vw] h-[70vh] lg:h-full flex items-center justify-center border-b lg:border-b-0 lg:border-r border-black/5 dark:border-white/5 relative overflow-hidden shrink-0"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-flame/5 via-transparent to-blush/5 opacity-50" />
-          <div className="text-center z-10 px-6 relative">
+          <div className="text-center z-10 px-6 relative lg:pt-20">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-12 w-32 h-32 bg-flame/20 blur-[60px] rounded-full pointer-events-none" />
             <p className="text-sm font-black uppercase tracking-[0.3em] text-flame mb-6 animate-pulse">Case Studies</p>
             <h2 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-[var(--ink)] uppercase leading-[0.9]">
@@ -189,21 +189,21 @@ export function Projects() {
             className="w-full lg:w-[100vw] h-auto lg:h-full flex flex-col lg:flex-row items-center border-b lg:border-b-0 lg:border-r border-black/5 dark:border-white/5 relative overflow-hidden group shrink-0"
           >
             {/* Content Side */}
-            <div className="project-content w-full lg:w-[45%] p-8 md:p-16 lg:p-24 flex flex-col justify-center relative z-10 bg-[var(--page)] lg:bg-transparent h-full order-2 lg:order-1 border-t lg:border-t-0 border-black/5 dark:border-white/5 shadow-[-20px_0_40px_-20px_rgba(0,0,0,0.1)] dark:shadow-[-20px_0_40px_-20px_rgba(255,255,255,0.05)]">
+            <div className="project-content w-full lg:w-[45%] p-8 md:p-16 lg:px-24 lg:pb-24 lg:pt-32 flex flex-col justify-center relative z-10 bg-[var(--page)] lg:bg-transparent h-full order-2 lg:order-1 border-t lg:border-t-0 border-black/5 dark:border-white/5 shadow-[-20px_0_40px_-20px_rgba(0,0,0,0.1)] dark:shadow-[-20px_0_40px_-20px_rgba(255,255,255,0.05)]">
               <div className="flex items-center gap-4 mb-6">
-                <span className="text-6xl md:text-8xl font-black text-black/20 dark:text-white/20 leading-none">0{index + 1}</span>
+                <span className="text-5xl md:text-7xl font-black text-black/30 dark:text-white/30 leading-none">0{index + 1}</span>
                 <span className="px-3 py-1 bg-flame/10 text-flame text-xs font-black uppercase tracking-widest rounded-md border border-flame/20 shadow-sm">{project.year}</span>
               </div>
               
-              <h3 className="text-4xl md:text-5xl lg:text-6xl font-black text-[var(--ink)] tracking-tighter mb-4 leading-[1.05]">
+              <h3 className="text-3xl md:text-4xl lg:text-5xl font-black text-[var(--ink)] tracking-tighter mb-4 leading-[1.05]">
                 {project.title}
               </h3>
               
-              <p className="text-lg md:text-xl font-medium text-[var(--ink)] opacity-70 mb-8 max-w-xl leading-relaxed">
+              <p className="text-base md:text-lg font-medium text-[var(--ink)] opacity-70 mb-6 max-w-xl leading-relaxed">
                 {project.description}
               </p>
               
-              <div className="flex flex-wrap gap-2 mb-10">
+              <div className="flex flex-wrap gap-2 mb-6">
                 {project.stack.map(tech => (
                   <span key={tech} className="tech-pill px-4 py-2 border border-black/10 dark:border-white/10 bg-[var(--surface)]/50 backdrop-blur-md rounded-lg text-xs font-black uppercase tracking-widest text-[var(--ink)] shadow-sm">
                     {tech}
@@ -211,7 +211,7 @@ export function Projects() {
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-8 pt-8 border-t border-black/5 dark:border-white/5">
+              <div className="grid grid-cols-2 gap-8 pt-6 border-t border-black/5 dark:border-white/5">
                 {project.metrics.map(metric => (
                   <div key={metric.label}>
                     <div className="text-3xl lg:text-4xl font-black text-flame drop-shadow-sm">{metric.value}</div>
@@ -239,7 +239,12 @@ export function Projects() {
 
               {/* Hover Interactions Button */}
               <div className="absolute inset-0 z-20 hidden lg:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-8 group-hover:translate-y-0 pointer-events-none">
-                <a href="#" className="pointer-events-auto px-8 py-4 bg-white text-black text-xs font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-flame hover:text-white transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.4)]">
+                <a 
+                  href={project.link} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pointer-events-auto px-8 py-4 bg-white text-black text-xs font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-flame hover:text-white transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.4)]"
+                >
                   Explore Live Project
                 </a>
               </div>

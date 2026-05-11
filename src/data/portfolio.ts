@@ -11,6 +11,7 @@ export type Project = {
     value: string;
     label: string;
   }>;
+  link: string;
 };
 
 export type SkillGroup = {
@@ -59,6 +60,7 @@ export const projects: Project[] = [
       { value: "40%", label: "improved user engagement" },
       { value: "15+", label: "reusable components created" },
     ],
+    link: "https://astragen-ai-ten.vercel.app/",
   },
   {
     title: "Ai agent web Design",
@@ -79,26 +81,29 @@ export const projects: Project[] = [
       { value: "28%", label: "better conversion experience" },
       { value: "1.6s", label: "average interaction speed" },
     ],
+    link: "https://web-design-delta-three.vercel.app/",
   },
   {
-    title: "Insight Analytics",
-    stack: ["Power BI", "React", "API Integration"],
+    title: "Tadka - Indian Restaurant Website",
+    stack: ["React", "Tailwind"],
     description:
-      "An analytics dashboard built to transform complex business data into simple and actionable insights.",
-    image: "/projects/signal-atlas.svg",
-    role: "Dashboard design and data visualization",
+      "A visually appealing and user-friendly website for an Indian restaurant, showcasing menu, gallery, and customer experience.",
+    image: "/images/projects/tadka.png",
+    role: "UI design and frontend development",
     year: "2025",
     impact:
-      "Developed a clean analytics workspace for tracking performance, trends, and business growth.",
+      "Created an immersive online presence for the restaurant with a modern, mobile-friendly interface and smooth interactions.",
     features: [
-      "Interactive Power BI dashboards",
-      "Real-time data visualization",
+      "Home page with hero section and navigation",
+      "Menu page with categories and item details",
+      "Gallery page with image carousel",
       "Clean and accessible chart layouts",
     ],
     metrics: [
       { value: "3x", label: "faster data analysis" },
       { value: "10+", label: "dashboard modules designed" },
     ],
+    link: "https://tadka-indian-restaurant.vercel.app/",
   },
 ];
 
