@@ -66,7 +66,7 @@ export function Hero() {
       gsap.fromTo(videoRef.current, { scale: 1.065 }, { scale: 1, duration: 4.5, ease: "power2.out" });
 
       timeline
-        .to(contentRef.current, { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.05 }, 0.25)
+        .to(contentRef.current, { opacity: 1, y: 0, filter: "none", duration: 1.05, force3D: true }, 0.25)
         .to(
           ".heading-line",
           {
@@ -75,14 +75,15 @@ export function Hero() {
             opacity: 1,
             duration: 1.1,
             stagger: 0.12,
+            force3D: true,
           },
           0.5,
         )
-        .to(pillRef.current, { opacity: 1, y: 0, duration: 0.8 }, 1.0)
-        .to(descRef.current, { opacity: 1, y: 0, duration: 0.8 }, 1.18)
-        .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.8 }, 1.34)
-        .to(socialsRef.current, { opacity: 1, y: 0, duration: 0.55, stagger: 0.08 }, 1.52)
-        .to(scrollRef.current, { opacity: 1, y: 0, duration: 0.75 }, 1.72);
+        .to(pillRef.current, { opacity: 1, y: 0, duration: 0.8, force3D: true }, 1.0)
+        .to(descRef.current, { opacity: 1, y: 0, duration: 0.8, force3D: true }, 1.18)
+        .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.8, force3D: true }, 1.34)
+        .to(socialsRef.current, { opacity: 1, y: 0, duration: 0.55, stagger: 0.08, force3D: true }, 1.52)
+        .to(scrollRef.current, { opacity: 1, y: 0, duration: 0.75, force3D: true }, 1.72);
 
       mm.add("(min-width: 768px)", () => {
         gsap.to(videoRef.current, {
@@ -144,8 +145,9 @@ export function Hero() {
       id="hero"
       ref={heroRef}
       className="relative flex min-h-[100svh] items-center justify-start overflow-hidden bg-[#050816] pt-20 text-white transition-colors duration-500"
+      style={{ isolation: "isolate" }}
     >
-      <div className="absolute inset-0 z-0 h-full w-full overflow-hidden">
+      <div className="absolute inset-0 z-0 h-full w-full overflow-hidden" style={{ backfaceVisibility: "hidden" }}>
         <video
           ref={videoRef}
           src="/hero.mp4"
@@ -157,18 +159,19 @@ export function Hero() {
           preload="metadata"
           aria-hidden="true"
           className="hero-video-media absolute inset-0 h-full w-full object-cover opacity-100"
-          style={{ willChange: "transform" }}
+          style={{ willChange: "transform", backfaceVisibility: "hidden" }}
         />
+        {/* Layered Overlays for better depth and performance */}
+        <div className="hero-video-scrim absolute inset-0 pointer-events-none" style={{ zIndex: 1 }} />
+        <div className="hero-video-vignette absolute inset-0 pointer-events-none" style={{ zIndex: 2 }} />
+        <div className="hero-edge-light absolute inset-0 pointer-events-none" style={{ zIndex: 3 }} />
+        <div className="hero-film-grain absolute inset-0 pointer-events-none" style={{ zIndex: 4 }} />
       </div>
-
-      <div className="hero-video-scrim absolute inset-0 z-0 pointer-events-none" />
-      <div className="hero-video-vignette absolute inset-0 z-0 pointer-events-none" />
-      <div className="hero-edge-light absolute inset-0 z-0 pointer-events-none" />
-      <div className="hero-film-grain absolute inset-0 z-0 pointer-events-none" />
 
       <div
         ref={contentRef}
         className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col items-start justify-center px-5 py-16 sm:px-8 sm:py-20 md:px-12 lg:py-24"
+        style={{ transform: "translate3d(0,0,0)", backfaceVisibility: "hidden" }}
       >
         <div className="hero-copy-panel w-full max-w-[min(54rem,100%)]">
           <div
@@ -186,18 +189,18 @@ export function Hero() {
 
           <h1
             ref={titleRef}
-            className="max-w-[54rem] text-[clamp(2.35rem,5.2vw,4rem)] font-black uppercase leading-[0.98] tracking-normal text-white will-change-transform [text-shadow:0_6px_38px_rgba(0,0,0,0.55)]"
+            className="max-w-[54rem] text-[clamp(2.35rem,5.2vw,4rem)] font-black uppercase leading-[0.98] tracking-normal text-white [text-shadow:0_6px_38px_rgba(0,0,0,0.55)]"
+            style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}
           >
             <span className="block overflow-hidden py-1.5">
-              <span className="heading-line inline-block">Full Stack Developer,</span>
+              <span className="heading-line inline-block" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>Full Stack Developer,</span>
             </span>
             <span className="block overflow-hidden py-1.5">
-              <span className="heading-line inline-block">Freelancer &</span>
+              <span className="heading-line inline-block" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>Freelancer &</span>
             </span>
             <span className="block overflow-hidden py-1.5">
-              <span className="heading-line hero-gradient-text inline-block bg-clip-text text-transparent">
+              <span className="heading-line hero-gradient-text inline-block bg-clip-text text-transparent" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>
                 Data Science Student
-                
               </span>
             </span>
           </h1>
@@ -205,6 +208,7 @@ export function Hero() {
           <p
             ref={descRef}
             className="mt-5 max-w-2xl text-base font-medium leading-relaxed text-white/86 [text-shadow:0_3px_18px_rgba(0,0,0,0.6)] sm:mt-7 sm:text-lg lg:text-xl"
+            style={{ transform: "translate3d(0,0,0)", backfaceVisibility: "hidden" }}
           >
             I build cinematic digital experiences bridging the gap between cutting-edge data architecture and premium frontend
             design.
