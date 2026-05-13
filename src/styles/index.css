@@ -608,37 +608,36 @@ a {
 
 .hero-video-media {
   background: #050816;
-  filter: brightness(0.92) contrast(1.08); /* Simplified for performance */
+  filter: brightness(1.05) contrast(1.05); /* Increased clarity and pop */
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
-  image-rendering: optimizeSpeed;
 }
 
 .hero-video-scrim {
   background:
-    linear-gradient(180deg, rgba(5, 8, 22, 0.08) 0%, rgba(5, 8, 22, 0.14) 44%, rgba(5, 8, 22, 0.58) 100%),
-    linear-gradient(90deg, rgba(5, 8, 22, 0.74) 0%, rgba(7, 10, 28, 0.56) 34%, rgba(8, 12, 34, 0.18) 68%, rgba(8, 12, 34, 0.02) 100%);
+    linear-gradient(180deg, rgba(5, 8, 22, 0) 0%, rgba(5, 8, 22, 0.1) 40%, rgba(5, 8, 22, 0.45) 100%),
+    linear-gradient(90deg, rgba(5, 8, 22, 0.6) 0%, rgba(7, 10, 28, 0.35) 30%, transparent 100%);
 }
 
 .hero-video-vignette {
   background:
-    radial-gradient(circle at 71% 34%, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 35%, rgba(4, 6, 18, 0.28) 100%),
-    linear-gradient(0deg, rgba(2, 4, 14, 0.34), transparent 34%);
+    radial-gradient(circle at 75% 40%, rgba(255, 255, 255, 0.02) 0%, transparent 40%),
+    linear-gradient(0deg, rgba(2, 4, 14, 0.2), transparent 30%);
 }
 
 .hero-edge-light {
   background:
-    linear-gradient(115deg, rgba(255, 255, 255, 0.12) 0%, transparent 16%),
-    linear-gradient(245deg, rgba(255, 209, 102, 0.14) 0%, transparent 24%);
+    linear-gradient(115deg, rgba(255, 255, 255, 0.08) 0%, transparent 15%),
+    linear-gradient(245deg, rgba(255, 209, 102, 0.1) 0%, transparent 20%);
   mix-blend-mode: screen;
-  opacity: 0.58;
+  opacity: 0.45;
 }
 
 .hero-film-grain {
-  opacity: 0.1;
+  opacity: 0.04; /* Significantly reduced for clarity */
   background-image:
-    linear-gradient(0deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.18) 1px, transparent 0);
+    linear-gradient(0deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.12) 1px, transparent 0);
   background-size: 100% 4px, 18px 18px;
   mix-blend-mode: overlay;
 }
