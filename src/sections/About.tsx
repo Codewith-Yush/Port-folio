@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
 import { Container } from "../components/Container";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger);
 
 const paragraphs = [
   "I am Ayush Singh, a passionate web developer and AI creator focused on building modern, responsive, and visually engaging digital experiences.",
@@ -21,6 +21,7 @@ const stats = [
 const values = ["Modern UI", "Creative Design", "AI Innovation"];
 
 export function About() {
+  const reducedMotion = usePrefersReducedMotion();
   const containerRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -30,29 +31,28 @@ export function About() {
 
   useEffect(() => {
     let ctx = gsap.context(() => {
+      if (reducedMotion) {
+        return;
+      }
+
       let mm = gsap.matchMedia();
 
-      // Split text for dynamic reveal
-      const splitHeading = new SplitText(headingRef.current, { type: "lines,words" });
-      
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top 75%",
           end: "bottom bottom",
-          toggleActions: "play none none reverse",
+          toggleActions: "play none none none",
         }
       });
 
       // 1. Heading Stagger Reveal
-      gsap.set(splitHeading.words, { y: 40, opacity: 0, rotateX: -40 });
-      tl.to(splitHeading.words, {
+      gsap.set(headingRef.current, { y: 28, opacity: 0 });
+      tl.to(headingRef.current, {
         y: 0,
         opacity: 1,
-        rotateX: 0,
-        duration: 0.8,
-        stagger: 0.03,
-        ease: "back.out(1.2)"
+        duration: 0.75,
+        ease: "power3.out"
       });
 
       // 2. Paragraphs Reveal
@@ -104,7 +104,7 @@ export function About() {
           stagger: 0.1,
           ease: "back.out(1.5)"
         }, "-=0.5");
-        
+
         // Desktop parallax for shapes
         mm.add("(min-width: 768px)", () => {
           shapes.forEach((shape, i) => {
@@ -116,7 +116,7 @@ export function About() {
                 trigger: containerRef.current,
                 start: "top bottom",
                 end: "bottom top",
-                scrub: true,
+                scrub: 0.8,
               }
             });
           });
@@ -137,7 +137,7 @@ export function About() {
       }
 
       // Magnetic Hover Effects for Stats
-      mm.add("(hover: hover)", () => {
+      mm.add("(hover: hover) and (pointer: fine)", () => {
         const cleanupFns: (() => void)[] = [];
         statBoxes?.forEach(box => {
           const onMouseMove = (e: any) => {
@@ -161,7 +161,7 @@ export function About() {
 
     }, containerRef);
     return () => ctx.revert();
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <section
@@ -209,7 +209,7 @@ export function About() {
 
         <div ref={visualRef} className="about-visual relative min-h-[430px] overflow-hidden border border-black/10 dark:border-white/10 bg-[var(--surface)] p-6 shadow-shape dark:shadow-shape-dark sm:min-h-[500px] sm:p-8">
           <div className="absolute inset-0 shape-grid opacity-35" aria-hidden="true" />
-          
+
           <div className="about-glass absolute left-6 top-6 z-10 border border-white/25 bg-white/10 p-4 backdrop-blur-md dark:bg-black/10">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-flame dark:text-blush">
               Mindset
@@ -225,7 +225,7 @@ export function About() {
             <div className="about-shape about-shape-arch clip-semi absolute bottom-[10%] left-[18%] h-44 w-64 bg-ember/80" aria-hidden="true" />
             <div className="about-shape about-shape-triangle clip-triangle absolute bottom-[20%] right-[9%] h-36 w-36 bg-flame/65" aria-hidden="true" />
           </div>
-          
+
           <div className="about-ring absolute left-[44%] top-[43%] h-28 w-28 rounded-full border-[24px] border-white/70 dark:border-black/30" aria-hidden="true" />
 
           <div className="absolute bottom-6 left-6 right-6 z-10 grid gap-3 sm:grid-cols-3">

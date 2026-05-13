@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
 import { Container } from "../components/Container";
 import { navItems } from "../data/portfolio";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger);
 
 const SOCIALS = [
   {
@@ -31,6 +31,7 @@ const SOCIALS = [
 ];
 
 export function Footer() {
+  const reducedMotion = usePrefersReducedMotion();
   const footerRef = useRef<HTMLElement>(null);
   const parallaxWrapperRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLHeadingElement>(null);
@@ -40,39 +41,39 @@ export function Footer() {
 
   useEffect(() => {
     let ctx = gsap.context(() => {
+      if (reducedMotion) {
+        return;
+      }
+
       let mm = gsap.matchMedia();
 
-      // Setup split text for the huge footer text
-      const splitText = new SplitText(textRef.current, { type: "chars" });
-      
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: footerRef.current,
           start: "top 85%",
           end: "bottom bottom",
-          toggleActions: "play none none reverse",
+          toggleActions: "play none none none",
         }
       });
 
       // Reset states
-      gsap.set(splitText.chars, { y: 150, opacity: 0 });
+      gsap.set(textRef.current, { y: 70, opacity: 0 });
       gsap.set([topBarRef.current, linksRef.current, bottomBarRef.current], { opacity: 0, y: 30 });
 
       // Base Animations (All Devices)
-      tl.to(splitText.chars, {
+      tl.to(textRef.current, {
         y: 0,
         opacity: 1,
-        duration: 1.2,
-        stagger: 0.04,
+        duration: 0.9,
         ease: "expo.out"
       })
-      .to(topBarRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.8")
-      .to(linksRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
-      .to(bottomBarRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.6");
+        .to(topBarRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.8")
+        .to(linksRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
+        .to(bottomBarRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.6");
 
       // Desktop Only: Parallax effect to save performance on mobile
       mm.add("(min-width: 768px)", () => {
-        gsap.fromTo(parallaxWrapperRef.current, 
+        gsap.fromTo(parallaxWrapperRef.current,
           { y: -30 },
           {
             y: 30,
@@ -81,32 +82,32 @@ export function Footer() {
               trigger: footerRef.current,
               start: "top bottom",
               end: "bottom top",
-              scrub: true,
+              scrub: 0.8,
             }
           }
         );
       });
 
       // Devices with hover support: Magnetic interaction
-      mm.add("(hover: hover)", () => {
+      mm.add("(hover: hover) and (pointer: fine)", () => {
         const socials = linksRef.current?.querySelectorAll(".magnetic-item");
         const navLinks = topBarRef.current?.querySelectorAll("a");
         const cleanupFns: (() => void)[] = [];
 
         socials?.forEach(item => {
           const icon = item.querySelector("svg");
-          
+
           const onMouseMove = (e: any) => {
             const rect = item.getBoundingClientRect();
             const x = (e.clientX - rect.left) - rect.width / 2;
             const y = (e.clientY - rect.top) - rect.height / 2;
-            gsap.to(item, { x: x * 0.4, y: y * 0.4, duration: 0.3, ease: "power2.out" });
-            if(icon) gsap.to(icon, { x: x * 0.2, y: y * 0.2, duration: 0.3, ease: "power2.out" });
+            gsap.to(item, { x: x * 0.2, y: y * 0.2, duration: 0.3, ease: "power2.out" });
+            if (icon) gsap.to(icon, { x: x * 0.1, y: y * 0.1, duration: 0.3, ease: "power2.out" });
           };
-          
+
           const onMouseLeave = () => {
             gsap.to(item, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
-            if(icon) gsap.to(icon, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
+            if (icon) gsap.to(icon, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
           };
 
           item.addEventListener("mousemove", onMouseMove);
@@ -117,7 +118,7 @@ export function Footer() {
             item.removeEventListener("mouseleave", onMouseLeave);
           });
         });
-        
+
         navLinks?.forEach(link => {
           const onMouseMove = (e: any) => {
             const rect = link.getBoundingClientRect();
@@ -125,7 +126,7 @@ export function Footer() {
             const y = (e.clientY - rect.top) - rect.height / 2;
             gsap.to(link, { x: x * 0.2, y: y * 0.2, duration: 0.3, ease: "power2.out", opacity: 1 });
           };
-          
+
           const onMouseLeave = () => {
             gsap.to(link, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)", opacity: 0.7 });
           };
@@ -144,70 +145,70 @@ export function Footer() {
 
     }, footerRef);
     return () => ctx.revert();
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <footer ref={footerRef} className="relative bg-[var(--page)] text-[var(--ink)] pt-16 md:pt-24 pb-8 md:pb-12 overflow-hidden border-t border-black/10 dark:border-white/10">
-       <Container>
-         {/* Top Bar: Nav Links */}
-         <div ref={topBarRef} className="flex flex-col md:flex-row justify-between md:items-center pb-8 border-b border-black/10 dark:border-white/10 mb-12 md:mb-16 gap-6">
-            <span className="text-xs uppercase tracking-[0.2em] font-bold text-[var(--ink)] opacity-70">Explore</span>
-            <div className="flex flex-wrap gap-x-6 gap-y-4 md:gap-x-8">
-              {navItems.map((item) => (
-                <a key={item.href} href={item.href} className="group relative overflow-hidden text-sm font-semibold text-[var(--ink)] opacity-70 hover:opacity-100 transition-opacity inline-block">
-                  <span className="block transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-full">{item.label}</span>
-                  <span className="absolute inset-0 block translate-y-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 text-[#DF6C4F]">{item.label}</span>
-                </a>
-              ))}
-            </div>
-         </div>
+      <Container>
+        {/* Top Bar: Nav Links */}
+        <div ref={topBarRef} className="flex flex-col md:flex-row justify-between md:items-center pb-8 border-b border-black/10 dark:border-white/10 mb-12 md:mb-16 gap-6">
+          <span className="text-xs uppercase tracking-[0.2em] font-bold text-[var(--ink)] opacity-70">Explore</span>
+          <div className="flex flex-wrap gap-x-6 gap-y-4 md:gap-x-8">
+            {navItems.map((item) => (
+              <a key={item.href} href={item.href} className="group relative overflow-hidden text-sm font-semibold text-[var(--ink)] opacity-70 hover:opacity-100 transition-opacity inline-block">
+                <span className="block transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-full">{item.label}</span>
+                <span className="absolute inset-0 block translate-y-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 text-[#DF6C4F]">{item.label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
 
-         {/* Huge Text */}
-         <div ref={parallaxWrapperRef} className="flex justify-center items-center mb-16 md:mb-24 overflow-hidden py-4 cursor-default group">
-            <h2 ref={textRef} 
-                className="text-[clamp(4rem,14vw,12rem)] font-black leading-none tracking-tighter uppercase inline-block whitespace-nowrap text-transparent bg-clip-text" 
-                style={{ 
-                  WebkitTextStroke: "2px var(--ink)",
-                  backgroundImage: "linear-gradient(to right, var(--ink) 50%, transparent 50%)",
-                  backgroundSize: "200% 100%",
-                  backgroundPosition: "100% 0",
-                  transition: "background-position 0.6s cubic-bezier(0.16, 1, 0.3, 1)"
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundPosition = "0 0"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundPosition = "100% 0"}
-            >
-               LET'S TALK
-            </h2>
-         </div>
+        {/* Huge Text */}
+        <div ref={parallaxWrapperRef} className="flex justify-center items-center mb-16 md:mb-24 overflow-hidden py-4 cursor-default group">
+          <h2 ref={textRef}
+            className="text-[clamp(4rem,14vw,12rem)] font-black leading-none tracking-tighter uppercase inline-block whitespace-nowrap text-transparent bg-clip-text"
+            style={{
+              WebkitTextStroke: "2px var(--ink)",
+              backgroundImage: "linear-gradient(to right, var(--ink) 50%, transparent 50%)",
+              backgroundSize: "200% 100%",
+              backgroundPosition: "100% 0",
+              transition: "background-position 0.6s cubic-bezier(0.16, 1, 0.3, 1)"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundPosition = "0 0"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundPosition = "100% 0"}
+          >
+            LET'S TALK
+          </h2>
+        </div>
 
-         {/* Bottom section with Socials & Copyright */}
-         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 md:gap-12">
-            <div ref={bottomBarRef} className="flex flex-col gap-2 order-2 md:order-1">
-               <span className="text-sm font-semibold text-[var(--ink)] opacity-70">© {new Date().getFullYear()} Ayush Singh. All rights reserved.</span>
-               <span className="text-sm text-[var(--ink)] opacity-70 flex items-center gap-1 font-medium">
-                 Crafted with <span className="text-red-500 animate-pulse">♥</span>
-               </span>
-            </div>
+        {/* Bottom section with Socials & Copyright */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 md:gap-12">
+          <div ref={bottomBarRef} className="flex flex-col gap-2 order-2 md:order-1">
+            <span className="text-sm font-semibold text-[var(--ink)] opacity-70">© {new Date().getFullYear()} Ayush Singh. All rights reserved.</span>
+            <span className="text-sm text-[var(--ink)] opacity-70 flex items-center gap-1 font-medium">
+              Crafted with <span className="text-red-500 animate-pulse">♥</span>
+            </span>
+          </div>
 
-            <div ref={linksRef} className="flex flex-wrap gap-4 order-1 md:order-2">
-              {SOCIALS.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  aria-label={s.label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group magnetic-item relative overflow-hidden flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full border border-black/10 dark:border-white/10 text-[var(--ink)] opacity-80 hover:opacity-100 transition-all duration-300 bg-transparent hover:border-[var(--ink)]"
-                >
-                  <span className="absolute inset-0 bg-[var(--ink)] rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] -z-10" />
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 pointer-events-none transition-colors duration-500 group-hover:text-[var(--page)]">
-                    <path d={s.icon} />
-                  </svg>
-                </a>
-              ))}
-            </div>
-         </div>
-       </Container>
+          <div ref={linksRef} className="flex flex-wrap gap-4 order-1 md:order-2">
+            {SOCIALS.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                aria-label={s.label}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group magnetic-item relative overflow-hidden flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full border border-black/10 dark:border-white/10 text-[var(--ink)] opacity-80 hover:opacity-100 transition-all duration-300 bg-transparent hover:border-[var(--ink)]"
+              >
+                <span className="absolute inset-0 bg-[var(--ink)] rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] -z-10" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 pointer-events-none transition-colors duration-500 group-hover:text-[var(--page)]">
+                  <path d={s.icon} />
+                </svg>
+              </a>
+            ))}
+          </div>
+        </div>
+      </Container>
     </footer>
   );
 }

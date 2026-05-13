@@ -10,7 +10,7 @@ type LazySectionProps = {
 export function LazySection({
   loader,
   placeholder = null,
-  rootMargin = "600px 0px",
+  rootMargin = "500px 0px",
   once = true,
 }: LazySectionProps) {
   const [shouldRender, setShouldRender] = useState(false);
@@ -52,22 +52,28 @@ export function LazySection({
     };
   }, [once, rootMargin, shouldRender]);
 
-  // After initial paint, opportunistically preload on idle.
+  // After initial paint, warm the code split without forcing expensive rendering.
   useEffect(() => {
     if (shouldRender) return;
 
-    const handle = window.setTimeout(() => {
+    let idleHandle = 0;
+    const timeoutHandle = window.setTimeout(() => {
       if ("requestIdleCallback" in window) {
-        (window as unknown as { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(
-          () => setShouldRender(true),
+        idleHandle = (window as unknown as { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(
+          () => void loader(),
         );
       } else {
-        setShouldRender(true);
+        void loader();
       }
-    }, 2500);
+    }, 1800);
 
-    return () => window.clearTimeout(handle);
-  }, [shouldRender]);
+    return () => {
+      window.clearTimeout(timeoutHandle);
+      if (idleHandle && "cancelIdleCallback" in window) {
+        (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleHandle);
+      }
+    };
+  }, [loader, shouldRender]);
 
   return (
     <div ref={hostRef}>

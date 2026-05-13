@@ -6,9 +6,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        ember: "#DF6C4F",
-        flame: "#D14836",
-        blush: "#FF9398",
+        ember: "var(--ember)",
+        flame: "var(--flame)",
+        blush: "var(--blush)",
       },
       fontFamily: {
         sans: [
