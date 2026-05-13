@@ -263,7 +263,7 @@ export function Header() {
         >
           <nav className="px-6 py-8">
             <div className="flex flex-col gap-3">
-              {navItems.map((item, i) => {
+             {navItems.map((item) => {
                 const isActive = activeHref === item.href;
 
                 return (
