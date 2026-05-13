@@ -608,8 +608,10 @@ a {
 
 .hero-video-media {
   background: #050816;
-  filter: brightness(0.9) contrast(1.14) saturate(1.16);
-  transform-origin: 50% 50%;
+  filter: brightness(0.92) contrast(1.08); /* Simplified for performance */
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  image-rendering: optimizeSpeed;
 }
 
 .hero-video-scrim {

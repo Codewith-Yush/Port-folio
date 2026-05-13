@@ -63,7 +63,7 @@ export function Hero() {
       gsap.set(revealTargets, { opacity: 0, y: 18 });
       gsap.set(socialsRef.current, { opacity: 0, y: 14 });
 
-      gsap.fromTo(videoRef.current, { scale: 1.065 }, { scale: 1, duration: 4.5, ease: "power2.out" });
+      gsap.fromTo(videoRef.current, { scale: 1.02 }, { scale: 1, duration: 3.5, ease: "power1.out" });
 
       timeline
         .to(contentRef.current, { opacity: 1, y: 0, filter: "none", duration: 1.05, force3D: true }, 0.25)
