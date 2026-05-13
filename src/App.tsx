@@ -1,7 +1,7 @@
 import { Header } from "./components/Header";
 import { CustomCursor } from "./components/CustomCursor";
 import { LazySection } from "./components/LazySection";
-import { LoaderOverlay } from "./components/LoaderOverlay";
+
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { Footer } from "./sections/Footer";
 import { About } from "./sections/About";
@@ -13,7 +13,6 @@ export default function App() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[var(--page)] text-[var(--ink)] transition-colors duration-500">
       <CustomCursor />
-      <LoaderOverlay durationMs={1200} />
       <Header />
       <main>
         <Hero />

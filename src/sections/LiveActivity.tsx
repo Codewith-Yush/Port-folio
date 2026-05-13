@@ -28,10 +28,27 @@ export function LiveActivity() {
   const containerRef = useRef<HTMLElement>(null);
   const [time, setTime] = useState(new Date());
 
-  // Clock tick
+  // Clock tick - Optimized to only run when tab is visible
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    let timer: number;
+    const update = () => setTime(new Date());
+    
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        clearInterval(timer);
+      } else {
+        timer = window.setInterval(update, 1000);
+        update();
+      }
+    };
+
+    timer = window.setInterval(update, 1000);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   useEffect(() => {
