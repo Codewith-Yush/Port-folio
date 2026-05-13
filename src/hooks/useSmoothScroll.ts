@@ -1,87 +1,84 @@
-import { useEffect } from "react";
-
-function getHashTarget(anchor: HTMLAnchorElement) {
-  const href = anchor.getAttribute("href");
-
-  if (!href?.startsWith("#") || href === "#") {
-    return null;
-  }
-
-  return document.querySelector<HTMLElement>(href);
-}
-
-function easeOutCubic(t: number) {
-  return 1 - Math.pow(1 - t, 3);
-}
-
-function scrollToTarget(target: HTMLElement, reducedMotion: boolean) {
-  const start = window.scrollY;
-  const headerOffset = window.matchMedia("(max-width: 768px)").matches ? 84 : 96;
-  const targetY = Math.max(0, target.getBoundingClientRect().top + start - headerOffset);
-  const distance = targetY - start;
-
-  if (reducedMotion || Math.abs(distance) < 8) {
-    window.scrollTo(0, targetY);
-    return;
-  }
-
-  const duration = Math.min(900, Math.max(420, Math.abs(distance) * 0.42));
-  const startTime = performance.now();
-  let frame = 0;
-
-  const tick = (now: number) => {
-    const progress = Math.min(1, (now - startTime) / duration);
-    window.scrollTo(0, start + distance * easeOutCubic(progress));
-
-    if (progress < 1) {
-      frame = window.requestAnimationFrame(tick);
-    }
-  };
-
-  frame = window.requestAnimationFrame(tick);
-
-  const cancel = () => {
-    if (frame) window.cancelAnimationFrame(frame);
-    window.removeEventListener("wheel", cancel);
-    window.removeEventListener("touchstart", cancel);
-  };
-
-  window.addEventListener("wheel", cancel, { passive: true, once: true });
-  window.addEventListener("touchstart", cancel, { passive: true, once: true });
-}
+import { useEffect, useRef } from "react";
+import Lenis from "lenis";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export function useSmoothScroll() {
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const lenisRef = useRef<Lenis | null>(null);
 
+  useEffect(() => {
+    // 1. Initialize Lenis
+    const lenis = new Lenis({
+      duration: 1.4,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: "vertical",
+      gestureOrientation: "vertical",
+      smoothWheel: true,
+      wheelMultiplier: 1.1,
+      touchMultiplier: 1.5,
+      infinite: false,
+    });
+
+    lenisRef.current = lenis;
+
+    // 2. Synchronize with GSAP ScrollTrigger
+    lenis.on("scroll", ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+
+    gsap.ticker.lagSmoothing(0);
+
+    // 3. Handle anchor link clicks
     const handleClick = (event: MouseEvent) => {
       const anchor = (event.target as Element | null)?.closest("a");
       if (!anchor) return;
 
-      const target = getHashTarget(anchor);
+      const href = anchor.getAttribute("href");
+      if (!href?.startsWith("#") || href === "#") return;
+
+      const target = document.querySelector<HTMLElement>(href);
       if (!target) return;
 
       event.preventDefault();
-      window.history.pushState(null, "", anchor.getAttribute("href") ?? "");
-      scrollToTarget(target, media.matches);
-    };
+      
+      // Calculate offset based on header height
+      const headerOffset = window.matchMedia("(max-width: 768px)").matches ? 70 : 80;
+      
+      lenis.scrollTo(target, {
+        offset: -headerOffset,
+        duration: 1.5,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
 
-    const handleHashOnLoad = () => {
-      const { hash } = window.location;
-      if (!hash) return;
-
-      const target = document.querySelector<HTMLElement>(hash);
-      if (target) {
-        window.requestAnimationFrame(() => scrollToTarget(target, true));
-      }
+      // Update URL hash without jumping
+      window.history.pushState(null, "", href);
     };
 
     document.addEventListener("click", handleClick);
-    window.addEventListener("load", handleHashOnLoad, { once: true });
+
+    // 4. Initial scroll if hash exists
+    if (window.location.hash) {
+      const target = document.querySelector<HTMLElement>(window.location.hash);
+      if (target) {
+        // Small delay to ensure everything is rendered
+        setTimeout(() => {
+          lenis.scrollTo(target, {
+            offset: -80,
+            immediate: true,
+          });
+        }, 100);
+      }
+    }
 
     return () => {
+      lenis.destroy();
       document.removeEventListener("click", handleClick);
-      window.removeEventListener("load", handleHashOnLoad);
+      gsap.ticker.remove(lenis.raf);
     };
   }, []);
+
+  return lenisRef.current;
 }
+
