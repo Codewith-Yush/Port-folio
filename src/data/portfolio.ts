@@ -69,7 +69,7 @@ export const projects: Project[] = [
     stack: ["Canva", "Branding", "Visual Systems"],
     description:
       "A curated gallery of Canva designs created for social media, branding, and digital campaigns.",
-    image: "/images/projects/canva-cover.svg",
+    image: "/images/projects/canva.jpg",
     role: "Creative direction and visual storytelling",
     year: "2026",
     impact:
