@@ -19,7 +19,6 @@ export function Header() {
 
   const hrefs = useMemo(() => navItems.map((item) => item.href), []);
   const activeHref = useActiveSection(hrefs);
-  const onHero = !isScrolled && !open;
 
   const closeMenu = () => setOpen(false);
 
@@ -139,39 +138,22 @@ export function Header() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-500",
         isScrolled
-          ? "py-3 bg-[#0a0a0f]/95 backdrop-blur-3xl border-b border-white/10 shadow-2xl shadow-black/60"
-          : "py-5 bg-gradient-to-b from-black/70 via-black/40 to-transparent"
+          ? "border-b border-white/10 bg-black/85 backdrop-blur-3xl"
+          : "bg-transparent"
       )}
     >
-      <Container className="flex items-center justify-between">
-        {/* Logo - Gen Z Energy */}
+      <Container className="flex items-center justify-between gap-4 py-4">
         <a
           href="#hero"
           onClick={closeMenu}
-          className={cn(
-            "group flex items-center gap-2 text-3xl font-black tracking-[-0.04em] transition-all duration-300 active:scale-95",
-            onHero ? "text-white" : "text-white"
-          )}
+          className="group flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.45em] text-white/90 transition-colors duration-300"
           aria-label="Ayush Singh"
         >
-          <span className="group-hover:text-[#ff5a3d] transition-colors duration-300">Ayush</span>
-          <span className="text-[#ff5a3d] drop-shadow-[0_0_20px_#ff5a3d]">Singh</span>
-          <div className="relative h-2.5 w-2.5">
-            <div className="absolute inset-0 animate-ping rounded-full bg-[#ff5a3d]/70" />
-            <div className="h-2.5 w-2.5 rounded-full bg-[#ff5a3d] shadow-[0_0_18px_#ff5a3d]" />
-          </div>
+          <span className="inline-flex h-2 w-2 rounded-full bg-[#ff5a3d] shadow-[0_0_20px_rgba(255,90,61,0.28)]" />
+          <span className="min-w-[90px]">Ayush Singh</span>
         </a>
 
-        {/* Desktop Nav */}
-        <nav
-          ref={desktopNavRef}
-          className={cn(
-            "hidden items-center gap-1.5 rounded-3xl border px-2 py-1.5 backdrop-blur-3xl md:flex",
-            onHero
-              ? "border-white/20 bg-white/5"
-              : "border-white/10 bg-zinc-950/70"
-          )}
-        >
+        <nav ref={desktopNavRef} className="hidden items-center gap-8 md:flex">
           {navItems.map((item) => {
             const isActive = activeHref === item.href;
 
@@ -181,46 +163,25 @@ export function Header() {
                 href={item.href}
                 data-nav-item="true"
                 className={cn(
-                  "group relative px-6 py-3 text-sm font-black uppercase tracking-[0.125em] transition-all duration-300 hover:scale-105 active:scale-95 rounded-2xl overflow-hidden",
-                  isActive
-                    ? "text-white"
-                    : onHero
-                      ? "text-white/70 hover:text-white"
-                      : "text-zinc-400 hover:text-white"
+                  "group relative text-sm font-medium uppercase tracking-[0.4em] text-white/60 transition-colors duration-300",
+                  isActive ? "text-white" : "hover:text-white/95"
                 )}
               >
-                {/* Background glow on hover/active */}
-                <div
-                  className={cn(
-                    "absolute inset-0 -z-10 rounded-2xl opacity-0 transition-all duration-300 group-hover:opacity-100",
-                    isActive ? "bg-gradient-to-r from-[#ff5a3d]/20 to-transparent" : "bg-white/5"
-                  )}
-                />
-
-                <span className="relative z-10">{item.label}</span>
-
-                {/* Neon underline */}
+                <span>{item.label}</span>
                 <span
                   className={cn(
-                    "absolute bottom-2 left-1/2 h-[3px] -translate-x-1/2 rounded-full bg-gradient-to-r from-[#ff5a3d] to-orange-400 transition-all duration-300",
-                    isActive ? "w-8" : "w-0 group-hover:w-6"
+                    "absolute inset-x-0 -bottom-1 h-px rounded-full bg-[#ff5a3d] transition-opacity duration-300",
+                    isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                   )}
                 />
-
-                {/* Subtle shine effect */}
-                <div className="absolute inset-0 -left-full group-hover:left-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-700" />
               </a>
             );
           })}
         </nav>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-4">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-1.5 backdrop-blur-2xl">
-            <ThemeToggle />
-          </div>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
 
-          {/* Hamburger - Gen Z Style */}
           <button
             ref={hamburgerRef}
             type="button"
@@ -228,42 +189,41 @@ export function Header() {
             aria-expanded={open}
             aria-label="Toggle menu"
             className={cn(
-              "group relative flex h-12 w-12 flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-2xl transition-all md:hidden hover:bg-white/10 active:scale-95",
-              open && "bg-[#ff5a3d]/10 border-[#ff5a3d]/30"
+              "group relative flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition-all duration-300 md:hidden hover:border-white/25 hover:bg-white/10 active:scale-95",
+              open && "border-[#ff5a3d]/30 bg-[#ff5a3d]/10"
             )}
           >
             <span
               className={cn(
-                "h-0.5 w-6 origin-center rounded-full bg-white transition-all duration-300",
-                open && "rotate-45 translate-y-[5px]"
+                "absolute h-[1px] w-5 bg-current transition-transform duration-300",
+                open ? "rotate-45" : "translate-y-[-6px]"
               )}
             />
             <span
               className={cn(
-                "h-0.5 w-5 origin-center rounded-full bg-white transition-all duration-300",
-                open && "opacity-0 scale-75"
+                "absolute h-[1px] w-5 bg-current transition-all duration-300",
+                open ? "opacity-0" : "opacity-100"
               )}
             />
             <span
               className={cn(
-                "h-0.5 w-6 origin-center rounded-full bg-white transition-all duration-300",
-                open && "-rotate-45 -translate-y-[5px]"
+                "absolute h-[1px] w-5 bg-current transition-transform duration-300",
+                open ? "-rotate-45" : "translate-y-[6px]"
               )}
             />
           </button>
         </div>
       </Container>
 
-      {/* Mobile Menu */}
       <div className="md:hidden">
         <div
           ref={mobilePanelRef}
-          className="mt-3 overflow-hidden border-y border-white/10 bg-[#0a0a0f]/95 backdrop-blur-3xl shadow-2xl"
+          className="mt-2 overflow-hidden bg-black/90 backdrop-blur-3xl shadow-[0_30px_80px_rgba(0,0,0,0.25)]"
           style={{ height: 0, opacity: 0, pointerEvents: "none" }}
         >
-          <nav className="px-6 py-8">
+          <nav className="px-6 py-5">
             <div className="flex flex-col gap-3">
-             {navItems.map((item) => {
+              {navItems.map((item) => {
                 const isActive = activeHref === item.href;
 
                 return (
@@ -273,20 +233,15 @@ export function Header() {
                     onClick={closeMenu}
                     data-mobile-link="true"
                     className={cn(
-                      "group flex items-center justify-between rounded-3xl border px-6 py-6 text-3xl font-black tracking-tight transition-all duration-300 active:scale-[0.97]",
+                      "group rounded-3xl border border-white/10 px-5 py-4 text-base font-semibold uppercase tracking-[0.35em] text-white/80 transition-all duration-300",
                       isActive
-                        ? "border-[#ff5a3d]/40 bg-gradient-to-r from-[#ff5a3d]/10 to-transparent text-white"
-                        : "border-white/10 hover:border-white/20 hover:bg-white/5 text-white/80 hover:text-white"
+                        ? "bg-white/10 text-white"
+                        : "hover:border-white/20 hover:bg-white/10 hover:text-white"
                     )}
                   >
-                    <span>{item.label}</span>
-                    <span
-                      className={cn(
-                        "text-4xl text-[#ff5a3d] transition-all duration-300 group-hover:translate-x-2",
-                        isActive ? "opacity-100" : "opacity-40"
-                      )}
-                    >
-                      →
+                    <span className="flex items-center justify-between gap-4">
+                      {item.label}
+                      <span className={cn("text-xl text-[#ff5a3d] transition-transform duration-300 group-hover:translate-x-1", isActive ? "opacity-100" : "opacity-50")}>→</span>
                     </span>
                   </a>
                 );

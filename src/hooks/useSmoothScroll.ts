@@ -7,6 +7,16 @@ export function useSmoothScroll() {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+    const shouldSkipSmoothScroll = prefersReducedMotion || isTouchDevice;
+
+    if (shouldSkipSmoothScroll) {
+      return;
+    }
+
     // 1. Initialize Lenis
     const lenis = new Lenis({
       duration: 1.4,
@@ -24,10 +34,11 @@ export function useSmoothScroll() {
     // 2. Synchronize with GSAP ScrollTrigger
     lenis.on("scroll", ScrollTrigger.update);
 
-    gsap.ticker.add((time) => {
+    const rafCallback = (time: number) => {
       lenis.raf(time * 1000);
-    });
+    };
 
+    gsap.ticker.add(rafCallback);
     gsap.ticker.lagSmoothing(0);
 
     // 3. Handle anchor link clicks
@@ -42,27 +53,23 @@ export function useSmoothScroll() {
       if (!target) return;
 
       event.preventDefault();
-      
-      // Calculate offset based on header height
+
       const headerOffset = window.matchMedia("(max-width: 768px)").matches ? 70 : 80;
-      
+
       lenis.scrollTo(target, {
         offset: -headerOffset,
         duration: 1.5,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       });
 
-      // Update URL hash without jumping
       window.history.pushState(null, "", href);
     };
 
     document.addEventListener("click", handleClick);
 
-    // 4. Initial scroll if hash exists
     if (window.location.hash) {
       const target = document.querySelector<HTMLElement>(window.location.hash);
       if (target) {
-        // Small delay to ensure everything is rendered
         setTimeout(() => {
           lenis.scrollTo(target, {
             offset: -80,
@@ -75,7 +82,7 @@ export function useSmoothScroll() {
     return () => {
       lenis.destroy();
       document.removeEventListener("click", handleClick);
-      gsap.ticker.remove(lenis.raf);
+      gsap.ticker.remove(rafCallback);
     };
   }, []);
 

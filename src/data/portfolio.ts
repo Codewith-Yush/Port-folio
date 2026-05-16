@@ -11,7 +11,9 @@ export type Project = {
     value: string;
     label: string;
   }>;
-  link: string;
+  link?: string;
+  galleryLink?: string;
+  galleryImages?: string[];
 };
 
 export type SkillGroup = {
@@ -63,25 +65,26 @@ export const projects: Project[] = [
     link: "https://astragen-ai-ten.vercel.app/",
   },
   {
-    title: "Ai agent web Design",
-    stack: ["React", "Node.js", "Tailwind"],
+    title: "Canva Design Showcase",
+    stack: ["Canva", "Branding", "Visual Systems"],
     description:
-      "A smooth and responsive web  experience focused on clean design and smooth user interactions.",
-    image: "/images/projects/web.png",
-    role: "UI development and responsive optimization",
-    year: "2025",
+      "A curated gallery of Canva designs created for social media, branding, and digital campaigns.",
+    image: "/images/projects/canva-cover.svg",
+    role: "Creative direction and visual storytelling",
+    year: "2026",
     impact:
-      "Created a user-friendly shopping experience optimized for mobile users and fast product discovery.",
+      "Demonstrates polished visuals and versatile templates that can be reused across brand touchpoints.",
     features: [
-      "Modern product browsing interface",
-      "Responsive mobile-first design",
-      "Optimized checkout interaction flow",
+      "15 editable Canva templates",
+      "Brand-led composition and layout systems",
+      "Social media and marketing asset design",
     ],
     metrics: [
-      { value: "28%", label: "better conversion experience" },
-      { value: "1.6s", label: "average interaction speed" },
+      { value: "15+", label: "Canva designs showcased" },
+      { value: "100%", label: "customizable brand-ready visuals" },
     ],
-    link: "https://web-design-delta-three.vercel.app/",
+    galleryLink: "/canva-gallery.html",
+    galleryImages: Array.from({ length: 15 }, (_, index) => `/images/projects/canva-${index + 1}.svg`),
   },
   {
     title: "Tadka - Indian Restaurant Website",

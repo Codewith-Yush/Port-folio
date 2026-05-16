@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { cn } from "../utils/cn";
 import { projects } from "../data/portfolio";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
@@ -195,7 +196,26 @@ export function Projects() {
           <div
             key={project.title}
             ref={(el) => { panelsRef.current[index + 1] = el; }}
-            className="w-full xl:w-[100vw] h-auto xl:h-full flex flex-col xl:flex-row items-center border-b xl:border-b-0 xl:border-r border-black/5 dark:border-white/5 relative overflow-hidden group shrink-0"
+            className={cn(
+              "w-full xl:w-[100vw] h-auto xl:h-full flex flex-col xl:flex-row items-center border-b xl:border-b-0 xl:border-r border-black/5 dark:border-white/5 relative overflow-hidden group shrink-0",
+              (project.galleryLink || project.link) && "cursor-pointer"
+            )}
+            onClick={(event) => {
+              if ((event.target as HTMLElement).closest("a")) return;
+              const href = project.galleryLink ?? project.link;
+              if (!href) return;
+              window.open(href, "_blank", "noopener,noreferrer");
+            }}
+            onKeyDown={(event) => {
+              const href = project.galleryLink ?? project.link;
+              if (!href) return;
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                window.open(href, "_blank", "noopener,noreferrer");
+              }
+            }}
+            role={project.galleryLink || project.link ? "button" : undefined}
+            tabIndex={project.galleryLink || project.link ? 0 : undefined}
           >
             {/* Content Side */}
             <div className="project-content w-full xl:w-[45%] p-8 md:p-16 xl:px-24 xl:pb-24 xl:pt-32 flex flex-col justify-center relative z-10 bg-[var(--page)] xl:bg-transparent h-full order-2 xl:order-1 border-t xl:border-t-0 border-black/5 dark:border-white/5 shadow-[-20px_0_40px_-20px_rgba(0,0,0,0.1)] dark:shadow-[-20px_0_40px_-20px_rgba(255,255,255,0.05)]">
@@ -247,20 +267,32 @@ export function Projects() {
               />
 
               {/* Hover Interactions Button */}
-              <div className="absolute inset-0 z-20 hidden xl:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-8 group-hover:translate-y-0 pointer-events-none">
-                <a
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="pointer-events-auto px-8 py-4 bg-white text-black text-xs font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-flame hover:text-white transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.4)]"
-                >
-                  Explore Live Project
-                </a>
+              <div className="absolute inset-0 z-20 flex items-center justify-center opacity-100 pointer-events-auto sm:pointer-events-none sm:opacity-0 sm:group-hover:opacity-100 sm:translate-y-8 sm:group-hover:translate-y-0 transition-all duration-500">
+                {project.galleryLink ? (
+                  <a
+                    href={project.galleryLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pointer-events-auto px-6 py-3 bg-white text-black text-xs font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-flame hover:text-white transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+                  >
+                    View Canva Gallery
+                  </a>
+                ) : (
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pointer-events-auto px-6 py-3 bg-white text-black text-xs font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-flame hover:text-white transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+                  >
+                    Explore Live Project
+                  </a>
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
+
     </section>
   );
 }
