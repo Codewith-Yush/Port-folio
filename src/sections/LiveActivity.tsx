@@ -32,7 +32,7 @@ export function LiveActivity() {
   useEffect(() => {
     let timer: number;
     const update = () => setTime(new Date());
-    
+
     const handleVisibilityChange = () => {
       if (document.hidden) {
         clearInterval(timer);
@@ -44,7 +44,7 @@ export function LiveActivity() {
 
     timer = window.setInterval(update, 1000);
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    
+
     return () => {
       clearInterval(timer);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -100,15 +100,15 @@ export function LiveActivity() {
   return (
     <section ref={containerRef} className="relative py-12 sm:py-16 overflow-hidden bg-[var(--page)] border-t border-[var(--line)]">
       {/* Subtle Data Grid Background */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" 
-        style={{ 
-          backgroundImage: "linear-gradient(var(--ink) 1px, transparent 1px), linear-gradient(90deg, var(--ink) 1px, transparent 1px)", 
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]"
+        style={{
+          backgroundImage: "linear-gradient(var(--ink) 1px, transparent 1px), linear-gradient(90deg, var(--ink) 1px, transparent 1px)",
           backgroundSize: "40px 40px",
           backgroundPosition: "center center"
-        }} 
+        }}
       />
-      
+
       {/* Floating UI Particles */}
       <div className="absolute top-40 right-[15%] w-2 h-2 rounded-full bg-flame animate-ping opacity-50" />
       <div className="absolute bottom-40 left-[10%] w-3 h-3 rounded-full bg-blush animate-pulse opacity-40" />
@@ -146,15 +146,15 @@ export function LiveActivity() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 md:gap-6">
-          
+
           {/* LEFT COL: Status & Vitals */}
           <div className="lg:col-span-3 flex flex-col gap-4 md:gap-6">
-            
+
             {/* Status Panel */}
             <div className="dashboard-panel border border-black/10 dark:border-white/10 bg-[var(--surface)]/60 backdrop-blur-xl rounded-2xl p-5 relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-transparent opacity-80" />
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-[var(--ink)] opacity-80 mb-5">Core Status</h3>
-              
+
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold text-[var(--ink)]">Availability</span>
@@ -203,18 +203,18 @@ export function LiveActivity() {
 
           {/* MIDDLE COL: Metrics & Graph */}
           <div className="lg:col-span-5 flex flex-col gap-4 md:gap-6">
-            
+
             {/* GitHub Grid */}
             <div className="dashboard-panel border border-black/10 dark:border-white/10 bg-[var(--surface)]/60 backdrop-blur-xl rounded-2xl p-5 md:p-6 relative overflow-hidden group shadow-sm flex-1">
                <h3 className="text-[10px] font-bold uppercase tracking-widest text-[var(--ink)] opacity-80 mb-5 flex items-center justify-between">
                  <span>Commit Activity</span>
                  <span className="text-flame bg-flame/10 px-2 py-0.5 rounded border border-flame/20">Last 98 Days</span>
                </h3>
-               
+
                <div className="grid grid-cols-14 grid-rows-7 gap-1 md:gap-1.5 h-32 w-full">
                   {GITHUB_GRAPH.map((val, i) => (
-                    <div 
-                      key={i} 
+                    <div
+                      key={i}
                       className={cn(
                         "rounded-[2px] md:rounded-sm transition-all duration-300 hover:scale-125 hover:z-10",
                         val === 0 ? "bg-black/5 dark:bg-white/5" :
@@ -222,7 +222,7 @@ export function LiveActivity() {
                         val === 2 ? "bg-flame/50 shadow-[0_0_8px_rgba(223,108,79,0.4)]" :
                         val === 3 ? "bg-flame/80 shadow-[0_0_12px_rgba(223,108,79,0.6)]" :
                         "bg-flame shadow-[0_0_16px_rgba(223,108,79,0.8)]"
-                      )} 
+                      )}
                     />
                   ))}
                </div>
@@ -239,7 +239,7 @@ export function LiveActivity() {
                  <div className="text-4xl font-black text-[var(--ink)] flex items-center leading-none mb-1"><span className="streak-counter">0</span></div>
                  <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--ink)] opacity-80">Day Streak</p>
                </div>
-               
+
                <div className="dashboard-panel border border-black/10 dark:border-white/10 bg-[var(--surface)]/60 backdrop-blur-xl rounded-2xl p-5 flex flex-col justify-center items-center text-center shadow-sm">
                  <div className="w-8 h-8 rounded-full bg-blush/20 text-blush flex items-center justify-center mb-2 shadow-[0_0_15px_rgba(235,164,151,0.4)]">🚀</div>
                  <div className="text-lg font-black text-[var(--ink)] leading-tight mb-1">Portfolio v2</div>
@@ -251,7 +251,7 @@ export function LiveActivity() {
 
           {/* RIGHT COL: Logs & Feed */}
           <div className="lg:col-span-4 flex flex-col gap-4 md:gap-6">
-            
+
             {/* Activity Feed */}
             <div className="dashboard-panel border border-black/10 dark:border-white/10 bg-[var(--surface)]/60 backdrop-blur-xl rounded-2xl p-5 relative overflow-hidden group shadow-sm flex-1">
                <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-transparent via-[var(--ink)] to-transparent opacity-10" />
@@ -259,7 +259,7 @@ export function LiveActivity() {
                  <span>Terminal Logs</span>
                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--ink)] animate-ping opacity-60" />
                </h3>
-               
+
                <div className="space-y-5">
                  {RECENT_ACTIVITY.map(act => (
                    <div key={act.id} className="flex gap-4 items-start group/item">
