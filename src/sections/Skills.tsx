@@ -7,50 +7,45 @@ import { services, skillGroups, type Service } from "../data/portfolio";
 
 function ServiceDetails({ service }: { service: Service }) {
   return (
-    <article className="service-detail mt-6 overflow-hidden border border-[var(--line)] bg-[var(--surface)]">
+    <article className="mt-10 overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 backdrop-blur-md transition-colors duration-500">
       <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
-        <div className="relative min-h-72 overflow-hidden border-b border-[var(--line)] bg-[var(--surface-strong)] p-8 lg:border-b-0 lg:border-r">
-          <div className="service-detail-visual absolute inset-0" aria-hidden="true">
-            <span className="absolute left-[12%] top-[14%] h-28 w-28 rounded-full bg-blush/70" />
-            <span className="absolute right-[10%] top-[18%] h-32 w-32 rotate-6 bg-flame/70" />
-            <span className="clip-semi absolute bottom-[10%] left-[18%] h-36 w-56 bg-ember/70" />
-            <span className="clip-triangle absolute bottom-[16%] right-[14%] h-28 w-28 bg-flame/60" />
-          </div>
+        <div className="relative min-h-72 overflow-hidden border-b border-black/10 dark:border-white/10 bg-[var(--surface-strong)] p-10 lg:border-b-0 lg:border-r transition-colors duration-500">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,0,0,0.05),transparent_60%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent_60%)] pointer-events-none transition-colors duration-500" aria-hidden="true" />
           <div className="relative z-10 flex h-full min-h-56 flex-col justify-between">
-            <div className="grid h-20 w-20 place-items-center border border-white/30 bg-[var(--page)]">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl border border-black/10 dark:border-white/10 bg-[var(--page)] transition-colors duration-500 text-[var(--ink)]">
               <ServiceIcon icon={service.icon} />
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-flame dark:text-blush">
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--muted)]">
                 Timeline
               </p>
-              <p className="mt-3 text-5xl font-black leading-none text-[var(--ink)]">
+              <p className="mt-3 text-4xl font-light leading-none text-[var(--ink)]">
                 {service.timeline}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="p-6 sm:p-8 lg:p-10">
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-flame dark:text-blush">
+        <div className="p-8 sm:p-12 lg:p-14">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--muted)]">
             Selected service
           </p>
-          <h3 className="mt-4 text-4xl font-black leading-none text-[var(--ink)] sm:text-5xl">
+          <h3 className="mt-4 text-3xl font-light leading-none text-[var(--ink)] sm:text-4xl">
             {service.title}
           </h3>
-          <p className="mt-6 text-base leading-8 text-[var(--muted)]">
+          <p className="mt-6 text-base leading-relaxed text-[var(--muted)]">
             {service.outcome}
           </p>
 
-          <div className="mt-6 grid gap-5 lg:grid-cols-3">
+          <div className="mt-10 grid gap-8 lg:grid-cols-3">
             <div>
-              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-flame dark:text-blush">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)] opacity-80">
                 Deliverables
               </h4>
-              <ul className="mt-4 grid gap-3">
+              <ul className="mt-5 grid gap-4">
                 {service.deliverables.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm font-bold leading-6 text-[var(--ink)]">
-                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-blush" aria-hidden="true" />
+                  <li key={item} className="flex gap-3 text-sm font-normal leading-relaxed text-[var(--muted)]">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black/30 dark:bg-white/30" aria-hidden="true" />
                     {item}
                   </li>
                 ))}
@@ -58,13 +53,13 @@ function ServiceDetails({ service }: { service: Service }) {
             </div>
 
             <div>
-              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-flame dark:text-blush">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)] opacity-80">
                 Process
               </h4>
-              <ol className="mt-4 grid gap-3">
+              <ol className="mt-5 grid gap-4">
                 {service.process.map((item, index) => (
-                  <li key={item} className="flex gap-3 text-sm font-bold leading-6 text-[var(--ink)]">
-                    <span className="grid h-6 w-6 shrink-0 place-items-center bg-flame text-[0.65rem] text-white">
+                  <li key={item} className="flex gap-3 text-sm font-normal leading-relaxed text-[var(--muted)]">
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-black/20 dark:border-white/20 bg-black/5 dark:bg-white/5 text-[9px] text-[var(--ink)]">
                       {index + 1}
                     </span>
                     {item}
@@ -74,15 +69,12 @@ function ServiceDetails({ service }: { service: Service }) {
             </div>
 
             <div>
-              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-flame dark:text-blush">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)] opacity-80">
                 Best for
               </h4>
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-5 flex flex-wrap gap-2">
                 {service.bestFor.map((item) => (
-                  <span
-                    key={item}
-                    className="border border-[var(--line)] bg-[var(--page)] px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-[var(--ink)]"
-                  >
+                  <span key={item} className="rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[var(--muted)]">
                     {item}
                   </span>
                 ))}
@@ -100,33 +92,28 @@ export function Skills() {
   const detailRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!selectedService) {
-      return;
-    }
-
+    if (!selectedService) return;
     window.requestAnimationFrame(() => {
       detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }, [selectedService]);
 
   return (
-    <section id="skills" className="cv-auto relative overflow-hidden py-12 sm:py-16">
-      <Container>
+    <section id="skills" className="relative overflow-hidden bg-[var(--page)] py-24 sm:py-32 text-[var(--ink)] border-t border-black/5 dark:border-white/5 transition-colors duration-500">
+      <div className="absolute right-0 top-0 h-[600px] w-[600px] translate-x-1/4 -translate-y-1/4 rounded-full bg-black/5 dark:bg-white/5 blur-[120px] pointer-events-none transition-colors duration-500" />
+      
+      <Container className="relative z-10">
         <SectionHeading
           eyebrow="Skills & services"
-          title="Frontend depth with product-shaped edges."
+          title="Frontend depth with cinematic precision."
           copy="I work best where craft and systems meet: fast UI, clear components, resilient delivery, and details that people can feel."
         />
 
-        <div className="skill-loop mt-8 sm:mt-10" aria-label="Skill categories">
+        <div className="skill-loop mt-12 sm:mt-16" aria-label="Skill categories">
           <div className="skill-loop__track">
             {[...skillGroups, ...skillGroups].map((group, index) => (
-              <article
-                key={`${group.title}-${index}`}
-                className="skill-loop__card border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-7"
-                aria-hidden={index >= skillGroups.length}
-              >
-                <h3 className="mb-7 text-2xl font-black text-[var(--ink)]">{group.title}</h3>
+              <article key={`${group.title}-${index}`} className="skill-loop__card rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] p-8 backdrop-blur-md transition-colors duration-500" aria-hidden={index >= skillGroups.length}>
+                <h3 className="mb-8 text-xl font-light text-[var(--ink)]">{group.title}</h3>
                 <div className="grid gap-6">
                   {group.skills.map((skill) => (
                     <SkillMeter key={skill.name} name={skill.name} level={skill.level} />
@@ -137,24 +124,27 @@ export function Skills() {
           </div>
         </div>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 lg:grid-cols-3">
           {services.map((service) => (
             <button
               type="button"
               key={service.title}
               onClick={() => setSelectedService(service)}
               aria-pressed={selectedService?.title === service.title}
-              className="service-card group border border-[var(--line)] bg-[var(--surface-strong)] p-7 text-left transition duration-300 hover:-translate-y-1 hover:border-flame focus:outline-none focus-visible:ring-2 focus-visible:ring-flame focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--page)]"
-              data-active={selectedService?.title === service.title}
+              className={`group relative overflow-hidden rounded-3xl border p-8 text-left transition-all duration-500 hover:-translate-y-2 focus:outline-none ${
+                selectedService?.title === service.title 
+                  ? 'border-black/30 dark:border-white/30 bg-[var(--surface)] backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.05)]' 
+                  : 'border-black/10 dark:border-white/10 bg-[var(--surface-strong)] backdrop-blur-md hover:border-black/20 dark:hover:border-white/20 hover:bg-[var(--surface)]'
+              }`}
             >
-              <ServiceIcon icon={service.icon} />
-              <h3 className="mt-7 text-2xl font-black text-[var(--ink)]">{service.title}</h3>
-              <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{service.description}</p>
-              <span className="mt-6 inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-flame dark:text-blush">
+              <div className="grid h-14 w-14 place-items-center rounded-2xl border border-black/10 dark:border-white/10 bg-[var(--page)] text-[var(--ink)] transition-colors duration-500">
+                <ServiceIcon icon={service.icon} />
+              </div>
+              <h3 className="mt-8 text-2xl font-light text-[var(--ink)]">{service.title}</h3>
+              <p className="mt-4 text-sm leading-relaxed text-[var(--muted)]">{service.description}</p>
+              <span className="mt-8 inline-flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--ink)] opacity-80 transition-colors group-hover:opacity-100">
                 Explore service
-                <span aria-hidden="true" className="transition duration-300 group-hover:translate-x-1">
-                  →
-                </span>
+                <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </span>
             </button>
           ))}
@@ -164,7 +154,7 @@ export function Skills() {
           {selectedService ? (
             <ServiceDetails service={selectedService} />
           ) : (
-            <div className="mt-6 border border-dashed border-[var(--line)] bg-[var(--surface)] px-5 py-5 text-sm font-bold leading-7 text-[var(--muted)]">
+            <div className="mt-10 rounded-2xl border border-dashed border-black/10 dark:border-white/10 bg-[var(--surface)] px-8 py-8 text-center text-sm font-normal leading-relaxed text-[var(--muted)] backdrop-blur-sm transition-colors duration-500">
               Select any service card to open a detailed service view with process, deliverables, and outcomes.
             </div>
           )}

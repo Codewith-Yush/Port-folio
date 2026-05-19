@@ -23,183 +23,51 @@ const values = ["Modern UI", "Creative Design", "AI Innovation"];
 export function About() {
   const reducedMotion = usePrefersReducedMotion();
   const containerRef = useRef<HTMLElement>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
-  const visualRef = useRef<HTMLDivElement>(null);
-  const shapesRef = useRef<HTMLDivElement>(null);
-
+  const contentRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     let ctx = gsap.context(() => {
-      if (reducedMotion) {
-        return;
+      if (reducedMotion) return;
+      const elements = contentRef.current?.children;
+      if (elements) {
+        gsap.fromTo(elements, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power3.out", scrollTrigger: { trigger: containerRef.current, start: "top 75%" }});
       }
-
-      let mm = gsap.matchMedia();
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 75%",
-          end: "bottom bottom",
-          toggleActions: "play none none none",
-        }
-      });
-
-      // 1. Heading Stagger Reveal
-      gsap.set(headingRef.current, { y: 28, opacity: 0 });
-      tl.to(headingRef.current, {
-        y: 0,
-        opacity: 1,
-        duration: 0.75,
-        ease: "power3.out"
-      });
-
-      // 2. Paragraphs Reveal
-      const paras = textRef.current?.querySelectorAll("p");
-      if (paras) {
-        gsap.set(paras, { y: 20, opacity: 0 });
-        tl.to(paras, {
-          y: 0,
-          opacity: 1,
-          duration: 0.7,
-          stagger: 0.15,
-          ease: "power3.out"
-        }, "-=0.5");
-      }
-
-      // 3. Stats Reveal
-      const statBoxes = statsRef.current?.querySelectorAll(".about-stat");
-      if (statBoxes) {
-        gsap.set(statBoxes, { y: 30, opacity: 0, scale: 0.9 });
-        tl.to(statBoxes, {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: "back.out(1.5)"
-        }, "-=0.6");
-      }
-
-      // 4. Visual Box Entrance
-      gsap.set(visualRef.current, { opacity: 0, x: 40, scale: 0.95 });
-      tl.to(visualRef.current, {
-        opacity: 1,
-        x: 0,
-        scale: 1,
-        duration: 1,
-        ease: "power4.out"
-      }, "-=0.8");
-
-      // 5. Floating Shapes Reveal inside visual box
-      const shapes = shapesRef.current?.querySelectorAll(".about-shape");
-      if (shapes) {
-        gsap.set(shapes, { scale: 0, opacity: 0, rotation: -45 });
-        tl.to(shapes, {
-          scale: 1,
-          opacity: 1,
-          rotation: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "back.out(1.5)"
-        }, "-=0.5");
-
-        // Desktop parallax for shapes
-        mm.add("(min-width: 768px)", () => {
-          shapes.forEach((shape, i) => {
-            gsap.to(shape, {
-              y: (i + 1) * -25,
-              x: (i % 2 === 0 ? 1 : -1) * 15,
-              ease: "none",
-              scrollTrigger: {
-                trigger: containerRef.current,
-                start: "top bottom",
-                end: "bottom top",
-                scrub: 0.8,
-              }
-            });
-          });
-        });
-      }
-
-      // 6. Values Reveal inside visual box
-      const valueTags = visualRef.current?.querySelectorAll(".value-tag");
-      if (valueTags) {
-        gsap.set(valueTags, { y: 20, opacity: 0 });
-        tl.to(valueTags, {
-          y: 0,
-          opacity: 1,
-          duration: 0.5,
-          stagger: 0.1,
-          ease: "power2.out"
-        }, "-=0.6");
-      }
-
-      // Magnetic Hover Effects for Stats
-      mm.add("(hover: hover) and (pointer: fine)", () => {
-        const cleanupFns: (() => void)[] = [];
-        statBoxes?.forEach(box => {
-          const onMouseMove = (e: any) => {
-            const rect = box.getBoundingClientRect();
-            const x = (e.clientX - rect.left) - rect.width / 2;
-            const y = (e.clientY - rect.top) - rect.height / 2;
-            gsap.to(box, { x: x * 0.15, y: y * 0.15, duration: 0.4, ease: "power2.out" });
-          };
-          const onMouseLeave = () => {
-            gsap.to(box, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
-          };
-          box.addEventListener("mousemove", onMouseMove);
-          box.addEventListener("mouseleave", onMouseLeave);
-          cleanupFns.push(() => {
-            box.removeEventListener("mousemove", onMouseMove);
-            box.removeEventListener("mouseleave", onMouseLeave);
-          });
-        });
-        return () => cleanupFns.forEach(fn => fn());
-      });
-
     }, containerRef);
     return () => ctx.revert();
   }, [reducedMotion]);
 
   return (
-    <section
-      id="about"
-      ref={containerRef}
-      className="cv-auto about-section relative overflow-hidden py-12 sm:py-16"
-    >
-      <div className="absolute left-0 top-16 h-40 w-20 rounded-r-full bg-flame/30 blur-sm" aria-hidden="true" />
-      <div className="clip-triangle absolute bottom-10 right-4 h-28 w-28 bg-blush/35" aria-hidden="true" />
-
-      <Container className="grid gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
-        <div className="about-copy relative z-10">
-          <p className="mb-4 inline-flex border border-black/10 dark:border-white/10 bg-[var(--surface)] px-4 py-2 text-xs font-black uppercase tracking-[0.28em] text-flame dark:text-blush">
+    <section id="about" ref={containerRef} className="relative overflow-hidden bg-[var(--page)] py-24 sm:py-32 text-black dark:text-white border-t border-black/5 dark:border-white/5 transition-colors duration-500">
+      <div className="absolute left-0 top-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/5 dark:bg-white/5 blur-[120px] pointer-events-none transition-colors duration-500" />
+      <div className="absolute right-0 bottom-0 h-[500px] w-[500px] translate-x-1/3 translate-y-1/3 rounded-full bg-black/5 dark:bg-white/5 blur-[100px] pointer-events-none transition-colors duration-500" />
+      
+      <Container className="relative z-10 grid gap-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div ref={contentRef} className="relative z-10">
+          <div className="mb-6 inline-flex border border-black/10 dark:border-white/20 bg-black/5 dark:bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-black dark:text-white backdrop-blur-md rounded-full transition-colors duration-500">
             About me
-          </p>
-          <h2 ref={headingRef} className="max-w-3xl text-balance text-4xl font-black leading-[0.95] text-[var(--ink)] sm:text-5xl lg:text-6xl" style={{ perspective: "400px" }}>
-            I create modern digital experiences with creativity, technology, and purpose.
+          </div>
+          
+          <h2 className="max-w-3xl text-balance text-4xl font-light leading-[1.05] tracking-tight text-[var(--ink)] sm:text-5xl lg:text-6xl drop-shadow-sm dark:drop-shadow-2xl transition-colors duration-500">
+            I create modern digital experiences with <span className="font-serif italic text-black/70 dark:text-white/70">creativity</span> and purpose.
           </h2>
-          <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-flame dark:text-blush">
+          
+          <p className="mt-6 max-w-2xl text-lg font-normal leading-relaxed text-black/80 dark:text-white/80 transition-colors duration-500">
             Clean websites, AI-powered creativity, and user-focused design experiences.
           </p>
 
-          <div ref={textRef} className="mt-7 grid gap-4">
+          <div className="mt-10 grid gap-5">
             {paragraphs.map((paragraph) => (
-              <p key={paragraph} className="max-w-2xl text-base leading-8 text-[var(--ink)] opacity-70 sm:text-lg">
+              <p key={paragraph} className="max-w-2xl text-base leading-relaxed text-[var(--muted)] transition-colors duration-500">
                 {paragraph}
               </p>
             ))}
           </div>
 
-          <div ref={statsRef} className="mt-8 grid gap-3 sm:grid-cols-3">
+          <div className="mt-12 grid gap-4 sm:grid-cols-3">
             {stats.map((item) => (
-              <div
-                key={item.label}
-                className="about-stat group border border-black/10 dark:border-white/10 bg-[var(--surface)] p-5 transition-colors duration-300 hover:border-flame cursor-default"
-              >
-                <p className="text-3xl font-black text-flame dark:text-blush">{item.value}</p>
-                <p className="mt-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--ink)] opacity-70">
+              <div key={item.label} className="group border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-6 backdrop-blur-sm transition-colors duration-500 hover:border-black/20 dark:hover:border-white/30 rounded-2xl">
+                <p className="text-4xl font-light text-[var(--ink)]">{item.value}</p>
+                <p className="mt-3 text-[9px] font-bold uppercase tracking-[0.2em] text-black/50 dark:text-white/50">
                   {item.label}
                 </p>
               </div>
@@ -207,36 +75,31 @@ export function About() {
           </div>
         </div>
 
-        <div ref={visualRef} className="about-visual relative min-h-[430px] overflow-hidden border border-black/10 dark:border-white/10 bg-[var(--surface)] p-6 shadow-shape dark:shadow-shape-dark sm:min-h-[500px] sm:p-8">
-          <div className="absolute inset-0 shape-grid opacity-35" aria-hidden="true" />
-
-          <div className="about-glass absolute left-6 top-6 z-10 border border-white/25 bg-white/10 p-4 backdrop-blur-md dark:bg-black/10">
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-flame dark:text-blush">
+        <div className="relative min-h-[500px] w-full overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/5 p-8 backdrop-blur-sm transition-colors duration-500">
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,0,0,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)] pointer-events-none transition-colors duration-500" />
+           
+           <div className="absolute left-8 top-8 z-10 border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 p-5 backdrop-blur-md rounded-2xl transition-colors duration-500">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-black/50 dark:text-white/50">
               Mindset
             </p>
-            <p className="mt-2 max-w-52 text-sm font-bold leading-6 text-[var(--ink)]">
+            <p className="mt-3 max-w-52 text-sm font-normal leading-relaxed text-[var(--ink)]">
               Build modern experiences that combine creativity, performance, and meaningful design.
             </p>
           </div>
 
-          <div ref={shapesRef}>
-            <div className="about-shape about-shape-circle absolute right-[8%] top-[12%] h-44 w-44 rounded-full bg-blush/80" aria-hidden="true" />
-            <div className="about-shape about-shape-block absolute left-[12%] top-[34%] h-36 w-36 rotate-6 bg-flame/75" aria-hidden="true" />
-            <div className="about-shape about-shape-arch clip-semi absolute bottom-[10%] left-[18%] h-44 w-64 bg-ember/80" aria-hidden="true" />
-            <div className="about-shape about-shape-triangle clip-triangle absolute bottom-[20%] right-[9%] h-36 w-36 bg-flame/65" aria-hidden="true" />
-          </div>
-
-          <div className="about-ring absolute left-[44%] top-[43%] h-28 w-28 rounded-full border-[24px] border-white/70 dark:border-black/30" aria-hidden="true" />
-
-          <div className="absolute bottom-6 left-6 right-6 z-10 grid gap-3 sm:grid-cols-3">
+          <div className="absolute bottom-8 left-8 right-8 z-10 grid gap-3 sm:grid-cols-3">
             {values.map((value) => (
-              <div key={value} className="value-tag border border-black/10 dark:border-white/10 bg-[var(--page)]/85 px-4 py-3 backdrop-blur-sm shadow-sm transition-transform duration-300 hover:-translate-y-1 cursor-default">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--ink)]">
+              <div key={value} className="border border-black/5 dark:border-white/10 bg-white/70 dark:bg-black/50 px-4 py-3 backdrop-blur-md rounded-xl text-center transition-colors duration-500">
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]">
                   {value}
                 </p>
               </div>
             ))}
           </div>
+
+          <div className="absolute right-[10%] top-[20%] h-32 w-32 rounded-full border border-black/20 dark:border-white/20 bg-transparent animate-[spin_10s_linear_infinite]" />
+          <div className="absolute left-[20%] top-[40%] h-24 w-24 rotate-12 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 backdrop-blur-lg animate-[bounce_8s_ease-in-out_infinite]" />
+          <div className="absolute bottom-[30%] right-[25%] h-40 w-40 rounded-full border border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5 blur-xl animate-[pulse_6s_ease-in-out_infinite]" />
         </div>
       </Container>
     </section>

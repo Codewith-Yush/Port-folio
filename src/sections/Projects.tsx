@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "../utils/cn";
@@ -8,6 +9,7 @@ import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 gsap.registerPlugin(ScrollTrigger);
 
 export function Projects() {
+  const navigate = useNavigate();
   const reducedMotion = usePrefersReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -195,16 +197,20 @@ export function Projects() {
             )}
             onClick={(event) => {
               if ((event.target as HTMLElement).closest("a")) return;
-              const href = project.galleryLink ?? project.link;
-              if (!href) return;
-              window.open(href, "_blank", "noopener,noreferrer");
+              if (project.galleryLink) {
+                navigate(project.galleryLink);
+              } else if (project.link) {
+                window.open(project.link, "_blank", "noopener,noreferrer");
+              }
             }}
             onKeyDown={(event) => {
-              const href = project.galleryLink ?? project.link;
-              if (!href) return;
               if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
-                window.open(href, "_blank", "noopener,noreferrer");
+                if (project.galleryLink) {
+                  navigate(project.galleryLink);
+                } else if (project.link) {
+                  window.open(project.link, "_blank", "noopener,noreferrer");
+                }
               }
             }}
             role={project.galleryLink || project.link ? "button" : undefined}
@@ -261,8 +267,6 @@ export function Projects() {
                 {project.galleryLink ? (
                   <a
                     href={project.galleryLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="pointer-events-auto px-8 py-4 bg-white text-black text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:scale-105 transition-all duration-300"
                   >
                     View Canva Gallery

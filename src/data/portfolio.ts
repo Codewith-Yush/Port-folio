@@ -83,7 +83,7 @@ export const projects: Project[] = [
       { value: "15+", label: "Canva designs showcased" },
       { value: "100%", label: "customizable brand-ready visuals" },
     ],
-    galleryLink: "/canva-gallery.html",
+    galleryLink: "/canva-gallery",
     galleryImages: Array.from({ length: 15 }, (_, index) => `/images/projects/canva-${index + 1}.svg`),
   },
   {
