@@ -60,9 +60,9 @@ body {
 }
 .cursor.active { width: 60px; height: 60px; background-color: rgba(255, 51, 102, 0.1); border: 1px solid var(--accent); }
 @media(pointer: fine) { * { cursor: none !important; } }
-@media(max-width: 1024px), (pointer: coarse), (hover: none) { 
-  .cursor { display: none !important; opacity: 0 !important; visibility: hidden !important; } 
-  * { cursor: auto !important; } 
+@media(max-width: 1024px), (pointer: coarse), (hover: none) {
+  .cursor { display: none !important; opacity: 0 !important; visibility: hidden !important; }
+  * { cursor: auto !important; }
 }
 
 /* PORTFOLIO NAV REPLACEMENT */
@@ -372,7 +372,12 @@ const D = [
   {n:"12",src:"./images/projects/design12.png",label:"Max Print",cat:"print"},
   {n:"13",src:"./images/projects/design13.png",label:"Vapor Social",cat:"social"},
   {n:"14",src:"./images/projects/design14.png",label:"Liquid Move",cat:"motion"},
-  {n:"15",src:"./images/projects/design15.png",label:"Neo Brand",cat:"brand"}
+  {n:"15",src:"./images/projects/design15.png",label:"Neo Brand",cat:"brand"},
+  {n:"16",src:"./images/projects/design16.png",label:"Pixel Print",cat:"print"},
+  {n:"17",src:"./images/projects/design17.png",label:"Hologram Social",cat:"social"},
+  {n:"18",src:"./images/projects/design18.png",label:"Echo Motion",cat:"motion"},
+  {n:"19",src:"./images/projects/design19.png",label:"Prism Brand",cat:"brand"},
+  {n:"20",src:"./images/projects/design20.png",label:"Static Print",cat:"print"},
 ];
 
 // Performant Custom Cursor (only runs if not touch)
@@ -382,7 +387,7 @@ const cursor = document.getElementById('cursor');
 if (!isTouchDevice) {
   let cx = 0, cy = 0, tx = 0, ty = 0;
   document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; }, {passive: true});
-  
+
   function updateCursor() {
     cx += (tx - cx) * 0.2; cy += (ty - cy) * 0.2;
     cursor.style.setProperty('--x', cx + 'px');
@@ -397,7 +402,7 @@ const gallery = document.getElementById('gallery');
 D.forEach((d, i) => {
   const wrap = document.createElement('div');
   wrap.className = 'card-wrapper'; wrap.dataset.cat = d.cat;
-  
+
   const card = document.createElement('div');
   card.className = 'card';
   card.innerHTML = `
@@ -407,14 +412,14 @@ D.forEach((d, i) => {
       <div class="c-title">${d.label}</div>
     </div>
   `;
-  
+
   wrap.appendChild(card);
-  
+
   if (!isTouchDevice) {
     wrap.addEventListener('mouseenter', () => cursor.classList.add('active'));
     wrap.addEventListener('mouseleave', () => cursor.classList.remove('active'));
   }
-  
+
   wrap.addEventListener('click', () => openLb(i));
   gallery.appendChild(wrap);
 });
