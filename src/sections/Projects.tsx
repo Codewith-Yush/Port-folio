@@ -26,28 +26,25 @@ export function Projects() {
         const panels = panelsRef.current.filter(Boolean);
         if (!panels.length || !containerRef.current) return;
 
-        // Total scrollable width
         const totalWidth = window.innerWidth * panels.length;
 
-        // The master horizontal pinning tween
         const horizontalTween = gsap.to(panels, {
           xPercent: -100 * (panels.length - 1),
           ease: "none",
           scrollTrigger: {
             trigger: sectionRef.current,
             pin: true,
-            scrub: 1,
+            scrub: true, // Optimized: removed smooth scrub delay for raw performance
             snap: {
               snapTo: 1 / (panels.length - 1),
-              duration: { min: 0.15, max: 0.35 },
-              delay: 0.1,
+              duration: { min: 0.2, max: 0.3 },
               ease: "power2.inOut"
             },
             end: () => `+=${totalWidth}`,
           },
         });
 
-        // Sub-animations for each panel using containerAnimation
+        // Sub-animations for each panel
         panels.forEach((panel) => {
           if (!panel) return;
           const image = panel.querySelector(".project-image");
@@ -57,7 +54,7 @@ export function Projects() {
           if (image) {
             gsap.fromTo(
               image,
-              { xPercent: 14, scale: 1.08 },
+              { xPercent: 10, scale: 1.05 },
               {
                 xPercent: -5,
                 scale: 1,
@@ -76,16 +73,16 @@ export function Projects() {
           if (content) {
             gsap.fromTo(
               content,
-              { y: 60, opacity: 0 },
+              { y: 40, opacity: 0 },
               {
                 y: 0,
                 opacity: 1,
-                duration: 1,
+                duration: 0.8,
                 ease: "power3.out",
                 scrollTrigger: {
                   trigger: panel,
                   containerAnimation: horizontalTween,
-                  start: "left 65%",
+                  start: "left 75%",
                   toggleActions: "play none none reverse",
                 },
               }
@@ -95,17 +92,17 @@ export function Projects() {
           if (pills && pills.length) {
             gsap.fromTo(
               pills,
-              { y: 20, opacity: 0 },
+              { y: 15, opacity: 0 },
               {
                 y: 0,
                 opacity: 1,
-                stagger: 0.1,
-                duration: 0.6,
-                ease: "back.out(1.5)",
+                stagger: 0.05,
+                duration: 0.5,
+                ease: "power2.out",
                 scrollTrigger: {
                   trigger: panel,
                   containerAnimation: horizontalTween,
-                  start: "left 55%",
+                  start: "left 65%",
                   toggleActions: "play none none reverse",
                 },
               }
@@ -123,15 +120,15 @@ export function Projects() {
           if (content) {
             gsap.fromTo(
               content,
-              { y: 40, opacity: 0 },
+              { y: 30, opacity: 0 },
               {
                 y: 0,
                 opacity: 1,
-                duration: 0.8,
-                ease: "power3.out",
+                duration: 0.6,
+                ease: "power2.out",
                 scrollTrigger: {
                   trigger: panel,
-                  start: "top 80%",
+                  start: "top 85%",
                   toggleActions: "play none none none",
                 },
               }
@@ -142,7 +139,6 @@ export function Projects() {
 
     }, sectionRef);
 
-    // Refresh ScrollTrigger when images load to ensure correct heights
     const refreshFrame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
 
     return () => {
@@ -168,25 +164,22 @@ export function Projects() {
         {/* Intro Panel */}
         <div
           ref={(el) => { panelsRef.current[0] = el; }}
-          className="w-full xl:w-[100vw] h-[70vh] xl:h-full flex items-center justify-center border-b xl:border-b-0 xl:border-r border-black/5 dark:border-white/5 relative overflow-hidden shrink-0"
+          className="w-full xl:w-[100vw] h-[70vh] xl:h-full flex items-center justify-center border-b xl:border-b-0 xl:border-r border-black/5 dark:border-white/5 relative overflow-hidden shrink-0 bg-[var(--page)]"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-flame/5 via-transparent to-blush/5 opacity-50" />
-          <div className="text-center z-10 px-6 relative xl:pt-20">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-12 w-32 h-32 bg-flame/20 blur-[60px] rounded-full pointer-events-none" />
-            <p className="text-sm font-black uppercase tracking-[0.3em] text-flame mb-6 animate-pulse">Case Studies</p>
-            <h2 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-[var(--ink)] uppercase leading-[0.9]">
-              Selected <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-flame to-blush">Works</span>
+          <div className="text-center z-10 px-6 relative xl:pt-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink)] opacity-50 mb-6">Case Studies</p>
+            <h2 className="text-[clamp(3.5rem,8vw,8rem)] font-light tracking-tight text-[var(--ink)] uppercase leading-[1.05]">
+              <span className="block">Selected</span>
+              <span className="block font-serif italic text-[var(--ink)]/70 normal-case">Works</span>
             </h2>
-            <p className="mt-8 text-lg font-medium text-[var(--ink)] opacity-90 max-w-md mx-auto">
+            <p className="mt-8 text-base font-normal text-[var(--ink)] opacity-60 max-w-md mx-auto leading-relaxed">
               A cinematic horizontal gallery exploring my latest projects, architectural deep-dives, and frontend mastery.
             </p>
-            <div className="mt-12 hidden xl:flex justify-center">
-              <div className="w-16 h-16 rounded-full border border-black/10 dark:border-white/10 flex items-center justify-center animate-[spin_4s_linear_infinite] shadow-sm">
-                <span className="text-2xl font-black text-[var(--ink)] opacity-80">→</span>
-              </div>
+            <div className="mt-16 hidden xl:flex justify-center opacity-40">
+              <span className="text-sm font-semibold uppercase tracking-[0.25em]">Scroll &rarr;</span>
             </div>
-            <div className="mt-12 xl:hidden flex justify-center">
-              <span className="text-sm font-bold uppercase tracking-widest opacity-50 animate-bounce">Scroll Down ↓</span>
+            <div className="mt-12 xl:hidden flex justify-center opacity-40">
+              <span className="text-xs font-semibold uppercase tracking-widest animate-bounce">&darr; Scroll Down</span>
             </div>
           </div>
         </div>
@@ -218,62 +211,59 @@ export function Projects() {
             tabIndex={project.galleryLink || project.link ? 0 : undefined}
           >
             {/* Content Side */}
-            <div className="project-content w-full xl:w-[45%] p-8 md:p-16 xl:px-24 xl:pb-24 xl:pt-32 flex flex-col justify-center relative z-10 bg-[var(--page)] xl:bg-transparent h-full order-2 xl:order-1 border-t xl:border-t-0 border-black/5 dark:border-white/5 shadow-[-20px_0_40px_-20px_rgba(0,0,0,0.1)] dark:shadow-[-20px_0_40px_-20px_rgba(255,255,255,0.05)]">
-              <div className="flex items-center gap-4 mb-6">
-                <span className="text-5xl md:text-7xl font-black text-black/30 dark:text-white/30 leading-none">0{index + 1}</span>
-                <span className="px-3 py-1 bg-flame/10 text-flame text-xs font-black uppercase tracking-widest rounded-md border border-flame/20 shadow-sm">{project.year}</span>
+            <div className="project-content w-full xl:w-[40%] p-10 md:p-16 xl:px-24 flex flex-col justify-center relative z-10 bg-[var(--page)] xl:bg-[var(--page)] h-full order-2 xl:order-1 border-t xl:border-t-0 xl:border-r border-black/5 dark:border-white/5">
+              <div className="flex items-center gap-4 mb-8 opacity-40">
+                <span className="text-4xl md:text-5xl font-light leading-none">0{index + 1}</span>
+                <span className="text-sm font-semibold tracking-widest">{project.year}</span>
               </div>
 
-              <h3 className="text-3xl md:text-4xl xl:text-5xl font-black text-[var(--ink)] tracking-tighter mb-4 leading-[1.05]">
+              <h3 className="text-4xl md:text-5xl xl:text-6xl font-light text-[var(--ink)] tracking-tight mb-5 leading-[1.1]">
                 {project.title}
               </h3>
 
-              <p className="text-base md:text-lg font-medium text-[var(--ink)] opacity-70 mb-6 max-w-xl leading-relaxed">
+              <p className="text-base md:text-lg font-normal text-[var(--ink)] opacity-60 mb-8 max-w-xl leading-relaxed">
                 {project.description}
               </p>
 
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap gap-2 mb-10">
                 {project.stack.map(tech => (
-                  <span key={tech} className="tech-pill px-4 py-2 border border-black/10 dark:border-white/10 bg-[var(--surface)]/50 backdrop-blur-md rounded-lg text-xs font-black uppercase tracking-widest text-[var(--ink)] shadow-sm">
+                  <span key={tech} className="tech-pill px-4 py-2 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-[var(--ink)] opacity-80">
                     {tech}
                   </span>
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-8 pt-6 border-t border-black/5 dark:border-white/5">
+              <div className="grid grid-cols-2 gap-8 pt-8 border-t border-black/5 dark:border-white/5 opacity-80">
                 {project.metrics.map(metric => (
                   <div key={metric.label}>
-                    <div className="text-3xl xl:text-4xl font-black text-flame drop-shadow-sm">{metric.value}</div>
-                    <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--ink)] opacity-80 mt-2 leading-snug max-w-[120px]">{metric.label}</div>
+                    <div className="text-2xl xl:text-3xl font-medium text-[var(--ink)]">{metric.value}</div>
+                    <div className="text-[9px] uppercase tracking-[0.2em] font-bold text-[var(--ink)] opacity-50 mt-2 max-w-[120px]">{metric.label}</div>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Image Side (Cinematic) */}
-            <div className="w-full xl:w-[55%] h-[50vh] xl:h-full relative overflow-hidden bg-black order-1 xl:order-2">
-              {/* Dynamic Overlay Lighting */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--page)] via-transparent to-transparent xl:bg-gradient-to-r xl:from-[var(--page)] xl:via-black/20 xl:to-transparent z-10 opacity-100 xl:opacity-80 transition-opacity duration-700 group-hover:opacity-40 pointer-events-none" />
-
-              {/* Fallback image background if src is missing/broken */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-black z-0" />
-
+            <div className="w-full xl:w-[60%] h-[50vh] xl:h-full relative overflow-hidden bg-[#0a0a0a] order-1 xl:order-2">
               <img
                 src={project.image}
                 alt={project.title}
                 loading="lazy"
                 decoding="async"
-                className="project-image absolute inset-0 w-full h-full object-cover object-center opacity-60 group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] z-0"
+                className="project-image absolute inset-0 w-full h-full object-cover object-center opacity-80 group-hover:opacity-100 transition-opacity duration-700 ease-out z-0"
               />
+              
+              {/* Clean Overlay Gradient for text legibility if needed, keeping it very light */}
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-700 pointer-events-none z-10" />
 
               {/* Hover Interactions Button */}
-              <div className="absolute inset-0 z-20 flex items-center justify-center opacity-100 pointer-events-auto sm:pointer-events-none sm:opacity-0 sm:group-hover:opacity-100 sm:translate-y-8 sm:group-hover:translate-y-0 transition-all duration-500">
+              <div className="absolute inset-0 z-20 flex items-center justify-center opacity-100 pointer-events-auto sm:pointer-events-none sm:opacity-0 sm:group-hover:opacity-100 sm:translate-y-4 sm:group-hover:translate-y-0 transition-all duration-500">
                 {project.galleryLink ? (
                   <a
                     href={project.galleryLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="pointer-events-auto px-6 py-3 bg-white text-black text-xs font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-flame hover:text-white transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+                    className="pointer-events-auto px-8 py-4 bg-white text-black text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:scale-105 transition-all duration-300"
                   >
                     View Canva Gallery
                   </a>
@@ -282,7 +272,7 @@ export function Projects() {
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="pointer-events-auto px-6 py-3 bg-white text-black text-xs font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-flame hover:text-white transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+                    className="pointer-events-auto px-8 py-4 bg-white text-black text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:scale-105 transition-all duration-300"
                   >
                     Explore Live Project
                   </a>
@@ -292,7 +282,6 @@ export function Projects() {
           </div>
         ))}
       </div>
-
     </section>
   );
 }

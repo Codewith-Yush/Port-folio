@@ -138,7 +138,7 @@ export function Header() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-500",
         isScrolled
-          ? "border-b border-white/10 bg-black/85 backdrop-blur-3xl"
+          ? "bg-[var(--page)]/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.05)]"
           : "bg-transparent"
       )}
     >
@@ -146,7 +146,10 @@ export function Header() {
         <a
           href="#hero"
           onClick={closeMenu}
-          className="group flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.45em] text-white/90 transition-colors duration-300"
+          className={cn(
+            "group flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.45em] transition-colors duration-300",
+            isScrolled ? "text-[var(--ink)]/90" : "text-white/90"
+          )}
           aria-label="Ayush Singh"
         >
           <span className="inline-flex h-2 w-2 rounded-full bg-[#ff5a3d] shadow-[0_0_20px_rgba(255,90,61,0.28)]" />
@@ -163,8 +166,10 @@ export function Header() {
                 href={item.href}
                 data-nav-item="true"
                 className={cn(
-                  "group relative text-sm font-medium uppercase tracking-[0.4em] text-white/60 transition-colors duration-300",
-                  isActive ? "text-white" : "hover:text-white/95"
+                  "group relative text-sm font-medium uppercase tracking-[0.4em] transition-colors duration-300",
+                  isScrolled
+                    ? (isActive ? "text-[var(--ink)]" : "text-[var(--ink)]/60 hover:text-[var(--ink)]/95")
+                    : (isActive ? "text-white" : "text-white/60 hover:text-white/95")
                 )}
               >
                 <span>{item.label}</span>
@@ -189,8 +194,11 @@ export function Header() {
             aria-expanded={open}
             aria-label="Toggle menu"
             className={cn(
-              "group relative flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition-all duration-300 md:hidden hover:border-white/25 hover:bg-white/10 active:scale-95",
-              open && "border-[#ff5a3d]/30 bg-[#ff5a3d]/10"
+              "group relative flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 md:hidden active:scale-95",
+              isScrolled 
+                ? "bg-[var(--ink)]/5 text-[var(--ink)] hover:bg-[var(--ink)]/10" 
+                : "bg-white/10 text-white hover:bg-white/20",
+              open && (isScrolled ? "bg-[#ff5a3d]/10 text-[#ff5a3d]" : "bg-[#ff5a3d] text-white")
             )}
           >
             <span
@@ -218,7 +226,7 @@ export function Header() {
       <div className="md:hidden">
         <div
           ref={mobilePanelRef}
-          className="mt-2 overflow-hidden bg-black/90 backdrop-blur-3xl shadow-[0_30px_80px_rgba(0,0,0,0.25)]"
+          className="mt-2 overflow-hidden bg-[var(--page)]/90 backdrop-blur-3xl shadow-[0_30px_80px_rgba(0,0,0,0.1)]"
           style={{ height: 0, opacity: 0, pointerEvents: "none" }}
         >
           <nav className="px-6 py-5">
@@ -233,10 +241,10 @@ export function Header() {
                     onClick={closeMenu}
                     data-mobile-link="true"
                     className={cn(
-                      "group rounded-3xl border border-white/10 px-5 py-4 text-base font-semibold uppercase tracking-[0.35em] text-white/80 transition-all duration-300",
+                      "group rounded-3xl px-5 py-4 text-base font-semibold uppercase tracking-[0.35em] transition-all duration-300",
                       isActive
-                        ? "bg-white/10 text-white"
-                        : "hover:border-white/20 hover:bg-white/10 hover:text-white"
+                        ? "bg-[var(--ink)]/10 text-[var(--ink)]"
+                        : "text-[var(--ink)]/70 hover:bg-[var(--ink)]/5 hover:text-[var(--ink)]"
                     )}
                   >
                     <span className="flex items-center justify-between gap-4">

@@ -123,13 +123,13 @@ export function CustomCursor() {
           border:        isTextHover
             ? "none"
             : (hovering
-              ? "2px solid var(--flame)"
-              : "1.5px solid color-mix(in srgb, var(--flame) 70%, transparent)"),
-          backdropFilter: (hovering || isTextHover) ? "blur(2px)" : "none",
+              ? "2px solid white"
+              : "1.5px solid rgba(255, 255, 255, 0.7)"),
+          backdropFilter: "none",
           backgroundColor: isTextHover 
             ? "white" 
-            : (hovering ? "color-mix(in srgb, var(--flame) 12%, transparent)" : "transparent"),
-          mixBlendMode: isTextHover ? "difference" : "normal",
+            : (hovering ? "rgba(255, 255, 255, 0.1)" : "transparent"),
+          mixBlendMode: "difference",
           opacity:   visible ? 1 : 0,
           transform: `translate(${ring.current.x}px, ${ring.current.y}px) translate(-50%,-50%)`,
           scale:     clicking ? "0.85" : "1",
@@ -154,7 +154,8 @@ export function CustomCursor() {
           width:           (hovering || isTextHover) ? "0px" : "7px",
           height:          (hovering || isTextHover) ? "0px" : "7px",
           borderRadius:    "999px",
-          backgroundColor: "var(--flame)",
+          backgroundColor: "white",
+          mixBlendMode:    "difference",
           opacity:         visible ? ((hovering || isTextHover) ? 0 : 1) : 0,
           scale:           clicking ? "0.7" : "1",
           transition:

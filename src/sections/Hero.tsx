@@ -50,90 +50,64 @@ export function Hero() {
         gsap.set([contentRef.current, ...revealTargets, ...socialsRef.current], {
           opacity: 1,
           y: 0,
-          clearProps: "filter,transform",
+          clearProps: "transform",
         });
         return;
       }
 
       const mm = gsap.matchMedia();
-      const timeline = gsap.timeline({ defaults: { ease: "power4.out" } });
+      const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      gsap.set(contentRef.current, { opacity: 0, y: 18, filter: "blur(10px)" });
-      gsap.set(".heading-line", { y: "112%", opacity: 0, rotateX: -8 });
-      gsap.set(revealTargets, { opacity: 0, y: 18 });
-      gsap.set(socialsRef.current, { opacity: 0, y: 14 });
+      gsap.set(contentRef.current, { opacity: 0, scale: 0.96 });
+      gsap.set(".heading-line", { y: "100%", opacity: 0, rotateX: -10 });
+      gsap.set(revealTargets, { opacity: 0, y: 15 });
+      gsap.set(socialsRef.current, { opacity: 0, y: 10 });
 
-      gsap.fromTo(videoRef.current, { scale: 1.02 }, { scale: 1, duration: 3.5, ease: "power1.out" });
+      // Slow cinematic zoom out on the video
+      gsap.fromTo(videoRef.current, { scale: 1.1 }, { scale: 1, duration: 6, ease: "power2.out" });
 
       timeline
-        .to(contentRef.current, { opacity: 1, y: 0, filter: "none", duration: 1.05, force3D: true }, 0.25)
+        .to(contentRef.current, { opacity: 1, scale: 1, duration: 1.5, force3D: true }, 0.2)
         .to(
           ".heading-line",
           {
             y: "0%",
             rotateX: 0,
             opacity: 1,
-            duration: 1.1,
-            stagger: 0.12,
+            duration: 1.2,
+            stagger: 0.15,
             force3D: true,
           },
-          0.5,
+          0.35
         )
-        .to(pillRef.current, { opacity: 1, y: 0, duration: 0.8, force3D: true }, 1.0)
-        .to(descRef.current, { opacity: 1, y: 0, duration: 0.8, force3D: true }, 1.18)
-        .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.8, force3D: true }, 1.34)
-        .to(socialsRef.current, { opacity: 1, y: 0, duration: 0.55, stagger: 0.08, force3D: true }, 1.52)
-        .to(scrollRef.current, { opacity: 1, y: 0, duration: 0.75, force3D: true }, 1.72);
+        .to(pillRef.current, { opacity: 1, y: 0, duration: 0.9, force3D: true }, 0.8)
+        .to(descRef.current, { opacity: 1, y: 0, duration: 0.9, force3D: true }, 1.0)
+        .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.9, force3D: true }, 1.2)
+        .to(socialsRef.current, { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, force3D: true }, 1.4)
+        .to(scrollRef.current, { opacity: 1, y: 0, duration: 0.9, force3D: true }, 1.6);
 
       mm.add("(min-width: 768px)", () => {
         gsap.to(videoRef.current, {
-          yPercent: 10,
+          yPercent: 8,
           ease: "none",
           scrollTrigger: {
             trigger: heroRef.current,
             start: "top top",
             end: "bottom top",
-            scrub: 0.8,
+            scrub: true,
           },
         });
 
         gsap.to(contentRef.current, {
-          yPercent: 5,
+          yPercent: 12,
           ease: "none",
           scrollTrigger: {
             trigger: heroRef.current,
             start: "top top",
             end: "bottom top",
-            scrub: 1,
+            scrub: true,
           },
         });
-      });
-
-      mm.add("(hover: hover) and (pointer: fine)", () => {
-        const magneticElements = document.querySelectorAll(".magnetic-wrap");
-        const cleanupFns: (() => void)[] = [];
-
-        magneticElements.forEach((elem) => {
-          const target = elem as HTMLElement;
-          const onMouseMove = (event: MouseEvent) => {
-            const rect = target.getBoundingClientRect();
-            const x = event.clientX - rect.left - rect.width / 2;
-            const y = event.clientY - rect.top - rect.height / 2;
-            gsap.to(target, { x: x * 0.16, y: y * 0.16, duration: 0.45, ease: "power2.out" });
-          };
-          const onMouseLeave = () => {
-            gsap.to(target, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
-          };
-
-          target.addEventListener("mousemove", onMouseMove);
-          target.addEventListener("mouseleave", onMouseLeave);
-          cleanupFns.push(() => {
-            target.removeEventListener("mousemove", onMouseMove);
-            target.removeEventListener("mouseleave", onMouseLeave);
-          });
-        });
-
-        return () => cleanupFns.forEach((fn) => fn());
       });
     }, heroRef);
 
@@ -144,8 +118,7 @@ export function Hero() {
     <section
       id="hero"
       ref={heroRef}
-      className="relative flex min-h-[100svh] items-center justify-start overflow-hidden bg-[#050816] pt-20 text-white transition-colors duration-500"
-      style={{ isolation: "isolate" }}
+      className="font-inter relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-[#050505] pt-16 text-white"
     >
       <div className="absolute inset-0 z-0 h-full w-full overflow-hidden" style={{ backfaceVisibility: "hidden" }}>
         <video
@@ -158,121 +131,105 @@ export function Hero() {
           playsInline
           preload="metadata"
           aria-hidden="true"
-          className="hero-video-media absolute inset-0 h-full w-full object-cover opacity-100"
+          className="absolute inset-0 h-full w-full object-cover opacity-60"
           style={{ willChange: "transform", backfaceVisibility: "hidden" }}
         />
-        {/* Layered Overlays for better depth and performance */}
-        <div className="hero-video-scrim absolute inset-0 pointer-events-none" style={{ zIndex: 1 }} />
-        <div className="hero-video-vignette absolute inset-0 pointer-events-none" style={{ zIndex: 2 }} />
-        <div className="hero-edge-light absolute inset-0 pointer-events-none" style={{ zIndex: 3 }} />
-        <div className="hero-film-grain absolute inset-0 pointer-events-none" style={{ zIndex: 4 }} />
+        {/* Cinematic Vignette & Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#050505]/90 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)] pointer-events-none" />
       </div>
 
       <div
         ref={contentRef}
-        className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col items-start justify-center px-5 py-16 sm:px-8 sm:py-20 md:px-12 lg:py-24"
-        style={{ transform: "translate3d(0,0,0)", backfaceVisibility: "hidden" }}
+        className="relative z-10 mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center px-6 text-center text-white pt-20"
       >
-        <div className="hero-copy-panel w-full max-w-[min(54rem,100%)]">
-          <div
-            ref={pillRef}
-            className="mb-5 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-2 shadow-[0_18px_55px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:mb-7"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-            </span>
-            <span className="text-[9px] font-black uppercase tracking-[0.24em] text-white/90 sm:text-[10px]">
-              Available for Freelance
-            </span>
-          </div>
+        <div
+          ref={pillRef}
+          className="mb-8 flex items-center gap-3 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 backdrop-blur-md"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/90">
+            Available for Freelance
+          </span>
+        </div>
 
-          <h1
-            ref={titleRef}
-            className="max-w-[54rem] text-[clamp(2.35rem,5.2vw,4rem)] font-black uppercase leading-[0.98] tracking-normal text-white [text-shadow:0_6px_38px_rgba(0,0,0,0.55)]"
-            style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}
-          >
-            <span className="block overflow-hidden py-1.5">
-              <span className="heading-line inline-block" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>Full Stack Developer,</span>
+        <h1
+          ref={titleRef}
+          className="max-w-[70rem] text-[clamp(2.5rem,6vw,5.5rem)] font-light leading-[1.05] tracking-tight text-white drop-shadow-2xl"
+          style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}
+        >
+          <span className="block overflow-hidden py-1">
+            <span className="heading-line inline-block" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>
+              Full Stack Developer,
             </span>
-            <span className="block overflow-hidden py-1.5">
-              <span className="heading-line inline-block" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>Freelancer &</span>
+          </span>
+          <span className="block overflow-hidden py-1">
+            <span className="heading-line inline-block font-serif italic text-white/80" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>
+              Freelancer &
             </span>
-            <span className="block overflow-hidden py-1.5">
-              <span className="heading-line hero-gradient-text inline-block bg-clip-text text-transparent" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>
-                Data Science Student
-              </span>
+          </span>
+          <span className="block overflow-hidden py-1">
+            <span className="heading-line inline-block font-semibold" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>
+              Data Science Student.
             </span>
-          </h1>
+          </span>
+        </h1>
 
-          <p
-            ref={descRef}
-            className="mt-5 max-w-2xl text-base font-medium leading-relaxed text-white/86 [text-shadow:0_3px_18px_rgba(0,0,0,0.6)] sm:mt-7 sm:text-lg lg:text-xl"
-            style={{ transform: "translate3d(0,0,0)", backfaceVisibility: "hidden" }}
-          >
-            I build cinematic digital experiences bridging the gap between cutting-edge data architecture and premium frontend
-            design.
-          </p>
+        <p
+          ref={descRef}
+          className="mt-8 max-w-2xl text-base font-normal leading-relaxed text-white/80 sm:mt-10 sm:text-lg lg:text-xl drop-shadow-lg"
+        >
+          I build cinematic digital experiences bridging the gap between cutting-edge data architecture and premium frontend design.
+        </p>
 
-          <div ref={ctaRef} className="mt-9 flex w-full flex-col items-stretch gap-4 sm:mt-11 sm:w-auto sm:flex-row sm:items-center">
-            <div className="magnetic-wrap inline-block">
+        <div ref={ctaRef} className="mt-12 flex flex-col sm:flex-row items-center gap-6">
+          <a
+            href="#work"
+            className="group relative inline-flex min-h-[56px] w-[220px] items-center justify-center overflow-hidden rounded-full bg-white px-9 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-black transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.4)]"
+          >
+            <span>View Projects</span>
+          </a>
+          <a
+            href="#contact"
+            className="group relative inline-flex min-h-[56px] w-[220px] items-center justify-center overflow-hidden rounded-full border border-white/30 bg-transparent px-9 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-all duration-500 hover:border-white hover:bg-white/10"
+          >
+            <span>Contact Me</span>
+          </a>
+        </div>
+
+        <div className="mt-14 flex items-center justify-center gap-5">
+          {socials.map((social, index) => (
+            <div
+              key={social.name}
+              ref={(el) => {
+                socialsRef.current[index] = el;
+              }}
+            >
               <a
-                href="#work"
-                className="hero-cta hero-cta--primary group inline-flex min-h-14 w-full items-center justify-center gap-3 px-7 py-4 text-xs font-black uppercase tracking-[0.18em] transition-all duration-300 sm:w-auto"
+                href={social.url}
+                aria-label={social.name}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-all duration-300 hover:scale-110 hover:border-white/40 hover:bg-white/10 hover:text-white"
               >
-                View Projects
-                <span aria-hidden="true" className="transition duration-300 group-hover:translate-x-1">
-                  -&gt;
-                </span>
+                <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+                  {social.icon}
+                </svg>
               </a>
             </div>
-            <div className="magnetic-wrap inline-block">
-              <a
-                href="#contact"
-                className="hero-cta hero-cta--secondary group inline-flex min-h-14 w-full items-center justify-center gap-3 px-7 py-4 text-xs font-black uppercase tracking-[0.18em] transition-all duration-300 sm:w-auto"
-              >
-                Contact Me
-                <span aria-hidden="true" className="transition duration-300 group-hover:translate-x-1">
-                  -&gt;
-                </span>
-              </a>
-            </div>
-          </div>
-
-          <div className="mt-9 flex items-center gap-3 sm:mt-12">
-            {socials.map((social, index) => (
-              <div
-                key={social.name}
-                className="magnetic-wrap inline-block"
-                ref={(el) => {
-                  socialsRef.current[index] = el;
-                }}
-              >
-                <a
-                  href={social.url}
-                  aria-label={social.name}
-                  className="hero-social-link flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white/78 shadow-[0_14px_40px_rgba(0,0,0,0.18)] backdrop-blur-md transition-all duration-300 hover:border-white/35 hover:bg-white/18 hover:text-white sm:h-12 sm:w-12"
-                >
-                  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
-                    {social.icon}
-                  </svg>
-                </a>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
 
       <div
         ref={scrollRef}
-        className="pointer-events-none absolute bottom-8 left-6 z-10 hidden items-center gap-4 text-white/42 md:left-12 md:flex"
+        className="pointer-events-none absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-4 text-white/60"
       >
-        <div className="relative h-14 w-px overflow-hidden bg-white/18">
-          <div className="absolute left-0 top-0 h-1/2 w-full animate-[bounce_2s_infinite] bg-[#ff7a45]/80" />
+        <span className="text-[9px] font-bold uppercase tracking-[0.3em]">Scroll</span>
+        <div className="relative h-16 w-[1px] overflow-hidden bg-white/20">
+          <div className="absolute left-0 top-0 h-1/2 w-full animate-[bounce_2s_infinite] bg-white" />
         </div>
-        <span className="origin-left translate-x-3 translate-y-6 rotate-[-90deg] text-[10px] font-bold uppercase tracking-[0.3em]">
-          Scroll
-        </span>
       </div>
     </section>
   );
