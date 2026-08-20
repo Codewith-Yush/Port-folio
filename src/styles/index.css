@@ -807,8 +807,34 @@ a {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (max-width: 768px) {
+  /* Prevent GPU overload from massive Gaussian blurs on mobile */
+  .blur-\[120px\],
+  .blur-\[130px\],
+  .blur-\[140px\],
+  .blur-\[150px\] {
+    filter: blur(36px) !important;
+    opacity: 0.35 !important;
+  }
+  
+  .backdrop-blur-3xl,
+  .backdrop-blur-2xl {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+}
 
+/* GPU Hardware compositing for silky 60/120fps scrolling */
+section,
+.dashboard-panel,
+.project-card,
+.skill-loop__card {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { ExternalLink, Sparkles, ArrowUpRight, Layers, Eye } from "lucide-react";
 import type { Project } from "../data/portfolio";
 import { cn } from "../utils/cn";
@@ -11,7 +11,7 @@ type ProjectCardProps = {
 
 export function ProjectCard({ project, index, onSelect }: ProjectCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0, isHovered: false });
+  const spotlightRef = useRef<HTMLDivElement>(null);
 
   const isCanva = Boolean(project.galleryLink);
   const formattedIndex = String(index + 1).padStart(2, "0");
@@ -19,15 +19,18 @@ export function ProjectCard({ project, index, onSelect }: ProjectCardProps) {
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current || window.matchMedia("(pointer: coarse)").matches) return;
     const rect = cardRef.current.getBoundingClientRect();
-    setMousePos({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-      isHovered: true,
-    });
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    if (spotlightRef.current) {
+      spotlightRef.current.style.background = `radial-gradient(400px circle at ${x}px ${y}px, rgba(37, 42, 52, 0.12) 0%, transparent 70%)`;
+      spotlightRef.current.style.opacity = "1";
+    }
   };
 
   const handleMouseLeave = () => {
-    setMousePos((prev) => ({ ...prev, isHovered: false }));
+    if (spotlightRef.current) {
+      spotlightRef.current.style.opacity = "0";
+    }
   };
 
   return (
@@ -39,18 +42,15 @@ export function ProjectCard({ project, index, onSelect }: ProjectCardProps) {
         "group relative flex flex-col justify-between overflow-hidden rounded-3xl",
         "border border-black/10 dark:border-white/10",
         "bg-[var(--surface)]/90 dark:bg-[#0c0c10]/95 backdrop-blur-xl",
-        "shadow-lg hover:shadow-2xl hover:border-[var(--flame)]/50 transition-all duration-500 ease-out",
+        "shadow-lg hover:shadow-2xl hover:border-black/20 dark:hover:border-white/20 transition-all duration-300 ease-out",
         "text-[var(--ink)]"
       )}
+      style={{ transform: "translateZ(0)", willChange: "transform" }}
     >
-      {/* Dynamic Cursor Spotlight Glow */}
+      {/* Dynamic Cursor Spotlight Glow (GPU accelerated) */}
       <div
-        className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: mousePos.isHovered
-            ? `radial-gradient(500px circle at ${mousePos.x}px ${mousePos.y}px, color-mix(in srgb, var(--flame) 18%, transparent) 0%, transparent 70%)`
-            : "transparent",
-        }}
+        ref={spotlightRef}
+        className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition-opacity duration-200"
       />
 
       {/* Top Browser / Media Preview Frame */}

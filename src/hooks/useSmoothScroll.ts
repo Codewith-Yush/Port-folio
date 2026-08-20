@@ -10,28 +10,27 @@ export function useSmoothScroll() {
     if (typeof window === "undefined") return;
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
-    const shouldSkipSmoothScroll = prefersReducedMotion || isTouchDevice;
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
 
-    if (shouldSkipSmoothScroll) {
+    // Use fast native momentum scroll on touch devices / mobile to eliminate any touch lag
+    if (prefersReducedMotion || isTouchDevice) {
       return;
     }
 
-    // 1. Initialize Lenis
+    // 1. Initialize Lenis with high-performance desktop settings
     const lenis = new Lenis({
-      duration: 1.4,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 1.1,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 1.0,
       infinite: false,
     });
 
     lenisRef.current = lenis;
 
-    // 2. Synchronize with GSAP ScrollTrigger
+    // 2. Synchronize smoothly with GSAP ScrollTrigger
     lenis.on("scroll", ScrollTrigger.update);
 
     const rafCallback = (time: number) => {
@@ -39,9 +38,10 @@ export function useSmoothScroll() {
     };
 
     gsap.ticker.add(rafCallback);
-    gsap.ticker.lagSmoothing(0);
+    // Enable reasonable lag smoothing so CPU spikes don't cause visible jumps
+    gsap.ticker.lagSmoothing(500, 33);
 
-    // 3. Handle anchor link clicks
+    // 3. Handle anchor link clicks smoothly
     const handleClick = (event: MouseEvent) => {
       const anchor = (event.target as Element | null)?.closest("a");
       if (!anchor) return;
@@ -54,11 +54,11 @@ export function useSmoothScroll() {
 
       event.preventDefault();
 
-      const headerOffset = window.matchMedia("(max-width: 768px)").matches ? 70 : 80;
+      const headerOffset = 75;
 
       lenis.scrollTo(target, {
         offset: -headerOffset,
-        duration: 1.5,
+        duration: 1.1,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       });
 
@@ -72,7 +72,7 @@ export function useSmoothScroll() {
       if (target) {
         setTimeout(() => {
           lenis.scrollTo(target, {
-            offset: -80,
+            offset: -75,
             immediate: true,
           });
         }, 100);
@@ -88,4 +88,3 @@ export function useSmoothScroll() {
 
   return lenisRef.current;
 }
-
