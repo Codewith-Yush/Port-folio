@@ -224,8 +224,8 @@ export function Header() {
                   isActive
                     ? "bg-[#252A34] text-white dark:bg-white dark:text-black shadow-md scale-105"
                     : isScrolled
-                    ? "text-[var(--ink)]/80 hover:text-[var(--ink)] hover:bg-black/5 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/10"
-                    : "text-white/85 hover:text-white hover:bg-white/15"
+                      ? "text-[var(--ink)]/80 hover:text-[var(--ink)] hover:bg-black/5 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/10"
+                      : "text-white/85 hover:text-white hover:bg-white/15"
                 )}
               >
                 <span>{item.label}</span>

@@ -216,52 +216,6 @@ a {
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 
-.premium-button {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.premium-button::before {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  content: "";
-  background:
-    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.26) 45%, transparent 72%),
-    linear-gradient(135deg, var(--flame), var(--ember), var(--blush));
-  opacity: 0;
-  transform: translateX(-120%);
-  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-}
-
-.premium-button::after {
-  position: absolute;
-  inset: 2px;
-  z-index: -1;
-  content: "";
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  opacity: 0;
-  transform: scale(0.94);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.premium-button:hover::before,
-.premium-button:focus-visible::before {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.premium-button:hover::after,
-.premium-button:focus-visible::after {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.premium-button--secondary:hover {
-  color: white;
-  box-shadow: 0 18px 46px color-mix(in srgb, var(--flame) 24%, transparent);
-}
 
 .contact-form {
   position: relative;
@@ -608,7 +562,8 @@ a {
 
 .hero-video-media {
   background: #050816;
-  filter: brightness(1.05) contrast(1.05); /* Increased clarity and pop */
+  filter: brightness(1.05) contrast(1.05);
+  /* Increased clarity and pop */
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
 }
@@ -634,7 +589,8 @@ a {
 }
 
 .hero-film-grain {
-  opacity: 0.04; /* Significantly reduced for clarity */
+  opacity: 0.04;
+  /* Significantly reduced for clarity */
   background-image:
     linear-gradient(0deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.12) 1px, transparent 0);
@@ -808,6 +764,7 @@ a {
 }
 
 @media (max-width: 768px) {
+
   /* Prevent GPU overload from massive Gaussian blurs on mobile */
   .blur-\[120px\],
   .blur-\[130px\],
@@ -816,7 +773,7 @@ a {
     filter: blur(36px) !important;
     opacity: 0.35 !important;
   }
-  
+
   .backdrop-blur-3xl,
   .backdrop-blur-2xl {
     backdrop-filter: blur(10px) !important;
@@ -835,6 +792,7 @@ section,
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -844,5 +802,3 @@ section,
     transition-duration: 0.01ms !important;
   }
 }
-
-
