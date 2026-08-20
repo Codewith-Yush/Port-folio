@@ -4,48 +4,48 @@
 
 :root {
   color-scheme: light;
-  --flame: #7C3AED;
-  /* Digital Lavender / Violet 600 */
-  --ember: #6366F1;
-  /* Indigo 500 */
-  --blush: #F472B6;
-  /* Pink 400 */
-  --page: #FAF9FF;
-  /* Crisp Lavender White */
-  --surface: #F3E8FF;
-  /* Soft Lavender */
-  --surface-strong: #EDE9FE;
-  /* Deeper Lavender */
-  --ink: #1E1B4B;
-  /* Deep Indigo text */
-  --muted: #6366F1;
-  --line: #DDD6FE;
+  --flame: #252A34;
+  /* Dark Gunmetal Charcoal (#252A34) */
+  --ember: #393E46;
+  /* Slate Charcoal */
+  --blush: #06B6D4;
+  /* Electric Cyan */
+  --page: #F7F8FA;
+  /* Crisp Clean White-Gray */
+  --surface: #FFFFFF;
+  /* Clean White Card Surface */
+  --surface-strong: #EAEBED;
+  /* Elevated Surface */
+  --ink: #252A34;
+  /* Deep Charcoal Text */
+  --muted: #6B7280;
+  --line: #E5E7EB;
   --inverse: white;
-  --shadow-rgb: 124 58 237;
+  --shadow-rgb: 37 42 52;
 }
 
 .dark {
   color-scheme: dark;
-  --flame: #818CF8;
-  /* Muted Indigo 400 */
-  --ember: #475569;
-  /* Sophisticated Slate 600 */
-  --blush: #94A3B8;
-  /* Muted Slate 400 */
-  --page: #020617;
-  /* Slate 950 */
-  --surface: #0F172A;
-  /* Slate 900 */
-  --surface-strong: #1E293B;
-  /* Slate 800 */
-  --ink: #F8FAFC;
-  /* Slate 50 (High Contrast) */
-  --muted: #64748B;
-  /* Slate 500 */
-  --line: #1E293B;
-  /* Slate 800 */
-  --inverse: #020617;
-  --shadow-rgb: 0 0 0;
+  --flame: #A3E635;
+  /* Gen Z Electric Acid Lime (High-energy contrast on pitch black) */
+  --ember: #818CF8;
+  /* Cyber Indigo / Violet */
+  --blush: #00F5D4;
+  /* Electric Neon Cyan / Aqua */
+  --page: #050505;
+  /* Deep OLED Pitch Black */
+  --surface: #0E0E12;
+  /* Sleek Cyber Charcoal Card */
+  --surface-strong: #16161C;
+  /* Elevated Cyber Surface */
+  --ink: #F9FAFB;
+  /* Crisp Zinc 50 */
+  --muted: #9CA3AF;
+  /* Zinc 400 */
+  --line: rgba(255, 255, 255, 0.08);
+  /* Thin glowing borders */
+  --inverse: #050505;
+  --shadow-rgb: 163 230 53;
 }
 
 .drop-shadow-glow {

@@ -2,18 +2,22 @@ import { useEffect, useRef, useState, useCallback } from "react";
 
 /* ─────────────────────────────────────────────────────────────────
    CustomCursor
-   • A sharp inner dot (follows the pointer instantly via CSS vars)
+   • A sharp inner dot (follows the pointer instantly via requestAnimationFrame)
    • A soft outer ring that lags behind using rAF lerp
    • Hover state: ring expands + blurs, dot hides → feels magnetic
    • Text hover: ring expands + difference mode → cinematic reveal
    • Click state: brief scale-down pulse
    • Hides on touch devices automatically
-───────────────────────────────────────────────────────────────── */
+   • Optimized: 
+     - requestAnimationFrame throttles both cursor and ring updates
+     - Fast-path checking for interactive elements (tagName matches)
+     - Functional state updates to prevent event listener rebinding
+ ───────────────────────────────────────────────────────────────── */
 export function CustomCursor() {
   const ringRef = useRef<HTMLDivElement>(null);
   const dotRef  = useRef<HTMLDivElement>(null);
 
-  // Lerp targets for the ring
+  // Lerp targets for the ring and instant target for the dot
   const ring  = useRef({ x: -100, y: -100 });
   const mouse = useRef({ x: -100, y: -100 });
   const rafId = useRef<number>(0);
@@ -24,28 +28,31 @@ export function CustomCursor() {
   const [visible,  setVisible]      = useState(false);
   const [isTouchDev, setIsTouchDev]   = useState(false);
 
-  /* ── Move: update CSS vars for the dot (instant), lerp for the ring ── */
+  /* ── Move: update mouse target coords ── */
   const onMouseMove = useCallback((e: MouseEvent) => {
     mouse.current = { x: e.clientX, y: e.clientY };
-    if (!visible) setVisible(true);
-
-    // Dot follows instantly via style transform
-    if (dotRef.current) {
-      dotRef.current.style.transform =
-        `translate(${e.clientX}px, ${e.clientY}px) translate(-50%,-50%)`;
-    }
-  }, [visible]);
+    setVisible(prev => prev ? prev : true);
+  }, []);
 
   /* ── Hover detection on interactive elements ── */
   const onMouseOver = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    const interactive = target.closest(
+    if (!target) return;
+
+    // Fast-path: Check tag name directly
+    const tag = target.tagName;
+    const isLinkOrBtn = tag === 'A' || tag === 'BUTTON' || target.getAttribute('role') === 'button';
+
+    const interactive = isLinkOrBtn || target.closest(
       'a, button, [role="button"], input, textarea, select, label, .magnetic-wrap, [data-cursor-hover]'
     );
-    const heading = target.closest('h1, h2, h3, .hero-gradient-text');
+    const heading = (tag === 'H1' || tag === 'H2' || tag === 'H3') || target.closest('h1, h2, h3, .hero-gradient-text');
     
-    setHovering(!!interactive);
-    setIsTextHover(!!heading);
+    const nextHovering = !!interactive;
+    const nextTextHover = !!heading;
+
+    setHovering(prev => prev !== nextHovering ? nextHovering : prev);
+    setIsTextHover(prev => prev !== nextTextHover ? nextTextHover : prev);
   }, []);
 
   /* ── Click pulse ── */
@@ -56,7 +63,7 @@ export function CustomCursor() {
   const onMouseLeave = useCallback(() => setVisible(false), []);
   const onMouseEnter = useCallback(() => setVisible(true),  []);
 
-  /* ── rAF loop: lerp ring position ── */
+  /* ── rAF loop: update both ring and dot positions ── */
   useEffect(() => {
     const loop = () => {
       const LERP = 0.115;
@@ -66,6 +73,10 @@ export function CustomCursor() {
       if (ringRef.current) {
         ringRef.current.style.transform =
           `translate(${ring.current.x}px, ${ring.current.y}px) translate(-50%,-50%)`;
+      }
+      if (dotRef.current) {
+        dotRef.current.style.transform =
+          `translate(${mouse.current.x}px, ${mouse.current.y}px) translate(-50%,-50%)`;
       }
       rafId.current = requestAnimationFrame(loop);
     };

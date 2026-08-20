@@ -48,7 +48,7 @@ export const projects: Project[] = [
     stack: ["React", "Next.js", "Tailwind"],
     description:
       "A modern AI-powered content platform designed for creators, brands, and digital storytelling.",
-    image: "images/projects/ai-creator.png",
+    image: "/images/projects/ai-creator.png",
     role: "Frontend development and UI design",
     year: "2026",
     impact:
@@ -69,7 +69,7 @@ export const projects: Project[] = [
     stack: ["Canva", "Branding", "Visual Systems"],
     description:
       "A curated gallery of Canva designs created for social media, branding, and digital campaigns.",
-    image: "/images/projects/canva.jpg",
+    image: "/images/projects/design1.jpeg",
     role: "Creative direction and visual storytelling",
     year: "2026",
     impact:

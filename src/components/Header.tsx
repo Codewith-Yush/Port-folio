@@ -22,21 +22,47 @@ export function Header() {
 
   const closeMenu = () => setOpen(false);
 
-  // Scroll handler
+  // Smooth scroll click handler for navbar links
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    closeMenu();
+
+    if (href === "#hero" || href === "#") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.history.pushState(null, "", "#hero");
+      return;
+    }
+
+    const target = document.querySelector<HTMLElement>(href);
+    if (!target) return;
+
+    const headerOffset = 80;
+    const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+    const offsetPosition = Math.max(0, elementPosition - headerOffset);
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth",
+    });
+
+    window.history.pushState(null, "", href);
+  };
+
+  // Scroll handler with throttle
   useEffect(() => {
     let frame = 0;
-    let lastScrolled = window.scrollY > 50;
-    setIsScrolled(lastScrolled);
+    const updateScrolled = () => {
+      const scrolled = window.scrollY > 30;
+      setIsScrolled(scrolled);
+    };
+
+    updateScrolled();
 
     const handleScroll = () => {
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
         frame = 0;
-        const next = window.scrollY > 50;
-        if (next !== lastScrolled) {
-          lastScrolled = next;
-          setIsScrolled(next);
-        }
+        updateScrolled();
       });
     };
 
@@ -54,23 +80,22 @@ export function Header() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         headerRef.current,
-        { y: -80, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.1, ease: "power4.out" }
+        { y: -70, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }
       );
 
       const items = desktopNavRef.current?.querySelectorAll("[data-nav-item]");
       if (items) {
         gsap.fromTo(
           items,
-          { y: -20, opacity: 0, rotateX: 15 },
+          { y: -15, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            rotateX: 0,
-            duration: 0.8,
-            stagger: 0.08,
-            ease: "back.out(1.4)",
-            delay: 0.4,
+            duration: 0.6,
+            stagger: 0.05,
+            ease: "power2.out",
+            delay: 0.2,
           }
         );
       }
@@ -85,78 +110,106 @@ export function Header() {
     if (!panel) return;
 
     if (reducedMotion) {
-      panel.style.height = open ? "auto" : "0";
+      panel.style.display = open ? "block" : "none";
       panel.style.opacity = open ? "1" : "0";
       return;
     }
 
     const links = panel.querySelectorAll("[data-mobile-link]");
+    const bottomContent = panel.querySelector("[data-mobile-bottom]");
 
-    gsap.killTweensOf([panel, ...links]);
+    gsap.killTweensOf([panel, ...links, bottomContent].filter(Boolean));
 
     if (open) {
+      document.body.style.overflow = "hidden";
+      panel.style.display = "block";
       panel.style.pointerEvents = "auto";
-      gsap.set(panel, { height: "auto" });
-      const height = panel.getBoundingClientRect().height;
-      gsap.set(panel, { height: 0, opacity: 0 });
 
-      gsap.to(panel, {
-        height,
-        opacity: 1,
-        duration: 0.55,
-        ease: "power4.out",
-        onComplete: () => panel.style.height = "auto",
-      });
+      gsap.fromTo(
+        panel,
+        { opacity: 0, y: -15 },
+        { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }
+      );
 
       gsap.fromTo(
         links,
-        { y: 30, opacity: 0, scale: 0.95 },
+        { y: 20, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          scale: 1,
-          duration: 0.5,
-          stagger: 0.07,
-          ease: "back.out(1.2)",
-          delay: 0.15,
+          duration: 0.35,
+          stagger: 0.05,
+          ease: "power2.out",
+          delay: 0.08,
         }
       );
+
+      if (bottomContent) {
+        gsap.fromTo(
+          bottomContent,
+          { y: 15, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.35, ease: "power2.out", delay: 0.25 }
+        );
+      }
     } else {
+      document.body.style.overflow = "";
       gsap.to(panel, {
-        height: 0,
         opacity: 0,
-        duration: 0.4,
-        ease: "power3.in",
-        onComplete: () => (panel.style.pointerEvents = "none"),
+        y: -10,
+        duration: 0.25,
+        ease: "power2.in",
+        onComplete: () => {
+          panel.style.display = "none";
+          panel.style.pointerEvents = "none";
+        },
       });
     }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open, reducedMotion]);
 
   return (
     <header
       ref={headerRef}
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
+        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         isScrolled
-          ? "bg-[var(--page)]/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.05)]"
-          : "bg-transparent"
+          ? "bg-[var(--page)]/95 dark:bg-[#050505]/95 backdrop-blur-2xl border-b border-black/10 dark:border-white/10 shadow-[0_4px_25px_rgba(0,0,0,0.08)] py-2.5 sm:py-3"
+          : "bg-gradient-to-b from-black/60 via-black/20 to-transparent py-3.5 sm:py-4"
       )}
     >
-      <Container className="flex items-center justify-between gap-4 py-4">
+      <Container className="flex items-center justify-between gap-4">
+        {/* Brand Logo with Electric Status Beacon */}
         <a
           href="#hero"
-          onClick={closeMenu}
+          onClick={(e) => handleNavClick(e, "#hero")}
           className={cn(
-            "group flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.45em] transition-colors duration-300",
-            isScrolled ? "text-[var(--ink)]/90" : "text-white/90"
+            "group flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-bold uppercase tracking-[0.25em] sm:tracking-[0.3em] transition-all duration-300 hover:opacity-80",
+            isScrolled
+              ? "text-[var(--ink)] dark:text-white"
+              : "text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]"
           )}
-          aria-label="Ayush Singh"
+          aria-label="Ayush Singh Portfolio Home"
         >
-          <span className="inline-flex h-2 w-2 rounded-full bg-[#ff5a3d] shadow-[0_0_20px_rgba(255,90,61,0.28)]" />
-          <span className="min-w-[90px]">Ayush Singh</span>
+          <span className="relative flex h-2.5 w-2.5 items-center justify-center">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+          </span>
+          <span className="font-extrabold tracking-wider">Ayush Singh</span>
         </a>
 
-        <nav ref={desktopNavRef} className="hidden items-center gap-8 md:flex">
+        {/* Floating Island Dock Navbar (Desktop) */}
+        <nav
+          ref={desktopNavRef}
+          className={cn(
+            "hidden items-center gap-1 rounded-full p-1.5 transition-all duration-300 md:flex relative",
+            isScrolled
+              ? "bg-[var(--surface)]/90 dark:bg-[#121217]/90 border border-black/10 dark:border-white/15 backdrop-blur-2xl shadow-md"
+              : "bg-black/50 dark:bg-white/10 border border-white/20 backdrop-blur-2xl shadow-xl"
+          )}
+        >
           {navItems.map((item) => {
             const isActive = activeHref === item.href;
 
@@ -164,98 +217,117 @@ export function Header() {
               <a
                 key={item.href}
                 href={item.href}
+                onClick={(e) => handleNavClick(e, item.href)}
                 data-nav-item="true"
                 className={cn(
-                  "group relative text-sm font-medium uppercase tracking-[0.4em] transition-colors duration-300",
-                  isScrolled
-                    ? (isActive ? "text-[var(--ink)]" : "text-[var(--ink)]/60 hover:text-[var(--ink)]/95")
-                    : (isActive ? "text-white" : "text-white/60 hover:text-white/95")
+                  "relative rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] transition-all duration-200 select-none",
+                  isActive
+                    ? "bg-[#252A34] text-white dark:bg-white dark:text-black shadow-md scale-105"
+                    : isScrolled
+                    ? "text-[var(--ink)]/80 hover:text-[var(--ink)] hover:bg-black/5 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/10"
+                    : "text-white/85 hover:text-white hover:bg-white/15"
                 )}
               >
                 <span>{item.label}</span>
-                <span
-                  className={cn(
-                    "absolute inset-x-0 -bottom-1 h-px rounded-full bg-[#ff5a3d] transition-opacity duration-300",
-                    isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                  )}
-                />
               </a>
             );
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
+        {/* Right Tools (Theme Toggle + Mobile Hamburger) */}
+        <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
 
+          {/* Mobile Hamburger Button */}
           <button
             ref={hamburgerRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            aria-label="Toggle menu"
+            aria-label="Toggle navigation menu"
             className={cn(
-              "group relative flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 md:hidden active:scale-95",
-              isScrolled 
-                ? "bg-[var(--ink)]/5 text-[var(--ink)] hover:bg-[var(--ink)]/10" 
-                : "bg-white/10 text-white hover:bg-white/20",
-              open && (isScrolled ? "bg-[#ff5a3d]/10 text-[#ff5a3d]" : "bg-[#ff5a3d] text-white")
+              "group relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 md:hidden active:scale-95",
+              isScrolled
+                ? "bg-[var(--surface)] dark:bg-[#16161d] border border-black/10 dark:border-white/15 text-[var(--ink)] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 shadow-sm"
+                : "bg-black/40 border border-white/25 text-white hover:bg-black/60 backdrop-blur-md",
+              open && "bg-[#252A34] text-white border-[#252A34] dark:bg-white dark:text-black dark:border-white shadow-lg"
             )}
           >
             <span
               className={cn(
-                "absolute h-[1px] w-5 bg-current transition-transform duration-300",
-                open ? "rotate-45" : "translate-y-[-6px]"
+                "absolute h-[2px] w-4.5 bg-current transition-transform duration-300",
+                open ? "rotate-45" : "-translate-y-1.5"
               )}
             />
             <span
               className={cn(
-                "absolute h-[1px] w-5 bg-current transition-all duration-300",
-                open ? "opacity-0" : "opacity-100"
+                "absolute h-[2px] w-4.5 bg-current transition-all duration-300",
+                open ? "opacity-0 scale-0" : "opacity-100"
               )}
             />
             <span
               className={cn(
-                "absolute h-[1px] w-5 bg-current transition-transform duration-300",
-                open ? "-rotate-45" : "translate-y-[6px]"
+                "absolute h-[2px] w-4.5 bg-current transition-transform duration-300",
+                open ? "-rotate-45" : "translate-y-1.5"
               )}
             />
           </button>
         </div>
       </Container>
 
-      <div className="md:hidden">
-        <div
-          ref={mobilePanelRef}
-          className="mt-2 overflow-hidden bg-[var(--page)]/90 backdrop-blur-3xl shadow-[0_30px_80px_rgba(0,0,0,0.1)]"
-          style={{ height: 0, opacity: 0, pointerEvents: "none" }}
-        >
-          <nav className="px-6 py-5">
-            <div className="flex flex-col gap-3">
-              {navItems.map((item) => {
-                const isActive = activeHref === item.href;
+      {/* Mobile Slide-Over Fullscreen Menu */}
+      <div
+        ref={mobilePanelRef}
+        className="fixed inset-x-0 top-[58px] h-[calc(100svh-58px)] z-50 overflow-y-auto bg-[var(--page)]/98 dark:bg-[#050505]/98 backdrop-blur-3xl border-b border-black/10 dark:border-white/10 shadow-2xl md:hidden"
+        style={{ display: "none", opacity: 0 }}
+      >
+        <div className="flex flex-col justify-between h-full px-6 py-8">
+          <nav className="flex flex-col gap-3">
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--ink)]/50 dark:text-white/50 mb-2">
+              Navigation Menu
+            </span>
+            {navItems.map((item, index) => {
+              const isActive = activeHref === item.href;
 
-                return (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    onClick={closeMenu}
-                    data-mobile-link="true"
+              return (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  data-mobile-link="true"
+                  className={cn(
+                    "group flex items-center justify-between rounded-2xl px-5 py-4 text-base font-bold uppercase tracking-[0.2em] transition-all duration-300 border",
+                    isActive
+                      ? "bg-[#252A34] text-white dark:bg-white dark:text-black border-[#252A34] dark:border-white shadow-lg scale-[1.02]"
+                      : "border-black/10 dark:border-white/10 bg-[var(--surface)] dark:bg-[#121217] text-[var(--ink)] dark:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                  )}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className={cn("text-xs font-mono opacity-50", isActive && "text-white dark:text-black opacity-90")}>
+                      0{index + 1}
+                    </span>
+                    <span>{item.label}</span>
+                  </div>
+                  <span
                     className={cn(
-                      "group rounded-3xl px-5 py-4 text-base font-semibold uppercase tracking-[0.35em] transition-all duration-300",
-                      isActive
-                        ? "bg-[var(--ink)]/10 text-[var(--ink)]"
-                        : "text-[var(--ink)]/70 hover:bg-[var(--ink)]/5 hover:text-[var(--ink)]"
+                      "text-xl transition-transform duration-300 group-hover:translate-x-1",
+                      isActive ? "text-emerald-400 dark:text-black" : "text-emerald-500 opacity-70"
                     )}
                   >
-                    <span className="flex items-center justify-between gap-4">
-                      {item.label}
-                      <span className={cn("text-xl text-[#ff5a3d] transition-transform duration-300 group-hover:translate-x-1", isActive ? "opacity-100" : "opacity-50")}>→</span>
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
+                    →
+                  </span>
+                </a>
+              );
+            })}
           </nav>
+
+          {/* Bottom Mobile Quick Links */}
+          <div data-mobile-bottom="true" className="pt-6 border-t border-black/10 dark:border-white/10 flex flex-col gap-3">
+            <div className="flex items-center justify-between text-xs text-[var(--ink)]/70 dark:text-white/70 font-medium">
+              <span>Status: <strong className="text-emerald-500">Available for Work</strong></span>
+              <a href="mailto:ayushsingh7360@gmail.com" className="text-emerald-500 font-bold hover:underline">Email Me ↗</a>
+            </div>
+          </div>
         </div>
       </div>
     </header>

@@ -1,85 +1,74 @@
 import { useEffect, useState } from "react";
 
-type UseActiveSectionOptions = {
-  sectionSelector?: string;
-};
-
-export function useActiveSection(hrefs: string[], options: UseActiveSectionOptions = {}) {
-  const { sectionSelector = "section[id]" } = options;
-  const [activeHref, setActiveHref] = useState<string>(hrefs[0] ?? "#hero");
+export function useActiveSection(hrefs: string[]) {
+  const [activeHref, setActiveHref] = useState<string>(hrefs[0] ?? "#about");
 
   useEffect(() => {
-    const win = globalThis as unknown as Window & typeof globalThis;
     const ids = hrefs
       .map((href) => (href.startsWith("#") ? href.slice(1) : ""))
       .filter(Boolean);
 
-    const sections = ids
-      .map((id) => document.getElementById(id))
-      .filter((node): node is HTMLElement => Boolean(node));
+    let rafId = 0;
 
-    if (sections.length === 0) return;
+    const calculateActiveSection = () => {
+      const scrollY = window.scrollY;
 
-    const setFromScrollPosition = () => {
-      const y = win.scrollY + 120;
-      let best: HTMLElement | null = null;
-      for (const section of sections) {
-        if (section.offsetTop <= y) best = section;
+      // If at the very top of the page, no specific section or first section
+      if (scrollY < 100) {
+        setActiveHref("");
+        return;
       }
-      if (best) setActiveHref(`#${best.id}`);
+
+      // Check all section elements
+      const headerOffset = 140;
+      let currentActive = "";
+
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+
+        const rect = el.getBoundingClientRect();
+        // Section is considered active when its top is above the offset line
+        // and its bottom is still below the offset line
+        if (rect.top <= headerOffset && rect.bottom > headerOffset) {
+          currentActive = `#${id}`;
+          break;
+        }
+      }
+
+      // If near bottom of page, activate the last section (Contact)
+      if (
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 60
+      ) {
+        const lastId = ids[ids.length - 1];
+        if (lastId) currentActive = `#${lastId}`;
+      }
+
+      if (currentActive) {
+        setActiveHref(currentActive);
+      }
     };
 
-    if (typeof (win as unknown as { IntersectionObserver?: unknown }).IntersectionObserver !== "function") {
-      setFromScrollPosition();
-      win.addEventListener("scroll", setFromScrollPosition, { passive: true });
-      return () => win.removeEventListener("scroll", setFromScrollPosition);
-    }
+    const handleScroll = () => {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = 0;
+        calculateActiveSection();
+      });
+    };
 
-    const visible = new Map<string, number>();
+    // Run on mount and attach scroll + resize listeners
+    calculateActiveSection();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const id = (entry.target as HTMLElement).id;
-          if (!id) continue;
-          visible.set(id, entry.isIntersecting ? entry.intersectionRatio : 0);
-        }
-
-        let bestId = "";
-        let bestRatio = 0;
-        for (const [id, ratio] of visible) {
-          if (ratio > bestRatio) {
-            bestRatio = ratio;
-            bestId = id;
-          }
-        }
-
-        if (bestId) {
-          setActiveHref(`#${bestId}`);
-          return;
-        }
-
-        setFromScrollPosition();
-      },
-      {
-        root: null,
-        // Pick the section around the “reading” band of viewport.
-        rootMargin: "-35% 0px -55% 0px",
-        threshold: [0, 0.1, 0.25, 0.4, 0.6],
-      },
-    );
-
-    // Ensure we only observe sections (ignore other section-like elements).
-    for (const section of sections) {
-      if (section.matches(sectionSelector)) observer.observe(section);
-    }
-
-    // Initialize.
-    setFromScrollPosition();
-
-    return () => observer.disconnect();
-  }, [hrefs, sectionSelector]);
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [hrefs]);
 
   return activeHref;
 }
-
