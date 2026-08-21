@@ -200,12 +200,13 @@ export function Hero() {
           playsInline
           preload="metadata"
           aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover opacity-50 md:opacity-60"
+          disablePictureInPicture
+          className="absolute inset-0 h-full w-full object-cover opacity-80 sm:opacity-85 md:opacity-90 transition-opacity duration-700"
           style={{ willChange: "transform", backfaceVisibility: "hidden" }}
         />
-        {/* Cinematic Vignette & Ambient Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-[#050505] pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.65)_100%)] pointer-events-none" />
+        {/* Subtle Cinematic Vignette & Smooth Bottom Fade */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-[#050505] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.4)_100%)] pointer-events-none" />
       </div>
 
       {/* Ambient Lighting Halo */}
