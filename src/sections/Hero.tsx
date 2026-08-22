@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
@@ -31,6 +31,7 @@ const socials = [
 
 export function Hero() {
   const reducedMotion = usePrefersReducedMotion();
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -100,8 +101,8 @@ export function Hero() {
       gsap.set(revealTargets, { opacity: 0, y: 15 });
       gsap.set(socialsRef.current, { opacity: 0, y: 10 });
 
-      // Slow cinematic zoom out on the background video
-      gsap.fromTo(videoRef.current, { scale: 1.1 }, { scale: 1, duration: 4, ease: "power2.out" });
+      // Subtle cinematic zoom out on the background video
+      gsap.fromTo(videoRef.current, { scale: 1.05 }, { scale: 1, duration: 3, ease: "power2.out", force3D: true });
 
       timeline
         .to(contentRef.current, { opacity: 1, scale: 1, duration: 1.2, force3D: true }, 0.1)
@@ -188,22 +189,37 @@ export function Hero() {
         }
       `}</style>
 
-      {/* Video Background with Scrim */}
-      <div className="absolute inset-0 z-0 h-full w-full overflow-hidden" style={{ backfaceVisibility: "hidden" }}>
+      {/* Video Background with Instant Poster & Seamless Playback */}
+      <div className="absolute inset-0 z-0 h-full w-full overflow-hidden bg-[#050505]" style={{ backfaceVisibility: "hidden" }}>
+        {/* Instant Poster Background fallback for 0ms delay first paint */}
+        <div 
+          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+            isVideoLoaded ? "opacity-0 pointer-events-none" : "opacity-80 sm:opacity-85 md:opacity-90"
+          }`}
+          style={{ backgroundImage: 'url("/images/hero-poster.webp")' }}
+          aria-hidden="true"
+        />
+
         <video
           ref={videoRef}
-          src="/hero.mp4"
-          poster="/images/hero-poster.png"
+          poster="/images/hero-poster.webp"
           autoPlay
           loop
           muted
           playsInline
-          preload="metadata"
+          preload="auto"
           aria-hidden="true"
           disablePictureInPicture
-          className="absolute inset-0 h-full w-full object-cover opacity-80 sm:opacity-85 md:opacity-90 transition-opacity duration-700"
-          style={{ willChange: "transform", backfaceVisibility: "hidden" }}
-        />
+          onLoadedData={() => setIsVideoLoaded(true)}
+          onCanPlay={() => setIsVideoLoaded(true)}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+            isVideoLoaded ? "opacity-80 sm:opacity-85 md:opacity-90" : "opacity-0"
+          }`}
+          style={{ willChange: "transform", backfaceVisibility: "hidden", transform: "translate3d(0,0,0)" }}
+        >
+          <source src="/hero.webm" type="video/webm" />
+          <source src="/hero.mp4" type="video/mp4" />
+        </video>
         {/* Subtle Cinematic Vignette & Smooth Bottom Fade */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-[#050505] pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.4)_100%)] pointer-events-none" />

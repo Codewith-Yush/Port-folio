@@ -129,6 +129,7 @@ function GalleryCard({ item, onClick }: { item: DesignItem; onClick: () => void 
           src={item.src}
           alt={item.label}
           loading="lazy"
+          decoding="async"
           className="w-full block object-cover transition-transform duration-700 group-hover:scale-[1.06]"
         />
 
