@@ -79,6 +79,70 @@ export function Hero() {
     };
   };
 
+  // Dedicated Video Lifecycle & Infinite 24/7 Loop Controller
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Imperative properties for guaranteed cross-browser 24/7 continuous autoplay
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.loop = true;
+
+    const playVideo = () => {
+      if (video.paused) {
+        const promise = video.play();
+        if (promise !== undefined) {
+          promise.catch(() => {
+            // Handled gracefully if browser holds until gesture
+          });
+        }
+      }
+    };
+
+    // Immediate playback start
+    playVideo();
+
+    // 1. Seamless infinite loop fallback: if loop attribute fails, reset time and restart
+    const handleEnded = () => {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    };
+
+    // 2. Auto-resume whenever tab becomes active or window regains focus
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        playVideo();
+      }
+    };
+
+    const handleFocus = () => {
+      playVideo();
+    };
+
+    // 3. User interaction kickstart fallback (in case browser autoplay restrictions apply)
+    const handleUserInteraction = () => {
+      playVideo();
+    };
+
+    video.addEventListener("ended", handleEnded);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("click", handleUserInteraction, { once: true, passive: true });
+    window.addEventListener("touchstart", handleUserInteraction, { once: true, passive: true });
+    window.addEventListener("scroll", handleUserInteraction, { once: true, passive: true });
+
+    return () => {
+      video.removeEventListener("ended", handleEnded);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("touchstart", handleUserInteraction);
+      window.removeEventListener("scroll", handleUserInteraction);
+    };
+  }, []);
+
   useEffect(() => {
     const ctx = gsap.context(() => {
       const revealTargets = [pillRef.current, descRef.current, ctaRef.current, scrollRef.current].filter(Boolean);
@@ -212,6 +276,10 @@ export function Hero() {
           disablePictureInPicture
           onLoadedData={() => setIsVideoLoaded(true)}
           onCanPlay={() => setIsVideoLoaded(true)}
+          onEnded={(e) => {
+            e.currentTarget.currentTime = 0;
+            e.currentTarget.play().catch(() => {});
+          }}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
             isVideoLoaded ? "opacity-80 sm:opacity-85 md:opacity-90" : "opacity-0"
           }`}
