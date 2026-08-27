@@ -107,7 +107,7 @@ export function Hero() {
     // 1. Seamless infinite loop fallback: if loop attribute fails, reset time and restart
     const handleEnded = () => {
       video.currentTime = 0;
-      video.play().catch(() => {});
+      video.play().catch(() => { });
     };
 
     // 2. Auto-resume whenever tab becomes active or window regains focus
@@ -256,10 +256,9 @@ export function Hero() {
       {/* Video Background with Instant Poster & Seamless Playback */}
       <div className="absolute inset-0 z-0 h-full w-full overflow-hidden bg-[#050505]" style={{ backfaceVisibility: "hidden" }}>
         {/* Instant Poster Background fallback for 0ms delay first paint */}
-        <div 
-          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-            isVideoLoaded ? "opacity-0 pointer-events-none" : "opacity-80 sm:opacity-85 md:opacity-90"
-          }`}
+        <div
+          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${isVideoLoaded ? "opacity-0 pointer-events-none" : "opacity-80 sm:opacity-85 md:opacity-90"
+            }`}
           style={{ backgroundImage: 'url("/images/hero-poster.webp")' }}
           aria-hidden="true"
         />
@@ -278,11 +277,10 @@ export function Hero() {
           onCanPlay={() => setIsVideoLoaded(true)}
           onEnded={(e) => {
             e.currentTarget.currentTime = 0;
-            e.currentTarget.play().catch(() => {});
+            e.currentTarget.play().catch(() => { });
           }}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-            isVideoLoaded ? "opacity-80 sm:opacity-85 md:opacity-90" : "opacity-0"
-          }`}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${isVideoLoaded ? "opacity-80 sm:opacity-85 md:opacity-90" : "opacity-0"
+            }`}
           style={{ willChange: "transform", backfaceVisibility: "hidden", transform: "translate3d(0,0,0)" }}
         >
           <source src="/hero.webm" type="video/webm" />
@@ -294,7 +292,7 @@ export function Hero() {
       </div>
 
       {/* Ambient Lighting Halo */}
-      <div 
+      <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] rounded-full bg-gradient-to-tr from-indigo-600/15 via-purple-500/10 to-emerald-500/15 blur-[140px] pointer-events-none z-0 mix-blend-screen animate-pulse"
         style={{ willChange: "transform, opacity" }}
       />

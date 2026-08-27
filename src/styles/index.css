@@ -721,6 +721,26 @@ a {
 
 
 
+@keyframes footer-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.footer-marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: footer-marquee 25s linear infinite;
+}
+
+.footer-marquee-track:hover {
+  animation-play-state: paused;
+}
+
 @keyframes form-border-spin {
   to {
     transform: rotate(1turn);

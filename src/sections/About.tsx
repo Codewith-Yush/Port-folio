@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Zap } from "lucide-react";
 import { Container } from "../components/Container";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
@@ -25,6 +26,19 @@ export function About() {
   const containerRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const statRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+
+  // Before first paint: if motion is allowed, zero the stat values out so the
+  // count-up below has something to count from instead of a flash of "15+"
+  // that then resets to 0. If motion is reduced, show the real number
+  // directly — no animation will run for it at all.
+  useLayoutEffect(() => {
+    statRefs.current.forEach((el, i) => {
+      if (!el) return;
+      const suffix = stats[i].value.replace(/^[0-9]+/, "");
+      el.textContent = reducedMotion ? stats[i].value : `0${suffix}`;
+    });
+  }, [reducedMotion]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -66,6 +80,28 @@ export function About() {
           }
         );
       }
+
+      // Count each stat up from zero as the section enters view.
+      statRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const target = parseInt(stats[i].value, 10);
+        if (Number.isNaN(target)) return;
+        const suffix = stats[i].value.replace(/^[0-9]+/, "");
+        const counter = { val: 0 };
+
+        gsap.to(counter, {
+          val: target,
+          duration: 1.5,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 75%",
+          },
+          onUpdate: () => {
+            el.textContent = `${Math.round(counter.val)}${suffix}`;
+          },
+        });
+      });
     }, containerRef);
 
     return () => ctx.revert();
@@ -110,13 +146,18 @@ export function About() {
 
           {/* Stats Grid */}
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
-            {stats.map((item) => (
+            {stats.map((item, i) => (
               <div
                 key={item.label}
                 className="group relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[var(--flame)]/40 hover:shadow-lg"
               >
                 <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-[var(--flame)]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <p className="text-3xl sm:text-4xl font-light text-[var(--ink)] tracking-tight">
+                <p
+                  ref={(el) => {
+                    statRefs.current[i] = el;
+                  }}
+                  className="text-3xl sm:text-4xl font-light text-[var(--ink)] tracking-tight tabular-nums"
+                >
                   {item.value}
                 </p>
                 <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ink)]/80">
@@ -135,22 +176,24 @@ export function About() {
           ref={cardRef}
           className="group relative min-h-[440px] sm:min-h-[500px] w-full overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-gradient-to-br from-black/[0.02] to-black/[0.05] dark:from-white/[0.04] dark:to-white/[0.01] p-6 sm:p-8 backdrop-blur-md transition-all duration-500 shadow-sm hover:shadow-xl"
         >
-          {/* Subtle Ambient Background Gradients */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.08),transparent_55%)] pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(244,114,182,0.08),transparent_55%)] pointer-events-none" />
+          {/* Subtle Ambient Background Gradients — tied to the same --flame/--blush
+              tokens as the section's outer glow orbs, instead of one-off hex values */}
+          <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_top_right,var(--flame),transparent_55%)] pointer-events-none" />
+          <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_bottom_left,var(--blush),transparent_55%)] pointer-events-none" />
 
           {/* Top Header Panel */}
           <div className="relative z-10 flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-5">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--flame)] dark:text-[var(--blush)]">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--flame)] dark:text-[var(--blush)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--flame)] dark:bg-[var(--blush)] animate-pulse" />
                 Vision & Principles
               </span>
               <h3 className="mt-1 text-lg font-semibold text-[var(--ink)]">
                 The Engineering Standard
               </h3>
             </div>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-xs">
-              ⚡
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+              <Zap className="h-3.5 w-3.5 text-[var(--flame)] dark:text-[var(--blush)]" />
             </div>
           </div>
 
@@ -159,9 +202,9 @@ export function About() {
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]/50">
               Core Philosophy
             </p>
-            <p className="mt-2 text-sm sm:text-base font-normal leading-relaxed text-[var(--ink)]">
+            <blockquote className="mt-2 text-sm sm:text-base font-normal leading-relaxed text-[var(--ink)]">
               "Deliver digital experiences where mathematical clarity, smooth kinetic motion, and intuitive ergonomics operate in complete harmony."
-            </p>
+            </blockquote>
           </div>
 
           {/* Value Tags */}
