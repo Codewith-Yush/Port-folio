@@ -79,7 +79,12 @@ export function useSmoothScroll() {
       }
     }
 
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 200);
+
     return () => {
+      clearTimeout(refreshTimer);
       lenis.destroy();
       document.removeEventListener("click", handleClick);
       gsap.ticker.remove(rafCallback);

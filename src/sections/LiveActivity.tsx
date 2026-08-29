@@ -115,29 +115,30 @@ export function LiveActivity() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Endless scrolling ticker
+      // Endless scrolling ticker with GPU compositing
       gsap.to(".ticker-track", {
         xPercent: -50,
         ease: "none",
         duration: 25,
         repeat: -1,
+        force3D: true,
       });
 
       // Panel stagger reveal
       gsap.fromTo(
         ".dashboard-panel",
-        { y: 25, opacity: 0, scale: 0.98 },
+        { y: 30, opacity: 0, scale: 0.97 },
         {
           y: 0,
           opacity: 1,
           scale: 1,
-          duration: 0.7,
+          duration: 0.8,
           stagger: 0.08,
           ease: "power3.out",
           scrollTrigger: {
             trigger: containerRef.current,
             start: "top 80%",
-            toggleActions: "play none none reverse",
+            once: true,
           },
         }
       );
@@ -148,10 +149,14 @@ export function LiveActivity() {
         { innerHTML: 0 },
         {
           innerHTML: 42,
-          duration: 2.2,
+          duration: 2.0,
           snap: { innerHTML: 1 },
           ease: "power2.out",
-          scrollTrigger: { trigger: containerRef.current, start: "top 80%" },
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 80%",
+            once: true,
+          },
         }
       );
     }, containerRef);

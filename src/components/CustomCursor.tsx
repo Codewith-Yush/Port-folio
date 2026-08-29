@@ -72,11 +72,11 @@ export function CustomCursor() {
 
       if (ringRef.current) {
         ringRef.current.style.transform =
-          `translate(${ring.current.x}px, ${ring.current.y}px) translate(-50%,-50%)`;
+          `translate3d(${ring.current.x}px, ${ring.current.y}px, 0) translate(-50%,-50%)`;
       }
       if (dotRef.current) {
         dotRef.current.style.transform =
-          `translate(${mouse.current.x}px, ${mouse.current.y}px) translate(-50%,-50%)`;
+          `translate3d(${mouse.current.x}px, ${mouse.current.y}px, 0) translate(-50%,-50%)`;
       }
       rafId.current = requestAnimationFrame(loop);
     };

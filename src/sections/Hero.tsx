@@ -196,7 +196,7 @@ export function Hero() {
             trigger: heroRef.current,
             start: "top top",
             end: "bottom top",
-            scrub: true,
+            scrub: 1,
           },
         });
 
@@ -207,7 +207,7 @@ export function Hero() {
             trigger: heroRef.current,
             start: "top top",
             end: "bottom top",
-            scrub: true,
+            scrub: 1,
           },
         });
       });

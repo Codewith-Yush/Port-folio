@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export function useActiveSection(hrefs: string[]) {
-  const [activeHref, setActiveHref] = useState<string>(hrefs[0] ?? "#about");
+  const [activeHref, setActiveHref] = useState<string>(hrefs[0] ?? "#work");
 
   useEffect(() => {
     const ids = hrefs

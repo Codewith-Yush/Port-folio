@@ -266,7 +266,7 @@ export default function CanvaGallery() {
               Ayush Singh
             </Link>
             <div className="hidden sm:flex gap-8">
-              {[["About","/#about"],["Work","/#work"],["Skills","/#skills"],["Contact","/#contact"]].map(([label,href]) => (
+              {[["Work","/#work"],["Skills","/#skills"],["Contact","/#contact"]].map(([label,href]) => (
                 <a key={label} href={href} className="text-xs font-semibold uppercase tracking-[0.35em] text-black/40 no-underline transition hover:text-black">{label}</a>
               ))}
             </div>

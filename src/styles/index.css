@@ -500,7 +500,10 @@ a {
   display: flex;
   width: max-content;
   gap: 1.5rem;
-  animation: skill-slide-left 24s linear infinite;
+  animation: skill-slide-left 28s linear infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 .skill-loop:hover .skill-loop__track {
@@ -511,19 +514,19 @@ a {
   width: min(82vw, 24rem);
   flex: 0 0 auto;
   box-shadow: 0 20px 60px color-mix(in srgb, var(--flame) 12%, transparent);
+  transition: transform 0.4s ease, border-color 0.4s ease;
 }
 
-.skill-loop__card:nth-child(3n + 2) {
-  transform: translateY(0.75rem);
-}
-
-.skill-loop__card:nth-child(3n) {
-  transform: translateY(-0.45rem);
+.skill-loop__card:hover {
+  transform: translateY(-4px);
 }
 
 @keyframes skill-slide-left {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
   to {
-    transform: translateX(calc(-50% - 0.75rem));
+    transform: translate3d(calc(-50% - 0.75rem), 0, 0);
   }
 }
 
