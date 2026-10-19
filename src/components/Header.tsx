@@ -1,11 +1,16 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { navItems } from "../data/portfolio";
 import { useActiveSection } from "../hooks/useActiveSection";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { cn } from "../utils/cn";
 import { Container } from "./Container";
 import { ThemeToggle } from "./ThemeToggle";
+import { SoundToggle } from "./SoundToggle";
+import { playClick } from "../utils/soundEffects";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -13,6 +18,7 @@ export function Header() {
   const reducedMotion = usePrefersReducedMotion();
 
   const headerRef = useRef<HTMLElement | null>(null);
+  const progressBarRef = useRef<HTMLDivElement | null>(null);
   const desktopNavRef = useRef<HTMLElement | null>(null);
   const mobilePanelRef = useRef<HTMLDivElement | null>(null);
   const hamburgerRef = useRef<HTMLButtonElement | null>(null);
@@ -20,15 +26,63 @@ export function Header() {
   const hrefs = useMemo(() => navItems.map((item) => item.href), []);
   const activeHref = useActiveSection(hrefs);
 
+  const navLinkRefs = useRef<Map<string, HTMLAnchorElement>>(new Map());
+  const navIndicatorRef = useRef<HTMLDivElement | null>(null);
+
+  // GSAP Sliding Pill Indicator for Desktop Navbar Dock
+  useLayoutEffect(() => {
+    const targetHref = activeHref || "#hero";
+    const activeEl = navLinkRefs.current.get(targetHref);
+    const indicatorEl = navIndicatorRef.current;
+
+    if (!indicatorEl || !activeEl) return;
+
+    const x = activeEl.offsetLeft;
+    const width = activeEl.offsetWidth;
+
+    if (reducedMotion) {
+      gsap.set(indicatorEl, { x, width, opacity: 1 });
+    } else {
+      gsap.to(indicatorEl, {
+        x,
+        width,
+        opacity: 1,
+        duration: 0.45,
+        ease: "power3.out",
+      });
+    }
+
+    const handleResize = () => {
+      const el = navLinkRefs.current.get(targetHref);
+      if (el && indicatorEl) {
+        gsap.set(indicatorEl, { x: el.offsetLeft, width: el.offsetWidth });
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    document.fonts?.ready?.then(handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [activeHref, reducedMotion]);
+
   const closeMenu = () => setOpen(false);
 
   // Smooth scroll click handler for navbar links
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+    playClick();
     closeMenu();
 
+    const locomotiveScroll = window.__locomotiveScroll;
+
     if (href === "#hero" || href === "#") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (locomotiveScroll) {
+        locomotiveScroll.scrollTo(0, {
+          duration: 1.2,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
       window.history.pushState(null, "", "#hero");
       return;
     }
@@ -36,14 +90,22 @@ export function Header() {
     const target = document.querySelector<HTMLElement>(href);
     if (!target) return;
 
-    const headerOffset = 80;
-    const elementPosition = target.getBoundingClientRect().top + window.scrollY;
-    const offsetPosition = Math.max(0, elementPosition - headerOffset);
+    if (locomotiveScroll) {
+      locomotiveScroll.scrollTo(target, {
+        offset: -80,
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
+    } else {
+      const headerOffset = 80;
+      const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+      const offsetPosition = Math.max(0, elementPosition - headerOffset);
 
-    window.scrollTo({
-      top: offsetPosition,
-      behavior: "smooth",
-    });
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
 
     window.history.pushState(null, "", href);
   };
@@ -98,6 +160,21 @@ export function Header() {
             delay: 0.2,
           }
         );
+      }
+
+      if (progressBarRef.current) {
+        ScrollTrigger.create({
+          start: "top top",
+          end: "max",
+          onUpdate: (self) => {
+            if (progressBarRef.current) {
+              gsap.set(progressBarRef.current, {
+                scaleX: self.progress,
+                force3D: true,
+              });
+            }
+          },
+        });
       }
     }, headerRef);
 
@@ -165,8 +242,17 @@ export function Header() {
       });
     }
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+
+    if (open) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [open, reducedMotion]);
 
@@ -180,6 +266,12 @@ export function Header() {
           : "bg-gradient-to-b from-black/60 via-black/20 to-transparent py-3.5 sm:py-4"
       )}
     >
+      {/* GSAP Scroll Progress Indicator */}
+      <div
+        ref={progressBarRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-300 origin-left scale-x-0 z-50 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+      />
       <Container className="flex items-center justify-between gap-4">
         {/* Brand Logo with Electric Status Beacon */}
         <a
@@ -210,22 +302,41 @@ export function Header() {
               : "bg-black/50 dark:bg-white/10 border border-white/20 backdrop-blur-2xl shadow-xl"
           )}
         >
+          {/* GSAP Sliding Pill Indicator */}
+          <div
+            ref={navIndicatorRef}
+            aria-hidden="true"
+            className={cn(
+              "absolute inset-y-1.5 left-0 rounded-full shadow-md pointer-events-none transition-colors duration-300",
+              isScrolled
+                ? "bg-[#252A34] dark:bg-white"
+                : "bg-white/25 dark:bg-white/30 backdrop-blur-md"
+            )}
+            style={{ opacity: 0 }}
+          />
+
           {navItems.map((item) => {
-            const isActive = activeHref === item.href;
+            const isActive = (activeHref || "#hero") === item.href;
 
             return (
               <a
                 key={item.href}
+                ref={(el) => {
+                  if (el) navLinkRefs.current.set(item.href, el);
+                }}
                 href={item.href}
                 onClick={(e) => handleNavClick(e, item.href)}
                 data-nav-item="true"
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "relative rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] transition-all duration-200 select-none",
+                  "relative z-10 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] transition-colors duration-200 select-none",
                   isActive
-                    ? "bg-[#252A34] text-white dark:bg-white dark:text-black shadow-md scale-105"
+                    ? isScrolled
+                      ? "text-white dark:text-black font-extrabold"
+                      : "text-white font-extrabold"
                     : isScrolled
-                      ? "text-[var(--ink)]/80 hover:text-[var(--ink)] hover:bg-black/5 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/10"
-                      : "text-white/85 hover:text-white hover:bg-white/15"
+                      ? "text-[var(--ink)]/75 hover:text-[var(--ink)]"
+                      : "text-white/80 hover:text-white"
                 )}
               >
                 <span>{item.label}</span>
@@ -234,16 +345,21 @@ export function Header() {
           })}
         </nav>
 
-        {/* Right Tools (Theme Toggle + Mobile Hamburger) */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right Tools (Sound Toggle + Theme Toggle + Mobile Hamburger) */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <SoundToggle />
           <ThemeToggle />
 
           {/* Mobile Hamburger Button */}
           <button
             ref={hamburgerRef}
             type="button"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => {
+              playClick();
+              setOpen((v) => !v);
+            }}
             aria-expanded={open}
+            aria-controls="mobile-navigation"
             aria-label="Toggle navigation menu"
             className={cn(
               "group relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 md:hidden active:scale-95",
@@ -278,6 +394,10 @@ export function Header() {
       {/* Mobile Slide-Over Fullscreen Menu */}
       <div
         ref={mobilePanelRef}
+        id="mobile-navigation"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile Navigation Menu"
         className="fixed inset-x-0 top-[58px] h-[calc(100svh-58px)] z-50 overflow-y-auto bg-[var(--page)]/98 dark:bg-[#050505]/98 backdrop-blur-3xl border-b border-black/10 dark:border-white/10 shadow-2xl md:hidden"
         style={{ display: "none", opacity: 0 }}
       >
@@ -295,6 +415,7 @@ export function Header() {
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item.href)}
                   data-mobile-link="true"
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "group flex items-center justify-between rounded-2xl px-5 py-4 text-base font-bold uppercase tracking-[0.2em] transition-all duration-300 border",
                     isActive

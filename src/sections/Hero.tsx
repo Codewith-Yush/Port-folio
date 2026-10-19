@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const socials = [
   {
@@ -40,196 +37,39 @@ export function Hero() {
   const ctaRef = useRef<HTMLDivElement>(null);
   const socialsRef = useRef<(HTMLDivElement | null)[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Magnetic Button Physics for Desktop
-  const addMagneticEffect = (el: HTMLElement | null, strength = 0.25) => {
-    if (!el || typeof window === "undefined" || window.matchMedia("(pointer: coarse)").matches) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = el.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-
-      gsap.to(el, {
-        x: x * strength,
-        y: y * strength,
-        duration: 0.35,
-        ease: "power2.out",
-        overwrite: "auto",
-      });
-    };
-
-    const handleMouseLeave = () => {
-      gsap.to(el, {
-        x: 0,
-        y: 0,
-        duration: 0.6,
-        ease: "elastic.out(1, 0.4)",
-        overwrite: "auto",
-      });
-    };
-
-    el.addEventListener("mousemove", handleMouseMove);
-    el.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      el.removeEventListener("mousemove", handleMouseMove);
-      el.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  };
-
-  // Dedicated Video Lifecycle & Infinite 24/7 Loop Controller
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Imperative properties for guaranteed cross-browser 24/7 continuous autoplay
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
-    video.loop = true;
-
-    const playVideo = () => {
-      if (video.paused) {
-        const promise = video.play();
-        if (promise !== undefined) {
-          promise.catch(() => {
-            // Handled gracefully if browser holds until gesture
-          });
-        }
-      }
-    };
-
-    // Immediate playback start
-    playVideo();
-
-    // 1. Seamless infinite loop fallback: if loop attribute fails, reset time and restart
-    const handleEnded = () => {
-      video.currentTime = 0;
-      video.play().catch(() => { });
-    };
-
-    // 2. Auto-resume whenever tab becomes active or window regains focus
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        playVideo();
-      }
-    };
-
-    const handleFocus = () => {
-      playVideo();
-    };
-
-    // 3. User interaction kickstart fallback (in case browser autoplay restrictions apply)
-    const handleUserInteraction = () => {
-      playVideo();
-    };
-
-    video.addEventListener("ended", handleEnded);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("focus", handleFocus);
-    window.addEventListener("click", handleUserInteraction, { once: true, passive: true });
-    window.addEventListener("touchstart", handleUserInteraction, { once: true, passive: true });
-    window.addEventListener("scroll", handleUserInteraction, { once: true, passive: true });
-
-    return () => {
-      video.removeEventListener("ended", handleEnded);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("focus", handleFocus);
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("touchstart", handleUserInteraction);
-      window.removeEventListener("scroll", handleUserInteraction);
-    };
-  }, []);
+  const scrollRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const revealTargets = [pillRef.current, descRef.current, ctaRef.current, scrollRef.current].filter(Boolean);
 
       if (reducedMotion) {
-        gsap.set(".heading-line", { y: "0%", opacity: 1, rotateX: 0 });
+        gsap.set(".heading-line", { y: 0, opacity: 1 });
         gsap.set([contentRef.current, ...revealTargets, ...socialsRef.current], {
           opacity: 1,
           y: 0,
-          clearProps: "transform",
         });
         return;
       }
 
-      const mm = gsap.matchMedia();
-      const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+      const timeline = gsap.timeline({ defaults: { ease: "power2.out" } });
 
-      gsap.set(contentRef.current, { opacity: 0, scale: 0.97 });
-      gsap.set(".heading-line", { y: "100%", opacity: 0, rotateX: -8 });
-      gsap.set(revealTargets, { opacity: 0, y: 15 });
-      gsap.set(socialsRef.current, { opacity: 0, y: 10 });
-
-      // Subtle cinematic zoom out on the background video
-      gsap.fromTo(videoRef.current, { scale: 1.05 }, { scale: 1, duration: 3, ease: "power2.out", force3D: true });
+      gsap.set(contentRef.current, { opacity: 0 });
+      gsap.set(".heading-line", { y: 16, opacity: 0 });
+      gsap.set(revealTargets, { opacity: 0, y: 10 });
+      gsap.set(socialsRef.current, { opacity: 0, y: 8 });
 
       timeline
-        .to(contentRef.current, { opacity: 1, scale: 1, duration: 1.2, force3D: true }, 0.1)
-        .to(
-          ".heading-line",
-          {
-            y: "0%",
-            rotateX: 0,
-            opacity: 1,
-            duration: 1,
-            stagger: 0.12,
-            force3D: true,
-          },
-          0.25
-        )
-        .to(pillRef.current, { opacity: 1, y: 0, duration: 0.8, force3D: true }, 0.6)
-        .to(descRef.current, { opacity: 1, y: 0, duration: 0.8, force3D: true }, 0.8)
-        .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.8, force3D: true }, 1.0)
-        .to(socialsRef.current, { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, force3D: true }, 1.15)
-        .to(scrollRef.current, { opacity: 1, y: 0, duration: 0.8, force3D: true }, 1.3);
-
-      mm.add("(min-width: 768px)", () => {
-        gsap.to(videoRef.current, {
-          yPercent: 8,
-          ease: "none",
-          scrollTrigger: {
-            trigger: heroRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-          },
-        });
-
-        gsap.to(contentRef.current, {
-          yPercent: 10,
-          ease: "none",
-          scrollTrigger: {
-            trigger: heroRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-          },
-        });
-      });
+        .to(contentRef.current, { opacity: 1, duration: 0.5 })
+        .to(".heading-line", { y: 0, opacity: 1, duration: 0.5, stagger: 0.06 }, 0.1)
+        .to(pillRef.current, { opacity: 1, y: 0, duration: 0.35 }, 0.2)
+        .to(descRef.current, { opacity: 1, y: 0, duration: 0.35 }, 0.3)
+        .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.35 }, 0.4)
+        .to(socialsRef.current, { opacity: 1, y: 0, duration: 0.3, stagger: 0.03 }, 0.45)
+        .to(scrollRef.current, { opacity: 1, y: 0, duration: 0.35 }, 0.5);
     }, heroRef);
 
-    // Attach magnetic hover physics to CTA buttons and socials
-    const cleanupFns: (() => void)[] = [];
-    const buttons = ctaRef.current?.querySelectorAll<HTMLElement>("a");
-    buttons?.forEach((btn) => {
-      const clean = addMagneticEffect(btn, 0.28);
-      if (clean) cleanupFns.push(clean);
-    });
-
-    socialsRef.current.forEach((item) => {
-      if (item) {
-        const clean = addMagneticEffect(item.querySelector("a"), 0.35);
-        if (clean) cleanupFns.push(clean);
-      }
-    });
-
     return () => {
-      cleanupFns.forEach((fn) => fn());
       ctx.revert();
     };
   }, [reducedMotion]);
@@ -291,16 +131,14 @@ export function Hero() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.4)_100%)] pointer-events-none" />
       </div>
 
-      {/* Ambient Lighting Halo */}
+      {/* Subtle Ambient Lighting Halo */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] rounded-full bg-gradient-to-tr from-indigo-600/15 via-purple-500/10 to-emerald-500/15 blur-[140px] pointer-events-none z-0 mix-blend-screen animate-pulse"
-        style={{ willChange: "transform, opacity" }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] rounded-full bg-gradient-to-tr from-indigo-600/10 via-purple-500/5 to-emerald-500/10 blur-2xl pointer-events-none z-0"
       />
 
       <div
         ref={contentRef}
         className="relative z-10 mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center px-5 sm:px-6 text-center text-white pt-12 md:pt-16 pb-10"
-        style={{ willChange: "transform" }}
       >
         {/* Availability Pill */}
         <div
@@ -308,7 +146,6 @@ export function Hero() {
           className="mb-6 md:mb-8 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 sm:px-5 py-2 backdrop-blur-md shadow-lg"
         >
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
           </span>
           <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] text-white/90">
@@ -320,20 +157,19 @@ export function Hero() {
         <h1
           ref={titleRef}
           className="max-w-[70rem] text-[clamp(2.25rem,6vw,5.25rem)] font-light leading-[1.08] tracking-tight text-white drop-shadow-2xl"
-          style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}
         >
           <span className="block overflow-hidden py-0.5 sm:py-1">
-            <span className="heading-line inline-block" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>
+            <span className="heading-line inline-block">
               Full Stack Developer
             </span>
           </span>
           <span className="block overflow-hidden py-0.5 sm:py-1">
-            <span className="heading-line inline-block font-serif italic text-white/80" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>
+            <span className="heading-line inline-block font-serif italic text-white/80">
               Freelancer &
             </span>
           </span>
           <span className="block overflow-hidden py-0.5 sm:py-1">
-            <span className="heading-line inline-block font-semibold bg-gradient-to-r from-white via-white/90 to-emerald-200 bg-clip-text text-transparent" style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}>
+            <span className="heading-line inline-block font-semibold bg-gradient-to-r from-white via-white/90 to-emerald-200 bg-clip-text text-transparent">
               Data Science Student
             </span>
           </span>
@@ -351,15 +187,21 @@ export function Hero() {
         <div ref={ctaRef} className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-5 w-full sm:w-auto px-4">
           <a
             href="#work"
-            className="group relative inline-flex h-[52px] sm:h-[56px] w-full sm:w-[210px] items-center justify-center overflow-hidden rounded-full bg-white px-8 text-xs font-bold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:scale-105 hover:bg-[#252A34] hover:text-white hover:border-[#252A34] hover:shadow-xl active:scale-95"
+            className="group relative inline-flex h-[52px] sm:h-[56px] w-full sm:w-[210px] items-center justify-center overflow-hidden rounded-full bg-white px-8 text-xs font-bold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:scale-105 hover:bg-emerald-400 hover:text-black hover:shadow-[0_0_25px_rgba(52,211,153,0.5)] active:scale-95"
           >
-            <span>View Projects</span>
+            <span className="relative z-10 flex items-center gap-2">
+              <span>View Projects</span>
+              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+            </span>
           </a>
           <a
             href="#contact"
-            className="group relative inline-flex h-[52px] sm:h-[56px] w-full sm:w-[210px] items-center justify-center overflow-hidden rounded-full border border-white/30 bg-white/5 backdrop-blur-md px-8 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all duration-300 hover:scale-105 hover:border-[#252A34] hover:bg-[#252A34] hover:text-white active:scale-95"
+            className="group relative inline-flex h-[52px] sm:h-[56px] w-full sm:w-[210px] items-center justify-center overflow-hidden rounded-full border border-white/30 bg-white/5 backdrop-blur-md px-8 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all duration-300 hover:scale-105 hover:border-emerald-400/80 hover:bg-white/10 hover:text-emerald-300 hover:shadow-[0_0_20px_rgba(52,211,153,0.3)] active:scale-95"
           >
-            <span>Contact Me</span>
+            <span className="relative z-10 flex items-center gap-2">
+              <span>Get In Touch</span>
+              <span className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+            </span>
           </a>
         </div>
 
@@ -377,7 +219,7 @@ export function Hero() {
                 target={social.url.startsWith("http") ? "_blank" : undefined}
                 rel={social.url.startsWith("http") ? "noopener noreferrer" : undefined}
                 aria-label={social.name}
-                className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-[#252A34] hover:bg-[#252A34] hover:text-white"
+                className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 hover:shadow-[0_0_15px_rgba(52,211,153,0.3)]"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4 sm:h-5 sm:w-5 fill-current">
                   {social.icon}
@@ -388,16 +230,20 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator (desktop only) */}
-      <div
+      {/* Interactive Scroll indicator */}
+      <a
+        href="#work"
         ref={scrollRef}
-        className="hero-scroll-indicator pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/45"
+        aria-label="Scroll down to featured projects"
+        className="hero-scroll-indicator group absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/50 hover:text-emerald-400 transition-colors duration-300 cursor-pointer"
       >
-        <span className="text-[9px] font-bold uppercase tracking-[0.3em]">Scroll</span>
-        <div className="relative h-10 w-[1px] overflow-hidden bg-white/20">
-          <div className="absolute left-0 top-0 h-1/2 w-full animate-[bounce_2s_infinite] bg-white" />
+        <span className="text-[9px] font-bold uppercase tracking-[0.3em] transition-transform duration-300 group-hover:translate-y-0.5">
+          Explore Work
+        </span>
+        <div className="relative h-10 w-[1px] overflow-hidden bg-white/20 group-hover:bg-emerald-400/50 transition-colors">
+          <div className="absolute left-0 top-0 h-1/2 w-full animate-[bounce_2s_infinite] bg-white group-hover:bg-emerald-400" />
         </div>
-      </div>
+      </a>
     </section>
   );
 }

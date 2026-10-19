@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
 export function useActiveSection(hrefs: string[]) {
-  const [activeHref, setActiveHref] = useState<string>(hrefs[0] ?? "#work");
+  const [activeHref, setActiveHref] = useState<string>("");
+  const hrefsKey = hrefs.join(",");
 
   useEffect(() => {
     const ids = hrefs
@@ -10,43 +11,50 @@ export function useActiveSection(hrefs: string[]) {
 
     let rafId = 0;
 
+    // Cache elements to prevent getElementById lookup thrashing during fast scroll
+    const getCachedElements = () =>
+      ids
+        .map((id) => ({ id, el: document.getElementById(id) }))
+        .filter((item): item is { id: string; el: HTMLElement } => Boolean(item.el));
+
+    let cached = getCachedElements();
+
     const calculateActiveSection = () => {
       const scrollY = window.scrollY;
 
-      // If at the very top of the page, no specific section or first section
+      // If at the very top of the page
       if (scrollY < 100) {
-        setActiveHref("");
+        setActiveHref((prev) => (prev === "" ? prev : ""));
         return;
       }
 
-      // Check all section elements
+      // Refresh cache if elements weren't found on initial mount
+      if (cached.length === 0) {
+        cached = getCachedElements();
+      }
+
       const headerOffset = 140;
       let currentActive = "";
 
-      for (const id of ids) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-
+      for (const { id, el } of cached) {
         const rect = el.getBoundingClientRect();
-        // Section is considered active when its top is above the offset line
-        // and its bottom is still below the offset line
         if (rect.top <= headerOffset && rect.bottom > headerOffset) {
           currentActive = `#${id}`;
           break;
         }
       }
 
-      // If near bottom of page, activate the last section (Contact)
+      // If near bottom of page, activate the last section
       if (
         window.innerHeight + window.scrollY >=
         document.documentElement.scrollHeight - 60
       ) {
-        const lastId = ids[ids.length - 1];
-        if (lastId) currentActive = `#${lastId}`;
+        const last = cached[cached.length - 1];
+        if (last) currentActive = `#${last.id}`;
       }
 
       if (currentActive) {
-        setActiveHref(currentActive);
+        setActiveHref((prev) => (prev === currentActive ? prev : currentActive));
       }
     };
 
@@ -58,7 +66,6 @@ export function useActiveSection(hrefs: string[]) {
       });
     };
 
-    // Run on mount and attach scroll + resize listeners
     calculateActiveSection();
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleScroll, { passive: true });
@@ -68,7 +75,8 @@ export function useActiveSection(hrefs: string[]) {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
     };
-  }, [hrefs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hrefsKey]);
 
   return activeHref;
 }

@@ -1,95 +1,125 @@
 import { useEffect, useRef } from "react";
-import Lenis from "lenis";
+import LocomotiveScroll from "locomotive-scroll";
+import "locomotive-scroll/locomotive-scroll.css";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
+import { handleScrollMovement } from "../utils/soundEffects";
+
+gsap.registerPlugin(ScrollTrigger);
+
+declare global {
+  interface Window {
+    __locomotiveScroll?: LocomotiveScroll;
+  }
+}
+
+/**
+ * Enterprise-grade smooth scroll hook powered by Locomotive Scroll v5.
+ * - Perfectly synchronized with GSAP's RAF ticker to eliminate frame stutter
+ * - Notifies ScrollTrigger on every tick
+ * - Handles anchor link interception with smooth easing & header offset
+ * - Respects prefers-reduced-motion accessibility preferences
+ */
 export function useSmoothScroll() {
-  const lenisRef = useRef<Lenis | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
+  const scrollRef = useRef<LocomotiveScroll | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
-
-    // Use fast native momentum scroll on touch devices / mobile to eliminate any touch lag
-    if (prefersReducedMotion || isTouchDevice) {
-      return;
+    // Accessibility check: do not hijack scroll if user prefers reduced motion
+    if (reducedMotion) {
+      document.documentElement.style.scrollBehavior = "smooth";
+      return () => {
+        document.documentElement.style.scrollBehavior = "";
+      };
     }
 
-    // 1. Initialize Lenis with high-performance desktop settings
-    const lenis = new Lenis({
-      duration: 1.0,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: "vertical",
-      gestureOrientation: "vertical",
-      smoothWheel: true,
-      wheelMultiplier: 1.0,
-      infinite: false,
+    // Initialize Locomotive Scroll v5
+    const locomotiveScroll = new LocomotiveScroll({
+      lenisOptions: {
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: "vertical",
+        gestureOrientation: "vertical",
+        smoothWheel: true,
+        touchMultiplier: 1.5,
+        wheelMultiplier: 1,
+        infinite: false,
+      },
+      scrollCallback: (data?: { scroll?: number; velocity?: number; direction?: number }) => {
+        ScrollTrigger.update();
+        handleScrollMovement(
+          data?.scroll ?? window.scrollY,
+          data?.velocity,
+          data?.direction
+        );
+      },
+      initCustomTicker: (render) => {
+        gsap.ticker.add(render);
+      },
+      destroyCustomTicker: (render) => {
+        gsap.ticker.remove(render);
+      },
     });
 
-    lenisRef.current = lenis;
+    scrollRef.current = locomotiveScroll;
+    window.__locomotiveScroll = locomotiveScroll;
 
-    // 2. Synchronize smoothly with GSAP ScrollTrigger
-    lenis.on("scroll", ScrollTrigger.update);
+    // Refresh ScrollTrigger once Locomotive Scroll is initialized
+    const refreshTimer = window.setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 150);
 
-    const rafCallback = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-
-    gsap.ticker.add(rafCallback);
-    // Enable reasonable lag smoothing so CPU spikes don't cause visible jumps
-    gsap.ticker.lagSmoothing(500, 33);
-
-    // 3. Handle anchor link clicks smoothly
-    const handleClick = (event: MouseEvent) => {
+    // Global anchor link handler with Locomotive Scroll
+    const handleAnchorClick = (event: MouseEvent) => {
+      if (event.defaultPrevented) return;
       const anchor = (event.target as Element | null)?.closest("a");
       if (!anchor) return;
 
       const href = anchor.getAttribute("href");
       if (!href?.startsWith("#") || href === "#") return;
 
-      const target = document.querySelector<HTMLElement>(href);
-      if (!target) return;
+      const target = href === "#hero" ? 0 : document.querySelector<HTMLElement>(href);
+      if (!target && href !== "#hero") return;
 
       event.preventDefault();
 
-      const headerOffset = 75;
-
-      lenis.scrollTo(target, {
-        offset: -headerOffset,
-        duration: 1.1,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      locomotiveScroll.scrollTo(target as HTMLElement | number, {
+        offset: -80,
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       });
 
       window.history.pushState(null, "", href);
     };
 
-    document.addEventListener("click", handleClick);
+    document.addEventListener("click", handleAnchorClick);
 
+    // Handle initial hash in URL if present
     if (window.location.hash) {
-      const target = document.querySelector<HTMLElement>(window.location.hash);
-      if (target) {
-        setTimeout(() => {
-          lenis.scrollTo(target, {
-            offset: -75,
-            immediate: true,
+      const hash = window.location.hash;
+      const target = hash === "#hero" ? 0 : document.querySelector<HTMLElement>(hash);
+      if (target || hash === "#hero") {
+        window.setTimeout(() => {
+          locomotiveScroll.scrollTo(target as HTMLElement | number, {
+            offset: -80,
+            duration: 1,
           });
-        }, 100);
+        }, 200);
       }
     }
 
-    const refreshTimer = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 200);
-
     return () => {
       clearTimeout(refreshTimer);
-      lenis.destroy();
-      document.removeEventListener("click", handleClick);
-      gsap.ticker.remove(rafCallback);
+      document.removeEventListener("click", handleAnchorClick);
+      locomotiveScroll.destroy();
+      window.__locomotiveScroll = undefined;
+      scrollRef.current = null;
     };
-  }, []);
+  }, [reducedMotion]);
 
-  return lenisRef.current;
+  return scrollRef;
 }

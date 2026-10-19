@@ -3,6 +3,11 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@": "/src",
+    },
+  },
   build: {
     target: "esnext",
     cssCodeSplit: true,
@@ -11,7 +16,7 @@ export default defineConfig({
         manualChunks: {
           "vendor-react": ["react", "react-dom", "react-router-dom"],
           "vendor-gsap": ["gsap", "gsap/ScrollTrigger"],
-          "vendor-lenis": ["lenis"],
+          "vendor-scroll": ["locomotive-scroll"],
           "vendor-icons": ["lucide-react"],
         },
       },

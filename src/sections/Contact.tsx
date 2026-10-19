@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Container } from "../components/Container";
@@ -39,42 +39,90 @@ export function Contact() {
   const reducedMotion = usePrefersReducedMotion();
   const containerRef = useRef<HTMLElement>(null);
   const formCardRef = useRef<HTMLFormElement>(null);
+  const shockwaveRef = useRef<HTMLDivElement>(null);
   const hasSubmittedRef = useRef(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [status, setStatus] = useState<FormStatus>({ type: "idle", message: "" });
 
-  // 3D Tilt state for Contact Form Card
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-  const [glare, setGlare] = useState({ x: 50, y: 50 });
+  // 3D Tilt state for Contact Form Card (zero-render requestAnimationFrame)
+  const glareRef = useRef<HTMLDivElement>(null);
+  const rafId = useRef(0);
 
   // Magnetic button for submit
   const submitMagnetic = useMagnetic<HTMLButtonElement>(0.15, reducedMotion);
 
-  const handleFormMouseMove = (e: React.MouseEvent<HTMLFormElement>) => {
-    if (reducedMotion || !formCardRef.current || (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches)) return;
-    const rect = formCardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
+  const triggerSubmitCelebration = () => {
+    if (reducedMotion) return;
+    if (shockwaveRef.current) {
+      gsap.fromTo(
+        shockwaveRef.current,
+        { scale: 0.96, opacity: 0.9, borderColor: "#10b981" },
+        { scale: 1.05, opacity: 0, duration: 0.85, ease: "power2.out", force3D: true }
+      );
+    }
+    if (formCardRef.current) {
+      gsap.fromTo(
+        formCardRef.current,
+        { scale: 0.985 },
+        { scale: 1, duration: 0.5, ease: "back.out(2)", force3D: true }
+      );
+    }
+  };
 
-    setTilt({
-      x: ((y - centerY) / centerY) * -4,
-      y: ((x - centerX) / centerX) * 4,
-    });
-    setGlare({
-      x: (x / rect.width) * 100,
-      y: (y / rect.height) * 100,
+  const handleFormMouseMove = (e: MouseEvent<HTMLFormElement>) => {
+    if (reducedMotion || !formCardRef.current || (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches)) return;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    if (rafId.current) return;
+    rafId.current = requestAnimationFrame(() => {
+      rafId.current = 0;
+      const el = formCardRef.current;
+      const glareEl = glareRef.current;
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      const tiltX = (((y - centerY) / centerY) * -4).toFixed(2);
+      const tiltY = (((x - centerX) / centerX) * 4).toFixed(2);
+
+      el.style.transform = `perspective(1200px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.01)`;
+
+      if (glareEl) {
+        const glareX = ((x / rect.width) * 100).toFixed(1);
+        const glareY = ((y / rect.height) * 100).toFixed(1);
+        glareEl.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.12) 0%, transparent 65%)`;
+        glareEl.style.opacity = "1";
+      }
     });
   };
 
-  const handleFormMouseEnter = () => setIsHovered(true);
+  const handleFormMouseEnter = () => {
+    if (formCardRef.current) {
+      formCardRef.current.style.transition = "transform 0.12s ease-out";
+    }
+  };
+
   const handleFormMouseLeave = () => {
-    setIsHovered(false);
-    setTilt({ x: 0, y: 0 });
+    if (rafId.current) {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = 0;
+    }
+    const el = formCardRef.current;
+    const glareEl = glareRef.current;
+    if (el) {
+      el.style.transition = "transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)";
+      el.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
+    }
+    if (glareEl) {
+      glareEl.style.opacity = "0";
+    }
   };
 
   useEffect(() => {
@@ -90,6 +138,7 @@ export function Contact() {
           duration: 0.95,
           stagger: 0.12,
           ease: "power3.out",
+          force3D: true,
           scrollTrigger: {
             trigger: containerRef.current,
             start: "top 75%",
@@ -102,15 +151,16 @@ export function Contact() {
     return () => ctx.revert();
   }, [reducedMotion]);
 
+  const [copiedEmail, setCopiedEmail] = useState(false);
+
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(CONTACT_EMAIL);
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2200);
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    if (!WEB3FORMS_KEY) {
-      event.preventDefault();
-      setStatus({
-        type: "error",
-        message: "Email service access key is not set. Please reach out directly via email.",
-      });
-      return;
-    }
+    event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
     const name = String(formData.get("name") ?? "").trim();
@@ -118,7 +168,6 @@ export function Contact() {
     const message = String(formData.get("message") ?? "").trim();
 
     if (!name || !email || !message) {
-      event.preventDefault();
       setStatus({
         type: "error",
         message: "Please fill in your name, email, and project details before sending.",
@@ -126,9 +175,37 @@ export function Contact() {
       return;
     }
 
+    // If Web3Forms key is present, submit asynchronously via Web3Forms
+    if (WEB3FORMS_KEY) {
+      setIsSubmitting(true);
+      setStatus({ type: "idle", message: "" });
+      hasSubmittedRef.current = true;
+      triggerSubmitCelebration();
+      form.submit();
+      return;
+    }
+
+    // Graceful direct fallback: open mailto with prefilled details
     setIsSubmitting(true);
-    setStatus({ type: "idle", message: "" });
-    hasSubmittedRef.current = true;
+    triggerSubmitCelebration();
+    const subject = encodeURIComponent(`Project Inquiry from ${name}`);
+    const body = encodeURIComponent(
+      `Hello Ayush,\n\nMy name is ${name} (${email}).\n\nProject details:\n${message}\n\nBest regards,\n${name}`
+    );
+    const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+
+    window.location.href = mailtoUrl;
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitted(true);
+      setStatus({
+        type: "success",
+        message: `Opening your email client to deliver message to ${CONTACT_EMAIL}! You can also copy my email directly below.`,
+      });
+      formCardRef.current?.reset();
+      setTimeout(() => setSubmitted(false), 6000);
+    }, 400);
   };
 
   const handleDeliveryFrameLoad = () => {
@@ -136,6 +213,7 @@ export function Contact() {
     hasSubmittedRef.current = false;
     setIsSubmitting(false);
     setSubmitted(true);
+    triggerSubmitCelebration();
     setStatus({
       type: "success",
       message: `Message sent successfully! I will get back to you promptly at ${CONTACT_EMAIL}.`,
@@ -195,12 +273,22 @@ export function Contact() {
                   <span className="font-semibold uppercase tracking-wider text-[var(--ink)]/50">
                     Direct Email
                   </span>
-                  <a
-                    href={`mailto:${CONTACT_EMAIL}`}
-                    className="break-all text-right font-medium text-[var(--flame)] dark:text-[var(--blush)] hover:underline"
-                  >
-                    {CONTACT_EMAIL}
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`mailto:${CONTACT_EMAIL}`}
+                      className="break-all text-right font-medium text-emerald-500 hover:underline"
+                    >
+                      {CONTACT_EMAIL}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleCopyEmail}
+                      aria-label="Copy email address"
+                      className="inline-flex items-center rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-2 py-1 text-[10px] font-semibold text-[var(--ink)] transition hover:bg-emerald-500 hover:text-white"
+                    >
+                      {copiedEmail ? "Copied! ✓" : "Copy"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -225,19 +313,34 @@ export function Contact() {
               method="POST"
               target="contact-delivery-frame"
               style={{
-                transform: isHovered
-                  ? `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(1.01)`
-                  : "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)",
-                transition: isHovered ? "transform 0.12s ease-out" : "transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)",
+                transform: "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)",
+                willChange: "transform",
               }}
-              className="group/form relative overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] p-6 sm:p-10 shadow-xl backdrop-blur-2xl transition-colors duration-500"
+              className="group/form relative overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] p-6 sm:p-10 shadow-xl backdrop-blur-2xl transition-all duration-500 hover:shadow-2xl hover:border-emerald-500/20"
             >
+              {/* Animated gradient border ring */}
+              <div
+                className="pointer-events-none absolute -inset-[1px] rounded-3xl opacity-0 group-hover/form:opacity-100 transition-opacity duration-700 z-0"
+                style={{
+                  background: "conic-gradient(from 180deg, var(--flame), #10B981, #06B6D4, #8B5CF6, var(--flame))",
+                  mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                  maskComposite: "exclude",
+                  WebkitMaskComposite: "xor",
+                  padding: "1.5px",
+                  animation: "form-border-spin 8s linear infinite",
+                }}
+              />
               {/* Dynamic Glare Overlay */}
               <div
-                className="pointer-events-none absolute inset-0 opacity-0 group-hover/form:opacity-100 transition-opacity duration-300 z-10"
-                style={{
-                  background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(255,255,255,0.12) 0%, transparent 65%)`,
-                }}
+                ref={glareRef}
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 z-10"
+              />
+
+              {/* Submission Celebration Shockwave Ring */}
+              <div
+                ref={shockwaveRef}
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-3xl border-2 border-emerald-400 opacity-0 z-10"
               />
 
               <div className="relative z-20">
@@ -311,8 +414,8 @@ export function Contact() {
                     onMouseMove={submitMagnetic.onMouseMove}
                     onMouseLeave={submitMagnetic.onMouseLeave}
                     type="submit"
-                    disabled={isSubmitting || submitted || !WEB3FORMS_KEY}
-                    className="group relative w-full overflow-hidden rounded-full bg-[#252A34] dark:bg-white py-4 sm:py-4.5 text-xs font-bold uppercase tracking-[0.2em] text-white dark:text-black transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 shadow-lg"
+                    disabled={isSubmitting || submitted}
+                    className="group relative w-full overflow-hidden rounded-full bg-[#252A34] dark:bg-white py-4 sm:py-4.5 text-xs font-bold uppercase tracking-[0.2em] text-white dark:text-black transition-all duration-300 hover:scale-[1.01] hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-400 dark:hover:text-black active:scale-[0.99] disabled:opacity-70 shadow-lg"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {isSubmitting ? (
@@ -328,24 +431,24 @@ export function Contact() {
                   {status.message && (
                     <p
                       role={status.type === "error" ? "alert" : "status"}
-                      className={`rounded-xl border px-4 py-3 text-xs sm:text-sm font-medium leading-relaxed ${
-                        status.type === "success"
+                      className={`rounded-xl border px-4 py-3 text-xs sm:text-sm font-medium leading-relaxed ${status.type === "success"
                           ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
                           : "border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-300"
-                      }`}
+                        }`}
                     >
                       {status.message}
                     </p>
                   )}
 
-                  {!WEB3FORMS_KEY && (
+                  <p className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]/50">
+                    Direct inquiries:{" "}
                     <a
                       href={`mailto:${CONTACT_EMAIL}`}
-                      className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--flame)] dark:text-[var(--blush)] hover:underline"
+                      className="text-emerald-500 hover:underline"
                     >
-                      Email {CONTACT_EMAIL} directly
+                      {CONTACT_EMAIL}
                     </a>
-                  )}
+                  </p>
                 </div>
               </div>
             </form>

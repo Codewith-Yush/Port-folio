@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Container } from "../components/Container";
@@ -13,72 +13,22 @@ gsap.registerPlugin(ScrollTrigger);
 function ServiceCard({
   service,
   isSelected,
-  reducedMotion,
   onSelect,
 }: {
   service: Service;
   isSelected: boolean;
-  reducedMotion: boolean;
   onSelect: () => void;
 }) {
-  const cardRef = useRef<HTMLButtonElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-  const [glare, setGlare] = useState({ x: 50, y: 50 });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (reducedMotion || !cardRef.current || (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches)) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    setTilt({
-      x: ((y - centerY) / centerY) * -6,
-      y: ((x - centerX) / centerX) * 6,
-    });
-    setGlare({
-      x: (x / rect.width) * 100,
-      y: (y / rect.height) * 100,
-    });
-  };
-
-  const handleMouseEnter = () => setIsHovered(true);
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setTilt({ x: 0, y: 0 });
-  };
-
   return (
     <button
-      ref={cardRef}
       type="button"
       onClick={onSelect}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       aria-pressed={isSelected}
-      style={{
-        transform: isHovered
-          ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(1.02)`
-          : "perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)",
-        transition: isHovered ? "transform 0.12s ease-out" : "transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)",
-      }}
-      className={`skills-card-reveal group relative overflow-hidden rounded-3xl border p-7 sm:p-8 text-left transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#252A34] ${
-        isSelected
-          ? "border-[#252A34] dark:border-emerald-400 bg-[var(--surface)] backdrop-blur-xl shadow-xl ring-1 ring-[#252A34] dark:ring-emerald-400"
-          : "border-black/10 dark:border-white/10 bg-[var(--surface-strong)]/60 backdrop-blur-md hover:border-[#252A34]/40 dark:hover:border-white/30 hover:bg-[var(--surface)]"
-      }`}
+      className={`skills-card-reveal group relative overflow-hidden rounded-3xl border p-7 sm:p-8 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#252A34] ${isSelected
+          ? "border-[#252A34] dark:border-emerald-400 bg-[var(--surface)] shadow-xl ring-1 ring-[#252A34] dark:ring-emerald-400"
+          : "border-black/10 dark:border-white/10 bg-[var(--surface-strong)]/60 hover:border-[#252A34]/40 dark:hover:border-white/30 hover:bg-[var(--surface)]"
+        }`}
     >
-      {/* 3D Dynamic Interactive Glare Overlay */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
-        style={{
-          background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(255,255,255,0.15) 0%, transparent 65%)`,
-        }}
-      />
-
       <div className="relative z-20">
         <div className="grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-2xl border border-black/10 dark:border-white/10 bg-[var(--page)] text-emerald-500 transition-all duration-300 shadow-sm group-hover:scale-110 group-hover:bg-emerald-500/10">
           <ServiceIcon icon={service.icon} />
@@ -103,7 +53,7 @@ function ServiceCard({
   );
 }
 
-function ServiceDetails({ service }: { service: Service }) {
+function ServiceDetails({ service, onClose }: { service: Service; onClose: () => void }) {
   const detailWrapRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -111,14 +61,14 @@ function ServiceDetails({ service }: { service: Service }) {
     gsap.fromTo(
       detailWrapRef.current,
       { opacity: 0, y: 25, scale: 0.98 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power3.out" }
+      { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power3.out", force3D: true }
     );
   }, [service]);
 
   return (
     <article
       ref={detailWrapRef}
-      className="mt-8 sm:mt-10 overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] backdrop-blur-xl shadow-xl transition-colors duration-500"
+      className="relative mt-8 sm:mt-10 overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] backdrop-blur-xl shadow-xl transition-colors duration-500"
     >
       <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="relative min-h-64 overflow-hidden border-b border-black/10 dark:border-white/10 bg-[var(--surface-strong)] p-8 sm:p-10 lg:border-b-0 lg:border-r transition-colors duration-500">
@@ -141,10 +91,18 @@ function ServiceDetails({ service }: { service: Service }) {
           </div>
         </div>
 
-        <div className="p-6 sm:p-10 lg:p-12">
-          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--flame)] dark:text-[var(--blush)]">
-            Service Breakdown
-          </span>
+        <div className="relative p-6 sm:p-10 lg:p-12">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-500">
+              Service Breakdown
+            </span>
+            <button
+              onClick={onClose}
+              className="text-xs font-bold uppercase tracking-wider text-[var(--ink)]/50 hover:text-[var(--ink)] px-2.5 py-1 rounded-full border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            >
+              Close ✕
+            </button>
+          </div>
           <h3 className="mt-3 text-2xl sm:text-3xl font-light text-[var(--ink)]">
             {service.title}
           </h3>
@@ -232,12 +190,12 @@ export function Skills() {
       if (headingRef.current) {
         gsap.fromTo(
           headingRef.current,
-          { y: 35, opacity: 0 },
+          { y: 20, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            duration: 0.9,
-            ease: "power3.out",
+            duration: 0.5,
+            ease: "power2.out",
             scrollTrigger: {
               trigger: headingRef.current,
               start: "top 85%",
@@ -250,12 +208,12 @@ export function Skills() {
       if (loopRef.current) {
         gsap.fromTo(
           loopRef.current,
-          { y: 40, opacity: 0 },
+          { y: 20, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            duration: 0.9,
-            ease: "power3.out",
+            duration: 0.5,
+            ease: "power2.out",
             scrollTrigger: {
               trigger: loopRef.current,
               start: "top 85%",
@@ -266,20 +224,17 @@ export function Skills() {
       }
 
       if (cardsWrapRef.current) {
-        const cards = cardsWrapRef.current.querySelectorAll(".skills-card-reveal");
         gsap.fromTo(
-          cards,
-          { y: 45, opacity: 0, scale: 0.96 },
+          cardsWrapRef.current,
+          { y: 20, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            scale: 1,
-            duration: 0.85,
-            stagger: 0.12,
-            ease: "power3.out",
+            duration: 0.5,
+            ease: "power2.out",
             scrollTrigger: {
               trigger: cardsWrapRef.current,
-              start: "top 80%",
+              start: "top 85%",
               once: true,
             },
           }
@@ -296,7 +251,7 @@ export function Skills() {
       ref={sectionRef}
       className="relative overflow-hidden bg-[var(--page)] py-16 sm:py-20 md:py-24 text-[var(--ink)] border-t border-black/5 dark:border-white/5 transition-colors duration-500"
     >
-      <div className="absolute right-0 top-0 h-[500px] w-[500px] translate-x-1/4 -translate-y-1/4 rounded-full bg-[var(--flame)]/5 dark:bg-[var(--flame)]/10 blur-[130px] pointer-events-none" />
+      <div className="absolute right-0 top-0 h-[400px] w-[400px] translate-x-1/4 -translate-y-1/4 rounded-full bg-[var(--flame)]/5 dark:bg-[var(--flame)]/10 blur-2xl pointer-events-none" />
 
       <Container className="relative z-10">
         <div ref={headingRef}>
@@ -307,26 +262,23 @@ export function Skills() {
           />
         </div>
 
-        {/* Infinite Skills Carousel with GPU Acceleration */}
-        <div ref={loopRef} className="skill-loop mt-10 sm:mt-12" aria-label="Skill Categories">
-          <div className="skill-loop__track">
-            {[...skillGroups, ...skillGroups].map((group, index) => (
-              <article
-                key={`${group.title}-${index}`}
-                className="skill-loop__card rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] p-6 sm:p-8 backdrop-blur-md transition-colors duration-500 shadow-sm"
-                aria-hidden={index >= skillGroups.length}
-              >
-                <h3 className="mb-6 text-lg sm:text-xl font-light text-[var(--ink)]">
-                  {group.title}
-                </h3>
-                <div className="grid gap-5">
-                  {group.skills.map((skill) => (
-                    <SkillMeter key={skill.name} name={skill.name} level={skill.level} />
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
+        {/* Responsive Skills Grid */}
+        <div ref={loopRef} className="mt-10 sm:mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-label="Skill Categories">
+          {skillGroups.map((group) => (
+            <article
+              key={group.title}
+              className="rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <h3 className="mb-6 text-lg sm:text-xl font-light text-[var(--ink)]">
+                {group.title}
+              </h3>
+              <div className="grid gap-5">
+                {group.skills.map((skill) => (
+                  <SkillMeter key={skill.name} name={skill.name} level={skill.level} />
+                ))}
+              </div>
+            </article>
+          ))}
         </div>
 
         {/* 3D Interactive Services Cards */}
@@ -336,8 +288,16 @@ export function Skills() {
               key={service.title}
               service={service}
               isSelected={selectedService?.title === service.title}
-              reducedMotion={reducedMotion}
-              onSelect={() => setSelectedService(service)}
+              onSelect={() => {
+                if (selectedService?.title === service.title) {
+                  setSelectedService(null);
+                } else {
+                  setSelectedService(service);
+                  setTimeout(() => {
+                    detailRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                  }, 120);
+                }
+              }}
             />
           ))}
         </div>
@@ -345,10 +305,10 @@ export function Skills() {
         {/* Selected Service Detailed View */}
         <div ref={detailRef}>
           {selectedService ? (
-            <ServiceDetails service={selectedService} />
+            <ServiceDetails service={selectedService} onClose={() => setSelectedService(null)} />
           ) : (
             <div className="mt-8 rounded-2xl border border-dashed border-black/10 dark:border-white/10 bg-[var(--surface)]/50 px-6 py-6 text-center text-xs font-normal text-[var(--ink)]/60 backdrop-blur-sm transition-colors duration-500">
-              Select any service above to reveal process breakdown, timeline, and key deliverables.
+              Select any service card above to reveal its workflow process, timeline, and key deliverables.
             </div>
           )}
         </div>
