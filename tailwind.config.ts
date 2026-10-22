@@ -12,6 +12,7 @@ export default {
       },
       fontFamily: {
         sans: [
+          '"Plus Jakarta Sans"',
           '"Space Grotesk"',
           "ui-sans-serif",
           "system-ui",
@@ -20,14 +21,26 @@ export default {
           "Segoe UI",
           "sans-serif",
         ],
-        inter: [
-          '"Inter"',
-          "ui-sans-serif",
-          "system-ui",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "Segoe UI",
+        display: [
+          '"Syne"',
+          '"Space Grotesk"',
           "sans-serif",
+        ],
+        grotesk: [
+          '"Space Grotesk"',
+          "sans-serif",
+        ],
+        serif: [
+          '"Instrument Serif"',
+          "Georgia",
+          "serif",
+        ],
+        mono: [
+          '"JetBrains Mono"',
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "monospace",
         ],
       },
       boxShadow: {

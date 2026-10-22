@@ -1,6 +1,5 @@
 import { Preloader } from "./components/Loader";
 import { Header } from "./components/Header";
-import { CustomCursor } from "./components/CustomCursor";
 import { CommandShortcuts } from "./components/CommandShortcuts";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { Hero } from "./sections/Hero";
@@ -16,7 +15,6 @@ export default function App() {
   return (
     <div className="min-h-screen overflow-x-clip bg-[var(--page)] text-[var(--ink)] transition-colors duration-500 relative">
       <Preloader />
-      <CustomCursor />
       <Header />
       <main>
         <Hero />

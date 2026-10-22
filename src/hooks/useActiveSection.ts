@@ -53,9 +53,7 @@ export function useActiveSection(hrefs: string[]) {
         if (last) currentActive = `#${last.id}`;
       }
 
-      if (currentActive) {
-        setActiveHref((prev) => (prev === currentActive ? prev : currentActive));
-      }
+      setActiveHref((prev) => (prev === currentActive ? prev : currentActive));
     };
 
     const handleScroll = () => {

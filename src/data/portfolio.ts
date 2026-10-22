@@ -1,5 +1,6 @@
 export type Project = {
   title: string;
+  category?: "web" | "data" | "design";
   stack: string[];
   description: string;
   image: string;
@@ -12,15 +13,19 @@ export type Project = {
     label: string;
   }>;
   link?: string;
+  github?: string;
   galleryLink?: string;
   galleryImages?: string[];
 };
 
 export type SkillGroup = {
   title: string;
+  category: string;
   skills: Array<{
     name: string;
     level: number;
+    tier: "Advanced" | "Core" | "Specialized" | "Production";
+    tags?: string[];
   }>;
 };
 
@@ -35,15 +40,32 @@ export type Service = {
   bestFor: string[];
 };
 
+export const personalInfo = {
+  name: "Ayush Singh",
+  title: "Full Stack Developer & Creative Technologist",
+  headline: "Full Stack Developer, Freelancer & Data Science Student",
+  bio: "I build cinematic digital experiences bridging the gap between cutting-edge data architecture, high-performance web systems, and premium frontend design.",
+  email: "ayushsingh7360@gmail.com",
+  github: "https://github.com/codewith-Yush",
+  linkedin: "https://linkedin.com/in/ayush-singh-643a4b25a",
+  twitter: "https://twitter.com/ayushsingh",
+  resumeUrl: "/resume",
+  location: "New Delhi, India (IST)",
+  availability: "Available for Freelance & Full-time Roles",
+};
+
 export const navItems = [
   { label: "Work", href: "#work" },
   { label: "Skills", href: "#skills" },
+  { label: "Gallery", href: "/canva-gallery" },
+  { label: "Resume", href: "/resume" },
   { label: "Contact", href: "#contact" },
 ];
 
 export const projects: Project[] = [
   {
     title: "AI Creator Hub",
+    category: "web",
     stack: ["React", "Next.js", "Tailwind CSS", "TypeScript"],
     description:
       "A modern AI-powered content platform designed for digital creators, brands, and multimedia storytelling with instant generation workflows.",
@@ -63,9 +85,35 @@ export const projects: Project[] = [
       { value: "15+", label: "production UI components" },
     ],
     link: "https://astragen-ai-ten.vercel.app/",
+    github: "https://github.com/codewith-Yush/astragen-ai",
+  },
+  {
+    title: "PulseAnalytics - Predictive BI Platform",
+    category: "data",
+    stack: ["Python", "Power BI", "React", "FastAPI", "Data Science"],
+    description:
+      "An end-to-end business intelligence engine integrating machine learning predictive models with interactive Power BI analytical dashboards for automated trend forecasting.",
+    image: "/images/projects/web.png",
+    role: "Data Engineering & Full Stack Development",
+    year: "2026",
+    impact:
+      "Engineered automated ETL pipelines and predictive forecasting models, decreasing manual reporting overhead by 60% and delivering real-time actionable insights.",
+    features: [
+      "Automated multi-source data ingestion pipeline built with Python",
+      "Interactive Power BI embedded dashboards with granular drill-down filters",
+      "Time-series predictive forecasting algorithm for quarterly metric analysis",
+      "Production-ready responsive analytics interface with sub-second queries",
+    ],
+    metrics: [
+      { value: "60%", label: "faster reporting cycles" },
+      { value: "99.4%", label: "pipeline data integrity" },
+    ],
+    github: "https://github.com/codewith-Yush/pulse-analytics-dashboard",
+    link: "https://github.com/codewith-Yush/pulse-analytics-dashboard",
   },
   {
     title: "Canva Design Showcase",
+    category: "design",
     stack: ["Canva Pro", "Brand Systems", "Visual Identity", "Typography"],
     description:
       "A curated exhibition of high-impact visual design systems, brand identities, social campaign kits, and editorial print layouts.",
@@ -105,6 +153,7 @@ export const projects: Project[] = [
   },
   {
     title: "Tadka - Indian Restaurant Experience",
+    category: "web",
     stack: ["React", "Tailwind CSS", "JavaScript", "Responsive UI"],
     description:
       "A culinary web experience for an authentic Indian restaurant, featuring interactive category menus, reservation inquiries, and appetizing visual storytelling.",
@@ -124,32 +173,39 @@ export const projects: Project[] = [
       { value: "100%", label: "mobile-optimized reservation flow" },
     ],
     link: "https://tadka-indian-restaurant.vercel.app/",
+    github: "https://github.com/codewith-Yush/tadka-restaurant",
   },
 ];
 
 export const skillGroups: SkillGroup[] = [
   {
-    title: "Web Development",
+    title: "Web Engineering",
+    category: "Full Stack & Modern Frontend",
     skills: [
-      { name: "React & Next.js", level: 92 },
-      { name: "HTML, CSS & JavaScript", level: 95 },
-      { name: "Responsive UI Design", level: 90 },
+      { name: "React 19 & Next.js", level: 95, tier: "Advanced", tags: ["SSR", "Hooks", "Server Actions"] },
+      { name: "TypeScript & JavaScript", level: 92, tier: "Advanced", tags: ["Type Safety", "ESNext", "Async"] },
+      { name: "Tailwind CSS & Responsive UI", level: 94, tier: "Production", tags: ["Design Systems", "Mobile First"] },
+      { name: "REST APIs & Modern Backend", level: 88, tier: "Core", tags: ["FastAPI", "Node.js", "JSON"] },
     ],
   },
   {
-    title: "AI & Content",
+    title: "Data Science & AI",
+    category: "Analytics & Machine Learning",
     skills: [
-      { name: "AI Video Generation", level: 88 },
-      { name: "Canva Designing", level: 94 },
-      { name: "Content Creation", level: 90 },
+      { name: "Python & Data Processing", level: 88, tier: "Advanced", tags: ["Pandas", "NumPy", "Automation"] },
+      { name: "Power BI & BI Dashboards", level: 90, tier: "Production", tags: ["DAX", "Power Query", "Visuals"] },
+      { name: "Data Visualization & EDA", level: 86, tier: "Core", tags: ["Matplotlib", "Seaborn", "Stats"] },
+      { name: "Generative AI & Video Workflows", level: 90, tier: "Specialized", tags: ["Prompting", "AI Pipeline"] },
     ],
   },
   {
-    title: "Analytics & Tools",
+    title: "Design & Workflow",
+    category: "Visual Direction & Tooling",
     skills: [
-      { name: "Power BI Dashboards", level: 86 },
-      { name: "Data Visualization", level: 84 },
-      { name: "Git & GitHub", level: 82 },
+      { name: "UI/UX & Brand Design", level: 92, tier: "Advanced", tags: ["Canva Pro", "Figma", "Typography"] },
+      { name: "GSAP & Kinetic Motion", level: 88, tier: "Specialized", tags: ["ScrollTrigger", "Micro-Interactions"] },
+      { name: "Git, GitHub & CI/CD", level: 90, tier: "Core", tags: ["Version Control", "Vercel", "Vite"] },
+      { name: "Creative Strategy & Branding", level: 94, tier: "Production", tags: ["Social Kits", "Content Systems"] },
     ],
   },
 ];

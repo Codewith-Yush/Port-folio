@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ThemeToggle } from "../components/ThemeToggle";
-import { CustomCursor } from "../components/CustomCursor";
 
 import {
   isSoundFxEnabled,
@@ -338,6 +337,7 @@ function Lightbox({
 
   /* Mount entrance animation */
   useEffect(() => {
+    document.body.style.overflow = "hidden";
     gsap.fromTo(
       backdropRef.current,
       { opacity: 0 },
@@ -348,6 +348,9 @@ function Lightbox({
       { opacity: 0, scale: 0.9, y: 30 },
       { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "expo.out", delay: 0.05 }
     );
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
 
   /* Crossfade image when navigation occurs */
@@ -1060,36 +1063,45 @@ export default function CanvaGallery() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+
   /* Hero entrance animation */
   useEffect(() => {
-    gsap.fromTo(
-      heroTitleRef.current,
-      { opacity: 0, y: 60, skewY: -3 },
-      { opacity: 1, y: 0, skewY: 0, duration: 1.2, ease: "expo.out", delay: 0.15 }
-    );
-    gsap.fromTo(
-      heroSubRef.current,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", delay: 0.6 }
-    );
+    let statsTimer: number;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        heroTitleRef.current,
+        { opacity: 0, y: 60, skewY: -3 },
+        { opacity: 1, y: 0, skewY: 0, duration: 1.2, ease: "expo.out", delay: 0.15 }
+      );
+      gsap.fromTo(
+        heroSubRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", delay: 0.6 }
+      );
 
-    setTimeout(() => {
-      const statsItems = document.querySelectorAll<HTMLElement>(".stats-item");
-      if (statsItems.length) {
-        gsap.fromTo(
-          statsItems,
-          { opacity: 0, y: 25, scale: 0.96 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.6,
-            stagger: 0.08,
-            ease: "power3.out",
-          }
-        );
-      }
-    }, 700);
+      statsTimer = window.setTimeout(() => {
+        const statsItems = document.querySelectorAll<HTMLElement>(".stats-item");
+        if (statsItems.length) {
+          gsap.fromTo(
+            statsItems,
+            { opacity: 0, y: 25, scale: 0.96 },
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.6,
+              stagger: 0.08,
+              ease: "power3.out",
+            }
+          );
+        }
+      }, 700);
+    });
+
+    return () => {
+      clearTimeout(statsTimer);
+      ctx.revert();
+    };
   }, []);
 
   /* Filtered designs logic */
@@ -1218,7 +1230,6 @@ export default function CanvaGallery() {
       `}</style>
 
       <div className="canva-page noise-bg bg-[#F4F4F0] dark:bg-[#050505] text-[#111] dark:text-[#F9FAFB] min-h-screen transition-colors duration-500">
-        <CustomCursor />
         {/* Scroll Progress Line */}
         <div
           ref={progressRef}
@@ -1240,6 +1251,7 @@ export default function CanvaGallery() {
           <div className="flex w-full max-w-[1400px] items-center justify-between px-[5%] py-4">
             <Link
               to="/"
+              onClick={() => soundManager.pop()}
               className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.45em] text-[#111] dark:text-white no-underline transition hover:opacity-75"
             >
               <span
@@ -1253,16 +1265,17 @@ export default function CanvaGallery() {
               {[
                 ["Work", "/#work"],
                 ["Skills", "/#skills"],
-                ["Activity", "/#live-activity"],
+                ["Activity", "/#telemetry"],
                 ["Contact", "/#contact"],
               ].map(([label, href]) => (
-                <a
+                <Link
                   key={label}
-                  href={href}
+                  to={href}
+                  onClick={() => soundManager.pop()}
                   className="text-xs font-semibold uppercase tracking-[0.35em] text-black/50 dark:text-white/60 no-underline transition hover:text-[#10B981] dark:hover:text-[#10B981]"
                 >
                   {label}
-                </a>
+                </Link>
               ))}
             </div>
 
@@ -1287,6 +1300,7 @@ export default function CanvaGallery() {
 
               <Link
                 to="/"
+                onClick={() => soundManager.pop()}
                 className="text-[0.7rem] font-bold uppercase tracking-[0.2em] bg-[#111] text-white dark:bg-white dark:text-black px-4 sm:px-5 py-2 rounded-full no-underline transition-all duration-300 hover:bg-[#10B981] hover:text-white dark:hover:bg-[#10B981] dark:hover:text-black hover:scale-105 shadow-sm"
               >
                 ← Home
@@ -1609,6 +1623,7 @@ export default function CanvaGallery() {
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   to="/#contact"
+                  onClick={() => soundManager.pop()}
                   className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#10B981] text-white text-xs font-bold uppercase tracking-[0.2em] shadow-[0_8px_24px_rgba(16,185,129,0.35)] hover:shadow-[0_12px_32px_rgba(16,185,129,0.45)] hover:scale-105 transition-all duration-300"
                 >
                   <span>Start a Project</span>
@@ -1616,6 +1631,7 @@ export default function CanvaGallery() {
                 </Link>
                 <Link
                   to="/"
+                  onClick={() => soundManager.pop()}
                   className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full border border-black/15 dark:border-white/15 bg-white/50 dark:bg-white/5 backdrop-blur-md text-[#111] dark:text-white text-xs font-bold uppercase tracking-[0.2em] hover:border-[#10B981]/50 hover:scale-105 transition-all duration-300"
                 >
                   <span>← Back to Full Portfolio</span>
@@ -1680,6 +1696,7 @@ export default function CanvaGallery() {
               </span>
               <Link
                 to="/#contact"
+                onClick={() => soundManager.pop()}
                 className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50 dark:text-white/40 hover:text-[#10B981] transition-colors"
               >
                 Get in Touch →

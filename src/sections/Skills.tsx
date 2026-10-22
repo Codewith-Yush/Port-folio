@@ -24,27 +24,36 @@ function ServiceCard({
       type="button"
       onClick={onSelect}
       aria-pressed={isSelected}
-      className={`skills-card-reveal group relative overflow-hidden rounded-3xl border p-7 sm:p-8 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#252A34] ${isSelected
-          ? "border-[#252A34] dark:border-emerald-400 bg-[var(--surface)] shadow-xl ring-1 ring-[#252A34] dark:ring-emerald-400"
-          : "border-black/10 dark:border-white/10 bg-[var(--surface-strong)]/60 hover:border-[#252A34]/40 dark:hover:border-white/30 hover:bg-[var(--surface)]"
-        }`}
+      className={`skills-card-reveal group relative overflow-hidden border p-7 sm:p-8 text-left transition-all duration-300 focus:outline-none ${
+        isSelected
+          ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--page)] shadow-xl"
+          : "border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)]"
+      }`}
     >
       <div className="relative z-20">
-        <div className="grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-2xl border border-black/10 dark:border-white/10 bg-[var(--page)] text-emerald-500 transition-all duration-300 shadow-sm group-hover:scale-110 group-hover:bg-emerald-500/10">
-          <ServiceIcon icon={service.icon} />
+        <div className="flex items-center justify-between">
+          <div
+            className={`grid h-12 w-12 place-items-center border transition-all duration-300 group-hover:scale-105 ${
+              isSelected
+                ? "border-[var(--page)]/20 bg-[var(--page)]/10 text-emerald-400"
+                : "border-[var(--line)] bg-[var(--page)] text-emerald-600 dark:text-emerald-400"
+            }`}
+          >
+            <ServiceIcon icon={service.icon} />
+          </div>
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60">
+            {service.timeline}
+          </span>
         </div>
-        <h3 className="mt-6 text-xl sm:text-2xl font-light text-[var(--ink)]">
+        <h3 className="mt-6 font-sans text-xl sm:text-2xl font-bold uppercase tracking-[-0.04em]">
           {service.title}
         </h3>
-        <p className="mt-3 text-xs sm:text-sm leading-relaxed text-[var(--ink)]/70 font-light">
+        <p className="mt-3 text-xs sm:text-sm leading-relaxed opacity-75 font-normal">
           {service.description}
         </p>
-        <span className="mt-6 inline-flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-500 transition-colors">
-          <span>{isSelected ? "Active View" : "View Details"}</span>
-          <span
-            aria-hidden="true"
-            className="transition-transform duration-300 group-hover:translate-x-1.5"
-          >
+        <span className="mt-6 inline-flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-600 dark:text-emerald-400">
+          <span>{isSelected ? "Active View" : "Explore Deliverables"}</span>
+          <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1.5">
             →
           </span>
         </span>
@@ -68,23 +77,19 @@ function ServiceDetails({ service, onClose }: { service: Service; onClose: () =>
   return (
     <article
       ref={detailWrapRef}
-      className="relative mt-8 sm:mt-10 overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] backdrop-blur-xl shadow-xl transition-colors duration-500"
+      className="relative mt-8 sm:mt-10 overflow-hidden border border-[var(--ink)] dark:border-[var(--line)] bg-[var(--surface)] shadow-xl transition-colors duration-500"
     >
       <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
-        <div className="relative min-h-64 overflow-hidden border-b border-black/10 dark:border-white/10 bg-[var(--surface-strong)] p-8 sm:p-10 lg:border-b-0 lg:border-r transition-colors duration-500">
-          <div
-            className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.08),transparent_60%)] pointer-events-none"
-            aria-hidden="true"
-          />
+        <div className="relative min-h-64 overflow-hidden border-b border-[var(--line)] bg-[var(--surface-strong)] p-8 sm:p-10 lg:border-b-0 lg:border-r transition-colors duration-500">
           <div className="relative z-10 flex h-full min-h-48 flex-col justify-between">
-            <div className="grid h-14 w-14 sm:h-16 sm:w-16 place-items-center rounded-2xl border border-black/10 dark:border-white/10 bg-[var(--page)] transition-colors duration-500 text-[var(--flame)] dark:text-[var(--blush)] shadow-sm">
+            <div className="grid h-14 w-14 place-items-center border border-[var(--line)] bg-[var(--surface)] text-emerald-600 dark:text-emerald-400">
               <ServiceIcon icon={service.icon} />
             </div>
             <div className="mt-8">
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--ink)]/60">
+              <p className="text-[10px] font-mono font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
                 Estimated Timeline
               </p>
-              <p className="mt-2 text-3xl sm:text-4xl font-light leading-none text-[var(--ink)]">
+              <p className="mt-2 font-sans text-3xl sm:text-4xl font-bold uppercase tracking-tight text-[var(--ink)]">
                 {service.timeline}
               </p>
             </div>
@@ -93,36 +98,36 @@ function ServiceDetails({ service, onClose }: { service: Service; onClose: () =>
 
         <div className="relative p-6 sm:p-10 lg:p-12">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-emerald-500">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-400">
               Service Breakdown
             </span>
             <button
               onClick={onClose}
-              className="text-xs font-bold uppercase tracking-wider text-[var(--ink)]/50 hover:text-[var(--ink)] px-2.5 py-1 rounded-full border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)] hover:text-[var(--ink)] px-3 py-1 border border-[var(--line)] hover:border-[var(--ink)] transition-colors"
             >
               Close ✕
             </button>
           </div>
-          <h3 className="mt-3 text-2xl sm:text-3xl font-light text-[var(--ink)]">
+          <h3 className="mt-3 font-sans text-2xl sm:text-3xl font-bold uppercase tracking-[-0.04em] text-[var(--ink)]">
             {service.title}
           </h3>
-          <p className="mt-4 text-sm sm:text-base leading-relaxed text-[var(--ink)]/70">
+          <p className="mt-4 text-sm leading-relaxed text-[var(--muted)] font-normal">
             {service.outcome}
           </p>
 
           <div className="mt-8 grid gap-6 sm:grid-cols-3">
             <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]/80">
+              <h4 className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--ink)]">
                 Deliverables
               </h4>
               <ul className="mt-4 grid gap-2.5">
                 {service.deliverables.map((item) => (
                   <li
                     key={item}
-                    className="flex gap-2.5 text-xs font-normal leading-relaxed text-[var(--ink)]/75"
+                    className="flex gap-2.5 text-xs font-normal leading-relaxed text-[var(--muted)]"
                   >
                     <span
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--flame)]"
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-emerald-600 dark:bg-emerald-400"
                       aria-hidden="true"
                     />
                     {item}
@@ -132,38 +137,42 @@ function ServiceDetails({ service, onClose }: { service: Service; onClose: () =>
             </div>
 
             <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]/80">
-                Workflow
+              <h4 className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--ink)]">
+                Methodology
               </h4>
               <ol className="mt-4 grid gap-2.5">
-                {service.process.map((item, index) => (
+                {service.process.map((step, idx) => (
                   <li
-                    key={item}
-                    className="flex gap-2.5 text-xs font-normal leading-relaxed text-[var(--ink)]/75"
+                    key={step}
+                    className="flex gap-2.5 text-xs font-normal leading-relaxed text-[var(--muted)]"
                   >
-                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full border border-black/20 dark:border-white/20 bg-black/5 dark:bg-white/5 text-[9px] font-bold text-[var(--ink)]">
-                      {index + 1}
+                    <span className="font-mono text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+                      0{idx + 1}
                     </span>
-                    {item}
+                    {step}
                   </li>
                 ))}
               </ol>
             </div>
 
             <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]/80">
-                Ideal For
+              <h4 className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--ink)]">
+                Recommended For
               </h4>
-              <div className="mt-4 flex flex-wrap gap-1.5">
+              <ul className="mt-4 grid gap-2.5">
                 {service.bestFor.map((item) => (
-                  <span
+                  <li
                     key={item}
-                    className="rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--ink)]/75"
+                    className="flex gap-2.5 text-xs font-normal leading-relaxed text-[var(--muted)]"
                   >
+                    <span
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-[var(--ink)]"
+                      aria-hidden="true"
+                    />
                     {item}
-                  </span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           </div>
         </div>
@@ -174,15 +183,14 @@ function ServiceDetails({ service, onClose }: { service: Service; onClose: () =>
 
 export function Skills() {
   const reducedMotion = usePrefersReducedMotion();
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
   const loopRef = useRef<HTMLDivElement>(null);
   const cardsWrapRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
 
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-
-  // GSAP ScrollTrigger Entrance Stagger
   useEffect(() => {
     if (reducedMotion) return;
 
@@ -190,12 +198,12 @@ export function Skills() {
       if (headingRef.current) {
         gsap.fromTo(
           headingRef.current,
-          { y: 20, opacity: 0 },
+          { y: 30, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            duration: 0.5,
-            ease: "power2.out",
+            duration: 0.8,
+            ease: "power3.out",
             scrollTrigger: {
               trigger: headingRef.current,
               start: "top 85%",
@@ -205,32 +213,16 @@ export function Skills() {
         );
       }
 
-      if (loopRef.current) {
+      const cards = cardsWrapRef.current?.querySelectorAll(".skills-card-reveal");
+      if (cards && cards.length > 0) {
         gsap.fromTo(
-          loopRef.current,
-          { y: 20, opacity: 0 },
+          cards,
+          { y: 40, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            duration: 0.5,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: loopRef.current,
-              start: "top 85%",
-              once: true,
-            },
-          }
-        );
-      }
-
-      if (cardsWrapRef.current) {
-        gsap.fromTo(
-          cardsWrapRef.current,
-          { y: 20, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.5,
+            duration: 0.6,
+            stagger: 0.12,
             ease: "power2.out",
             scrollTrigger: {
               trigger: cardsWrapRef.current,
@@ -249,40 +241,65 @@ export function Skills() {
     <section
       id="skills"
       ref={sectionRef}
-      className="relative overflow-hidden bg-[var(--page)] py-16 sm:py-20 md:py-24 text-[var(--ink)] border-t border-black/5 dark:border-white/5 transition-colors duration-500"
+      className="relative overflow-hidden bg-[var(--page)] py-16 sm:py-24 md:py-28 text-[var(--ink)] border-t border-[var(--line)] transition-colors duration-500"
     >
-      <div className="absolute right-0 top-0 h-[400px] w-[400px] translate-x-1/4 -translate-y-1/4 rounded-full bg-[var(--flame)]/5 dark:bg-[var(--flame)]/10 blur-2xl pointer-events-none" />
-
       <Container className="relative z-10">
+        {/* Frame Top Sub-Bar */}
+        <div className="flex items-center justify-between border-b border-[var(--line)] pb-4 font-mono text-[10px] uppercase tracking-[0.18em] sm:text-[11px] mb-12 sm:mb-16">
+          <span className="flex items-center gap-3 text-[var(--muted)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" aria-hidden="true" />
+            <span>03 <span className="px-2">—</span> Capabilities &amp; Systems</span>
+          </span>
+          <span className="text-[var(--muted)]">Core Stack <span className="px-2">/</span> Architecture</span>
+        </div>
+
         <div ref={headingRef}>
           <SectionHeading
-            eyebrow="Skills & Services"
-            title="Frontend depth with architectural precision."
-            copy="I build where design artistry, AI workflows, and rock-solid systems intersect: fast UI, modular architectures, and details users can feel."
+            serial="DISCIPLINE"
+            eyebrow="Frontend depth × architectural precision"
+            title="Technical"
+            accent="systems."
+            copy="I build where design artistry, generative AI workflows, and high-performance full-stack architectures intersect: fast UI, modular systems, and details users can feel."
           />
         </div>
 
         {/* Responsive Skills Grid */}
-        <div ref={loopRef} className="mt-10 sm:mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-label="Skill Categories">
-          {skillGroups.map((group) => (
+        <div
+          ref={loopRef}
+          className="mt-12 sm:mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          aria-label="Skill Categories"
+        >
+          {skillGroups.map((group, idx) => (
             <article
               key={group.title}
-              className="rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow"
+              className="border border-[var(--line)] hover:border-[var(--ink)] bg-[var(--surface)] p-6 sm:p-8 transition-colors flex flex-col justify-between"
             >
-              <h3 className="mb-6 text-lg sm:text-xl font-light text-[var(--ink)]">
-                {group.title}
-              </h3>
-              <div className="grid gap-5">
-                {group.skills.map((skill) => (
-                  <SkillMeter key={skill.name} name={skill.name} level={skill.level} />
-                ))}
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
+                  <span>Category / 0{idx + 1}</span>
+                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{group.category}</span>
+                </div>
+                <h3 className="mb-6 font-sans text-xl sm:text-2xl font-bold uppercase tracking-[-0.04em] text-[var(--ink)]">
+                  {group.title}
+                </h3>
+                <div className="grid gap-6">
+                  {group.skills.map((skill) => (
+                    <SkillMeter
+                      key={skill.name}
+                      name={skill.name}
+                      level={skill.level}
+                      tier={skill.tier}
+                      tags={skill.tags}
+                    />
+                  ))}
+                </div>
               </div>
             </article>
           ))}
         </div>
 
         {/* 3D Interactive Services Cards */}
-        <div ref={cardsWrapRef} className="mt-12 sm:mt-14 grid gap-5 sm:gap-6 lg:grid-cols-3">
+        <div ref={cardsWrapRef} className="mt-12 sm:mt-16 grid gap-5 sm:gap-6 lg:grid-cols-3">
           {services.map((service) => (
             <ServiceCard
               key={service.title}
@@ -307,7 +324,7 @@ export function Skills() {
           {selectedService ? (
             <ServiceDetails service={selectedService} onClose={() => setSelectedService(null)} />
           ) : (
-            <div className="mt-8 rounded-2xl border border-dashed border-black/10 dark:border-white/10 bg-[var(--surface)]/50 px-6 py-6 text-center text-xs font-normal text-[var(--ink)]/60 backdrop-blur-sm transition-colors duration-500">
+            <div className="mt-8 border border-dashed border-[var(--line)] bg-[var(--surface)]/50 px-6 py-6 text-center font-mono text-xs uppercase tracking-[0.14em] text-[var(--muted)] transition-colors duration-500">
               Select any service card above to reveal its workflow process, timeline, and key deliverables.
             </div>
           )}

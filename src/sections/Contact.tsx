@@ -26,11 +26,10 @@ function SocialButton({ href, label }: { href: string; label: string }) {
       href={href}
       target={href.startsWith("http") ? "_blank" : undefined}
       rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-      className="group relative overflow-hidden rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-5 py-2.5 shadow-sm backdrop-blur-md transition-colors duration-300 hover:border-[#252A34] hover:bg-[#252A34] hover:text-white dark:hover:bg-white dark:hover:text-black active:scale-95"
+      className="group inline-flex h-11 items-center justify-between gap-3 border border-[var(--line)] bg-[var(--surface)] px-4 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink)] transition-colors duration-300 hover:border-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--page)]"
     >
-      <span className="relative z-10 text-[10px] font-bold uppercase tracking-widest text-[var(--ink)]/80 transition-colors group-hover:text-white dark:group-hover:text-black">
-        {label}
-      </span>
+      <span>{label}</span>
+      <span className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
     </a>
   );
 }
@@ -89,15 +88,15 @@ export function Contact() {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
 
-      const tiltX = (((y - centerY) / centerY) * -4).toFixed(2);
-      const tiltY = (((x - centerX) / centerX) * 4).toFixed(2);
+      const tiltX = (((y - centerY) / centerY) * -3).toFixed(2);
+      const tiltY = (((x - centerX) / centerX) * 3).toFixed(2);
 
-      el.style.transform = `perspective(1200px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.01)`;
+      el.style.transform = `perspective(1200px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.005)`;
 
       if (glareEl) {
         const glareX = ((x / rect.width) * 100).toFixed(1);
         const glareY = ((y / rect.height) * 100).toFixed(1);
-        glareEl.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.12) 0%, transparent 65%)`;
+        glareEl.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.08) 0%, transparent 65%)`;
         glareEl.style.opacity = "1";
       }
     });
@@ -131,17 +130,16 @@ export function Contact() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ".contact-reveal",
-        { y: 40, opacity: 0 },
+        { y: 35, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.95,
-          stagger: 0.12,
+          duration: 0.85,
+          stagger: 0.1,
           ease: "power3.out",
-          force3D: true,
           scrollTrigger: {
             trigger: containerRef.current,
-            start: "top 75%",
+            start: "top 80%",
             once: true,
           },
         }
@@ -151,72 +149,44 @@ export function Contact() {
     return () => ctx.revert();
   }, [reducedMotion]);
 
-  const [copiedEmail, setCopiedEmail] = useState(false);
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText(CONTACT_EMAIL);
-    setCopiedEmail(true);
-    setTimeout(() => setCopiedEmail(false), 2200);
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const name = String(formData.get("name") ?? "").trim();
-    const email = String(formData.get("email") ?? "").trim();
-    const message = String(formData.get("message") ?? "").trim();
-
-    if (!name || !email || !message) {
+    if (!WEB3FORMS_KEY) {
       setStatus({
         type: "error",
-        message: "Please fill in your name, email, and project details before sending.",
+        message: "Form configuration missing. Please email ayushsingh7360@gmail.com directly.",
       });
       return;
     }
 
-    // If Web3Forms key is present, submit asynchronously via Web3Forms
-    if (WEB3FORMS_KEY) {
-      setIsSubmitting(true);
-      setStatus({ type: "idle", message: "" });
-      hasSubmittedRef.current = true;
-      triggerSubmitCelebration();
-      form.submit();
-      return;
-    }
-
-    // Graceful direct fallback: open mailto with prefilled details
     setIsSubmitting(true);
-    triggerSubmitCelebration();
-    const subject = encodeURIComponent(`Project Inquiry from ${name}`);
-    const body = encodeURIComponent(
-      `Hello Ayush,\n\nMy name is ${name} (${email}).\n\nProject details:\n${message}\n\nBest regards,\n${name}`
-    );
-    const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+    hasSubmittedRef.current = true;
+    setStatus({ type: "idle", message: "" });
+    formCardRef.current?.submit();
 
-    window.location.href = mailtoUrl;
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitted(true);
-      setStatus({
-        type: "success",
-        message: `Opening your email client to deliver message to ${CONTACT_EMAIL}! You can also copy my email directly below.`,
-      });
-      formCardRef.current?.reset();
-      setTimeout(() => setSubmitted(false), 6000);
-    }, 400);
+    window.setTimeout(() => {
+      if (hasSubmittedRef.current && isSubmitting) {
+        setIsSubmitting(false);
+        setSubmitted(true);
+        triggerSubmitCelebration();
+        setStatus({
+          type: "success",
+          message: "Transmission delivered successfully! I will reply within 12 hours.",
+        });
+        formCardRef.current?.reset();
+      }
+    }, 1800);
   };
 
   const handleDeliveryFrameLoad = () => {
     if (!hasSubmittedRef.current) return;
-    hasSubmittedRef.current = false;
     setIsSubmitting(false);
     setSubmitted(true);
     triggerSubmitCelebration();
     setStatus({
       type: "success",
-      message: `Message sent successfully! I will get back to you promptly at ${CONTACT_EMAIL}.`,
+      message: "Transmission delivered successfully! I will reply within 12 hours.",
     });
     formCardRef.current?.reset();
     window.setTimeout(() => setSubmitted(false), 6000);
@@ -226,74 +196,63 @@ export function Contact() {
     <section
       id="contact"
       ref={containerRef}
-      className="relative overflow-hidden border-t border-black/5 dark:border-white/5 bg-[var(--page)] py-16 sm:py-20 md:py-24 text-[var(--ink)] transition-colors duration-500"
+      className="relative overflow-hidden border-t border-[var(--line)] bg-[var(--page)] py-16 sm:py-24 md:py-28 text-[var(--ink)] transition-colors duration-500"
     >
-      <div className="absolute right-0 top-0 h-[500px] w-[500px] translate-x-1/3 -translate-y-1/3 rounded-full bg-[var(--flame)]/5 dark:bg-[var(--flame)]/10 blur-[130px] pointer-events-none" />
-
       <Container className="relative z-10">
+        {/* Frame Top Sub-Bar */}
+        <div className="flex items-center justify-between border-b border-[var(--line)] pb-4 font-mono text-[10px] uppercase tracking-[0.18em] sm:text-[11px] mb-12 sm:mb-16">
+          <span className="flex items-center gap-3 text-[var(--muted)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" aria-hidden="true" />
+            <span>05 <span className="px-2">—</span> Transmission</span>
+          </span>
+          <span className="text-[var(--muted)]">Inquiries <span className="px-2">/</span> Q1–Q2 2026</span>
+        </div>
+
         <div className="flex flex-col items-start gap-12 lg:flex-row lg:gap-20">
           {/* Left Column: Intro & Info */}
           <div className="flex w-full flex-col gap-8 lg:w-[45%]">
             <div className="contact-reveal">
-              <span className="mb-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--flame)] dark:text-[var(--blush)]">
-                Get In Touch
-              </span>
-              <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-[1.08] tracking-tight text-[var(--ink)]">
-                Let's build <br />
-                <span className="font-serif italic text-[var(--flame)] dark:text-[var(--blush)] font-normal">
-                  something great.
+              <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-7 sm:text-xs">
+                Direct inquiries <span className="px-1 text-emerald-700 dark:text-emerald-400">×</span> collaboration
+              </p>
+              <h2 className="font-sans text-[clamp(2.8rem,6vw,5.5rem)] font-bold uppercase leading-[0.85] tracking-[-0.075em] text-[var(--ink)]">
+                <span>Let's build</span><br />
+                <span className="font-serif font-normal italic lowercase tracking-[-0.07em] text-emerald-700 dark:text-emerald-400">
+                  together
                 </span>
+                <span>.</span>
               </h2>
-              <p className="mt-5 max-w-md text-sm sm:text-base font-light text-[var(--ink)]/70 leading-relaxed">
+              <p className="mt-6 max-w-md text-sm leading-7 text-[var(--muted)] sm:text-base font-normal">
                 Whether you have an upcoming project, freelance inquiry, or architectural challenge,
                 my inbox is always open.
               </p>
             </div>
 
-            {/* Quick Status Card with subtle hover */}
-            <div className="contact-reveal group relative overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] p-6 sm:p-7 backdrop-blur-xl shadow-sm transition-all duration-300 hover:shadow-lg hover:border-black/25 dark:hover:border-white/25">
-              <div className="relative z-10 mb-6 flex items-center gap-3">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+            {/* Quick Status Card */}
+            <div className="contact-reveal border border-[var(--line)] hover:border-[var(--ink)] bg-[var(--surface)] p-6 sm:p-7 shadow-sm transition-colors">
+              <div className="mb-5 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
+                <span className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Availability</span>
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]">
-                  Available for New Projects
-                </span>
+                <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Active</span>
               </div>
 
-              <div className="relative z-10 flex flex-col gap-4 text-xs">
-                <div className="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-4">
-                  <span className="font-semibold uppercase tracking-wider text-[var(--ink)]/50">
-                    Typical Response
-                  </span>
-                  <span className="font-medium text-[var(--ink)]">&lt; 12 Hours</span>
+              <div className="flex flex-col gap-3.5 text-xs font-mono">
+                <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
+                  <span className="text-[var(--muted)] uppercase tracking-wider">Response Window</span>
+                  <span className="font-semibold text-[var(--ink)]">&lt; 12 Hours</span>
                 </div>
-                <div className="flex items-center justify-between gap-4">
-                  <span className="font-semibold uppercase tracking-wider text-[var(--ink)]/50">
-                    Direct Email
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <a
-                      href={`mailto:${CONTACT_EMAIL}`}
-                      className="break-all text-right font-medium text-emerald-500 hover:underline"
-                    >
-                      {CONTACT_EMAIL}
-                    </a>
-                    <button
-                      type="button"
-                      onClick={handleCopyEmail}
-                      aria-label="Copy email address"
-                      className="inline-flex items-center rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-2 py-1 text-[10px] font-semibold text-[var(--ink)] transition hover:bg-emerald-500 hover:text-white"
-                    >
-                      {copiedEmail ? "Copied! ✓" : "Copy"}
-                    </button>
-                  </div>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[var(--muted)] uppercase tracking-wider">Direct Channel</span>
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-700 dark:text-emerald-400 font-semibold hover:underline">
+                    {CONTACT_EMAIL}
+                  </a>
                 </div>
               </div>
             </div>
 
-            {/* Social Buttons with Magnetic Physics */}
+            {/* Social Buttons */}
             <div className="contact-reveal flex flex-wrap gap-2.5">
               <SocialButton href={`mailto:${CONTACT_EMAIL}`} label="Direct Email" />
               <SocialButton href="https://linkedin.com/in/ayush-singh-643a4b25a" label="LinkedIn" />
@@ -301,7 +260,7 @@ export function Contact() {
             </div>
           </div>
 
-          {/* Right Column: Contact Form with 3D Perspective Tilt */}
+          {/* Right Column: Contact Form */}
           <div className="contact-reveal w-full lg:w-[55%]">
             <form
               ref={formCardRef}
@@ -316,20 +275,8 @@ export function Contact() {
                 transform: "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)",
                 willChange: "transform",
               }}
-              className="group/form relative overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-[var(--surface)] p-6 sm:p-10 shadow-xl backdrop-blur-2xl transition-all duration-500 hover:shadow-2xl hover:border-emerald-500/20"
+              className="group/form relative overflow-hidden border border-[var(--ink)] dark:border-[var(--line)] bg-[var(--surface)] p-6 sm:p-10 shadow-lg transition-all duration-300"
             >
-              {/* Animated gradient border ring */}
-              <div
-                className="pointer-events-none absolute -inset-[1px] rounded-3xl opacity-0 group-hover/form:opacity-100 transition-opacity duration-700 z-0"
-                style={{
-                  background: "conic-gradient(from 180deg, var(--flame), #10B981, #06B6D4, #8B5CF6, var(--flame))",
-                  mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                  maskComposite: "exclude",
-                  WebkitMaskComposite: "xor",
-                  padding: "1.5px",
-                  animation: "form-border-spin 8s linear infinite",
-                }}
-              />
               {/* Dynamic Glare Overlay */}
               <div
                 ref={glareRef}
@@ -340,7 +287,7 @@ export function Contact() {
               <div
                 ref={shockwaveRef}
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-3xl border-2 border-emerald-400 opacity-0 z-10"
+                className="pointer-events-none absolute inset-0 border-2 border-emerald-400 opacity-0 z-10"
               />
 
               <div className="relative z-20">
@@ -363,14 +310,14 @@ export function Contact() {
                       name="name"
                       required
                       autoComplete="name"
-                      className="peer w-full border-b border-black/15 dark:border-white/15 bg-transparent px-1 py-3 text-base sm:text-lg font-light text-[var(--ink)] placeholder-transparent transition-all focus:border-[var(--flame)] dark:focus:border-[var(--blush)] focus:outline-none"
+                      className="peer w-full border-b border-[var(--line)] bg-transparent px-1 py-3 text-base sm:text-lg font-light text-[var(--ink)] placeholder-transparent transition-all focus:border-[var(--ink)] focus:outline-none"
                       placeholder=" "
                     />
                     <label
                       htmlFor="name"
-                      className="absolute left-1 top-3 cursor-text text-xs uppercase tracking-[0.2em] text-[var(--ink)]/50 transition-all duration-300 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-[var(--flame)] dark:peer-focus:text-[var(--blush)] peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-[var(--ink)]/70"
+                      className="absolute left-1 top-3 cursor-text font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] transition-all duration-300 peer-placeholder-shown:top-3 peer-placeholder-shown:text-xs peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-[var(--ink)] peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-[10px]"
                     >
-                      Your Name
+                      01 / Your Name
                     </label>
                   </div>
 
@@ -381,14 +328,14 @@ export function Contact() {
                       name="email"
                       required
                       autoComplete="email"
-                      className="peer w-full border-b border-black/15 dark:border-white/15 bg-transparent px-1 py-3 text-base sm:text-lg font-light text-[var(--ink)] placeholder-transparent transition-all focus:border-[var(--flame)] dark:focus:border-[var(--blush)] focus:outline-none"
+                      className="peer w-full border-b border-[var(--line)] bg-transparent px-1 py-3 text-base sm:text-lg font-light text-[var(--ink)] placeholder-transparent transition-all focus:border-[var(--ink)] focus:outline-none"
                       placeholder=" "
                     />
                     <label
                       htmlFor="email"
-                      className="absolute left-1 top-3 cursor-text text-xs uppercase tracking-[0.2em] text-[var(--ink)]/50 transition-all duration-300 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-[var(--flame)] dark:peer-focus:text-[var(--blush)] peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-[var(--ink)]/70"
+                      className="absolute left-1 top-3 cursor-text font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] transition-all duration-300 peer-placeholder-shown:top-3 peer-placeholder-shown:text-xs peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-[var(--ink)] peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-[10px]"
                     >
-                      Email Address
+                      02 / Email Address
                     </label>
                   </div>
 
@@ -398,14 +345,14 @@ export function Contact() {
                       name="message"
                       required
                       rows={4}
-                      className="peer w-full resize-none border-b border-black/15 dark:border-white/15 bg-transparent px-1 py-3 text-base sm:text-lg font-light text-[var(--ink)] placeholder-transparent transition-all focus:border-[var(--flame)] dark:focus:border-[var(--blush)] focus:outline-none"
+                      className="peer w-full resize-none border-b border-[var(--line)] bg-transparent px-1 py-3 text-base sm:text-lg font-light text-[var(--ink)] placeholder-transparent transition-all focus:border-[var(--ink)] focus:outline-none"
                       placeholder=" "
                     />
                     <label
                       htmlFor="message"
-                      className="absolute left-1 top-3 cursor-text text-xs uppercase tracking-[0.2em] text-[var(--ink)]/50 transition-all duration-300 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-[var(--flame)] dark:peer-focus:text-[var(--blush)] peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-[var(--ink)]/70"
+                      className="absolute left-1 top-3 cursor-text font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] transition-all duration-300 peer-placeholder-shown:top-3 peer-placeholder-shown:text-xs peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-[var(--ink)] peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-[10px]"
                     >
-                      Project Details & Scope
+                      03 / Project Scope &amp; Brief
                     </label>
                   </div>
 
@@ -415,36 +362,41 @@ export function Contact() {
                     onMouseLeave={submitMagnetic.onMouseLeave}
                     type="submit"
                     disabled={isSubmitting || submitted}
-                    className="group relative w-full overflow-hidden rounded-full bg-[#252A34] dark:bg-white py-4 sm:py-4.5 text-xs font-bold uppercase tracking-[0.2em] text-white dark:text-black transition-all duration-300 hover:scale-[1.01] hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-400 dark:hover:text-black active:scale-[0.99] disabled:opacity-70 shadow-lg"
+                    className="group inline-flex h-12 w-full sm:w-auto items-center justify-between gap-8 border border-[var(--ink)] bg-[var(--ink)] px-6 font-mono text-[11px] font-semibold uppercase tracking-[0.13em] text-[var(--page)] transition-colors duration-300 hover:bg-transparent hover:text-[var(--ink)] disabled:opacity-50"
                   >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
+                    <span>
                       {isSubmitting ? (
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        <span className="flex items-center gap-2">
+                          <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          <span>Dispatching...</span>
+                        </span>
                       ) : submitted ? (
-                        "Message Received ✓"
+                        "Transmission Sent ✓"
                       ) : (
-                        "Send Message →"
+                        "Send Message"
                       )}
                     </span>
+                    <span className="text-base transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </button>
 
                   {status.message && (
                     <p
                       role={status.type === "error" ? "alert" : "status"}
-                      className={`rounded-xl border px-4 py-3 text-xs sm:text-sm font-medium leading-relaxed ${status.type === "success"
-                          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
+                      className={`border px-4 py-3 font-mono text-xs leading-relaxed ${
+                        status.type === "success"
+                          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                           : "border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-300"
-                        }`}
+                      }`}
                     >
                       {status.message}
                     </p>
                   )}
 
-                  <p className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]/50">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--muted)]">
                     Direct inquiries:{" "}
                     <a
                       href={`mailto:${CONTACT_EMAIL}`}
-                      className="text-emerald-500 hover:underline"
+                      className="text-emerald-700 dark:text-emerald-400 font-semibold hover:underline"
                     >
                       {CONTACT_EMAIL}
                     </a>

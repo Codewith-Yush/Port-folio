@@ -29,7 +29,7 @@ const SOCIALS = [
   },
   {
     name: "Twitter",
-    url: "https://twitter.com",
+    url: "https://twitter.com/ayushsingh",
     handle: "@ayushsingh",
     icon: (
       <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
@@ -38,13 +38,14 @@ const SOCIALS = [
 ];
 
 const MARQUEE_ITEMS = [
-  "INNOVATION & CRAFT",
   "FULL STACK ARCHITECTURE",
+  "SYSTEM CRAFT & RESILIENCE",
   "CREATIVE DIRECTION",
-  "AI EXPERIENCES",
-  "DATA SCIENCE & ANALYTICS",
-  "AVAILABLE FOR SELECT PROJECTS",
+  "GENERATIVE AI INTEGRATIONS",
+  "HIGH PERFORMANCE WEB",
+  "AVAILABLE FOR SELECT ENGAGEMENTS",
 ];
+
 function FooterClock() {
   const [time, setTime] = useState<string>("");
 
@@ -59,7 +60,7 @@ function FooterClock() {
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
-        })
+        }),
       );
     };
 
@@ -85,8 +86,8 @@ function FooterClock() {
   }, []);
 
   return (
-    <p className="font-mono text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-bold">
-      {time || "00:00:00 AM"} • UTC+5:30
+    <p className="font-mono text-xs font-semibold text-emerald-700 dark:text-emerald-400 mt-1 tracking-wider">
+      {time || "00:00:00 AM"} • IST [UTC+5:30]
     </p>
   );
 }
@@ -99,7 +100,9 @@ export function Footer() {
   const visualReelRef = useRef<HTMLDivElement>(null);
 
   const [copied, setCopied] = useState(false);
-  const [activeProjectHover, setActiveProjectHover] = useState<number | null>(null);
+  const [activeProjectHover, setActiveProjectHover] = useState<number | null>(
+    null,
+  );
 
   // Snappy entrance reveal
   useEffect(() => {
@@ -120,7 +123,7 @@ export function Footer() {
               start: "top 85%",
               once: true,
             },
-          }
+          },
         );
       }
 
@@ -138,7 +141,7 @@ export function Footer() {
               start: "top 85%",
               once: true,
             },
-          }
+          },
         );
       }
     }, footerRef);
@@ -166,65 +169,82 @@ export function Footer() {
   return (
     <footer
       ref={footerRef}
-      className="relative overflow-hidden bg-[var(--page)] text-[var(--ink)] pt-16 sm:pt-20 md:pt-24 pb-10 border-t border-black/10 dark:border-white/10 transition-colors duration-500"
+      className="relative overflow-hidden bg-[var(--page)] text-[var(--ink)] pt-16 sm:pt-20 pb-10 border-t border-[var(--line)] transition-colors duration-500"
     >
-
-      {/* Atmospheric Ambient Lighting Halos */}
-      <div className="pointer-events-none absolute -top-32 left-1/4 h-80 w-80 rounded-full bg-[var(--flame)]/5 dark:bg-emerald-500/10 blur-[130px] z-0 transition-colors duration-500" />
-      <div className="pointer-events-none absolute bottom-10 right-1/4 h-96 w-96 rounded-full bg-[var(--blush)]/5 dark:bg-cyan-500/10 blur-[150px] z-0 transition-colors duration-500" />
-
-      {/* Infinite Glowing Marquee Ticker */}
-      <div className="relative z-10 overflow-hidden border-y border-black/10 dark:border-white/10 py-3.5 bg-black/[0.02] dark:bg-white/[0.02] backdrop-blur-md mb-12 sm:mb-16">
+      {/* Editorial Monospace Marquee Ticker */}
+      <div className="relative z-10 overflow-hidden border-y border-[var(--line)] py-3 bg-[var(--surface)] mb-12 sm:mb-16">
         <div className="footer-marquee-track flex gap-8 whitespace-nowrap">
-          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, idx) => (
+          {[
+            ...MARQUEE_ITEMS,
+            ...MARQUEE_ITEMS,
+            ...MARQUEE_ITEMS,
+            ...MARQUEE_ITEMS,
+          ].map((item, idx) => (
             <span
               key={idx}
-              className="flex items-center gap-6 text-[10px] sm:text-xs font-bold uppercase tracking-[0.25em] text-[var(--ink)]/70 dark:text-white/70"
+              className="flex items-center gap-6 font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--muted)]"
             >
               <span>{item}</span>
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--flame)] dark:bg-emerald-400 shadow-[0_0_8px_#10b981]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
             </span>
           ))}
         </div>
-        {/* Subtle Side Fade Scrims */}
+        {/* Side Fades */}
         <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-24 bg-gradient-to-r from-[var(--page)] to-transparent z-10" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-24 bg-gradient-to-l from-[var(--page)] to-transparent z-10" />
       </div>
 
       <Container className="relative z-10">
+        {/* Frame Rule Header matching Hero & Sections */}
+        <div className="mb-12 sm:mb-14 flex items-center justify-between border-b border-[var(--line)] pb-4 font-mono text-[10px] uppercase tracking-[0.18em] sm:text-[11px] text-[var(--muted)]">
+          <span className="flex items-center gap-3">
+            <span
+              className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"
+              aria-hidden="true"
+            />
+            <span>
+              06 — Colophon <span className="text-[var(--ink)] font-semibold">/ Synthesis</span>
+            </span>
+          </span>
+          <span>Archive / 2026</span>
+        </div>
+
         {/* Visual Creative Showcase Dock */}
-        <div ref={visualReelRef} className="footer-fade-in mb-14 sm:mb-16">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-3">
+        <div ref={visualReelRef} className="footer-fade-in mb-16 sm:mb-20">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-3 pb-3 border-b border-[var(--line)]">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--flame)] dark:text-emerald-400">
-                Visual Showcase
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
+                Index // Selected Archives
               </span>
-              <h3 className="text-xl sm:text-2xl font-light text-[var(--ink)] tracking-tight mt-1">
-                Selected Works & Creations
+              <h3 className="font-sans text-xl sm:text-2xl font-bold uppercase tracking-[-0.05em] text-[var(--ink)] mt-1">
+                Visual catalogue & artifacts.
               </h3>
             </div>
             <a
               href="#work"
-              className="group inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--ink)]/60 dark:text-white/60 hover:text-[var(--ink)] dark:hover:text-white transition-colors"
+              onClick={() => playClick()}
+              className="group inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
             >
-              <span>Explore All Projects</span>
-              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              <span>Explore all projects</span>
+              <span className="transition-transform duration-300 group-hover:translate-x-1">
+                →
+              </span>
             </a>
           </div>
 
-          {/* 3-Card Interactive Visual Showcase Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+          {/* 3-Card Editorial Brutalist Visual Showcase Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {projects.slice(0, 3).map((project, idx) => {
-              const cardClass = `footer-showcase-card group relative overflow-hidden rounded-2xl border bg-black/[0.02] dark:bg-white/[0.03] p-3 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1.5 ${
+              const cardClass = `footer-showcase-card group relative overflow-hidden border bg-[var(--surface)] p-3 transition-colors duration-300 ${
                 activeProjectHover === idx
-                  ? "border-[var(--flame)]/60 dark:border-emerald-400/60 shadow-[0_16px_36px_rgba(0,0,0,0.1)] dark:shadow-[0_16px_36px_rgba(16,185,129,0.22)] scale-[1.02]"
-                  : "border-black/10 dark:border-white/10 hover:border-[var(--flame)]/40 dark:hover:border-emerald-500/40 hover:shadow-lg"
+                  ? "border-[var(--ink)]"
+                  : "border-[var(--line)] hover:border-[var(--ink)]"
               }`;
 
               const cardContent = (
                 <>
                   {/* Visual Thumbnail */}
-                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-neutral-200 dark:bg-neutral-900">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden border border-[var(--line)] bg-[var(--page)]">
                     <ChromaticImage
                       src={project.image}
                       alt={project.title}
@@ -235,30 +255,35 @@ export function Footer() {
                       chromaticShift={0.015}
                       tilt={0.35}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent pointer-events-none" />
 
-                    {/* Top Floating Badge */}
-                    <span className="absolute top-2.5 right-2.5 rounded-full border border-white/20 bg-black/60 px-2.5 py-0.5 text-[9px] font-mono uppercase text-white backdrop-blur-md">
-                      {project.year}
-                    </span>
+                    {/* Top Index & Year Badge */}
+                    <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                      <span className="border border-[var(--line)] bg-[var(--page)]/90 backdrop-blur-md px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[var(--ink)]">
+                        [ 0{idx + 1} ]
+                      </span>
+                      <span className="bg-[var(--ink)] text-[var(--page)] px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider">
+                        {project.year}
+                      </span>
+                    </div>
 
                     {/* Bottom Image Overlay Text */}
                     <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-white">
-                      <span className="text-xs font-bold tracking-tight truncate pr-2">
+                      <span className="font-mono text-[11px] font-bold uppercase tracking-tight truncate pr-2">
                         {project.title}
                       </span>
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-black text-xs font-bold transition-transform duration-300 group-hover:scale-110 group-hover:bg-emerald-400">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center border border-white/20 bg-black/60 font-mono text-xs text-white transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#C7ED70] group-hover:text-black">
                         ↗
                       </span>
                     </div>
                   </div>
 
                   {/* Tech Tags */}
-                  <div className="mt-2.5 flex flex-wrap gap-1.5">
-                    {project.stack.slice(0, 2).map((tech) => (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {project.stack.slice(0, 3).map((tech) => (
                       <span
                         key={tech}
-                        className="rounded-md bg-black/5 dark:bg-white/5 px-2 py-0.5 text-[9px] font-medium text-[var(--ink)]/60 dark:text-white/60"
+                        className="border border-[var(--line)] px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-[var(--muted)]"
                       >
                         {tech}
                       </span>
@@ -281,8 +306,14 @@ export function Footer() {
                 <a
                   key={project.title}
                   href={project.link || "#work"}
-                  target={project.link?.startsWith("http") ? "_blank" : undefined}
-                  rel={project.link?.startsWith("http") ? "noopener noreferrer" : undefined}
+                  target={
+                    project.link?.startsWith("http") ? "_blank" : undefined
+                  }
+                  rel={
+                    project.link?.startsWith("http")
+                      ? "noopener noreferrer"
+                      : undefined
+                  }
                   onMouseEnter={() => setActiveProjectHover(idx)}
                   onMouseLeave={() => setActiveProjectHover(null)}
                   className={cardClass}
@@ -294,98 +325,129 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Central Kinetic Statement */}
-        <div className="footer-fade-in text-center my-12 sm:my-16">
-          <span className="inline-block text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--ink)]/50 dark:text-white/50 mb-3">
-            Let&apos;s Create Something Next
-          </span>
+        {/* Central Kinetic Hero Statement */}
+        <div className="footer-fade-in text-center my-14 sm:my-20">
+          <div className="inline-flex items-center gap-2 border border-[var(--line)] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--muted)] mb-5">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+            <span>Transmission // Initialize new inquiry</span>
+          </div>
+
           <h2
             ref={headingRef}
-            className="text-[clamp(2.2rem,6.5vw,5.5rem)] font-light leading-[1.08] tracking-tight text-[var(--ink)] max-w-4xl mx-auto"
+            className="font-sans text-[clamp(2.5rem,7vw,5.5rem)] font-bold uppercase leading-[0.88] tracking-[-0.075em] text-[var(--ink)] max-w-4xl mx-auto"
           >
             Have a project in mind?{" "}
-            <span className="font-serif italic font-normal text-[var(--flame)] dark:bg-gradient-to-r dark:from-emerald-300 dark:via-teal-200 dark:to-cyan-300 dark:bg-clip-text dark:text-transparent">
-              Let&apos;s build it together.
+            <span className="font-serif font-normal italic lowercase tracking-[-0.07em] text-emerald-700 dark:text-emerald-400">
+              let&apos;s build it together.
             </span>
           </h2>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <p className="mt-5 max-w-lg mx-auto text-sm leading-6 text-[var(--muted)]">
+            Available for select high-impact full-stack architecture, frontend engineering, and AI-driven products.
+          </p>
+
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
               href="#contact"
-              className="group relative inline-flex h-[52px] w-full sm:w-[210px] items-center justify-center rounded-full bg-[#252A34] text-white dark:bg-white dark:text-black px-8 text-xs font-bold uppercase tracking-[0.2em] shadow-lg transition-all duration-300 hover:scale-105 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-400 active:scale-95"
+              onClick={() => playClick()}
+              className="group inline-flex h-12 w-full sm:w-auto items-center justify-between gap-6 border border-[var(--ink)] bg-[var(--ink)] px-6 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--page)] transition-colors duration-300 hover:bg-transparent hover:text-[var(--ink)]"
             >
-              <span>Start a Project</span>
-              <span className="ml-2 text-sm transition-transform duration-300 group-hover:translate-x-1">→</span>
+              <span>Start a project</span>
+              <span className="transition-transform duration-300 group-hover:translate-x-1">
+                →
+              </span>
             </a>
 
             <button
               type="button"
               onClick={handleCopyEmail}
-              className="group relative inline-flex h-[52px] w-full sm:w-[210px] items-center justify-center rounded-full border border-black/15 dark:border-white/20 bg-black/5 dark:bg-white/[0.04] backdrop-blur-xl px-8 text-xs font-bold uppercase tracking-[0.2em] text-[var(--ink)] dark:text-white transition-all duration-300 hover:scale-105 hover:border-[var(--flame)]/50 dark:hover:border-white/50 hover:bg-black/10 dark:hover:bg-white/10 active:scale-95"
+              className="group inline-flex h-12 w-full sm:w-auto items-center justify-between gap-6 border border-[var(--line)] bg-transparent px-6 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--ink)] transition-colors duration-300 hover:border-[var(--ink)]"
             >
-              <span>{copied ? "✓ Copied!" : "Copy Email"}</span>
+              <span>{copied ? "✓ Copied to clipboard" : "Copy direct email"}</span>
+              <span className="font-mono text-xs text-[var(--muted)]">@</span>
             </button>
           </div>
         </div>
 
         {/* Bento Control & Info Grid */}
-        <div className="footer-bento-grid grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 border-t border-black/10 dark:border-white/10 pt-10 sm:pt-12">
+        <div className="footer-bento-grid grid grid-cols-1 md:grid-cols-3 gap-5 border-t border-[var(--line)] pt-10 sm:pt-14">
           {/* Card 1: Telemetry & Availability */}
-          <div className="footer-bento-card rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] p-5 backdrop-blur-md flex flex-col justify-between gap-4">
+          <div className="footer-bento-card border border-[var(--line)] bg-[var(--surface)] p-6 flex flex-col justify-between gap-5 transition-colors hover:border-[var(--ink)]">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]/50 dark:text-white/50">
-                Location & Time
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
+                01 / Station & Coordinates
               </span>
-              <span className="text-xs">🇮🇳</span>
+              <span className="font-mono text-xs text-[var(--muted)]">IN // 28.61° N</span>
             </div>
             <div>
-              <p className="text-sm font-medium text-[var(--ink)]">New Delhi, India (IST)</p>
+              <p className="font-sans text-base font-bold uppercase tracking-tight text-[var(--ink)]">
+                New Delhi, India [IST]
+              </p>
               <FooterClock />
             </div>
-            <div className="flex items-center gap-2 pt-2 border-t border-black/5 dark:border-white/5 text-[11px] text-[var(--ink)]/70 dark:text-white/70">
+            <div className="flex items-center gap-2 pt-4 border-t border-[var(--line)] font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
               </span>
-              <span>Open to Freelance & Full-time</span>
+              <span>Available for freelance & full-time</span>
             </div>
           </div>
 
           {/* Card 2: Quick Navigation */}
-          <div className="footer-bento-card rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] p-5 backdrop-blur-md flex flex-col justify-between gap-4">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]/50 dark:text-white/50">
-              Navigation
-            </span>
-            <div className="grid grid-cols-2 gap-2">
-              {navItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="text-xs font-semibold text-[var(--ink)]/70 dark:text-white/70 hover:text-[var(--flame)] dark:hover:text-emerald-400 transition-colors uppercase tracking-wider py-1"
-                >
-                  {item.label} ↗
-                </a>
-              ))}
+          <div className="footer-bento-card border border-[var(--line)] bg-[var(--surface)] p-6 flex flex-col justify-between gap-5 transition-colors hover:border-[var(--ink)]">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
+                02 / Directory Index
+              </span>
+              <span className="font-mono text-xs text-[var(--muted)]">[ 06 ]</span>
             </div>
-            <div className="pt-2 border-t border-black/5 dark:border-white/5 text-[11px] text-[var(--ink)]/50 dark:text-white/50">
-              Crafted with React, GSAP & Tailwind
+            <div className="grid grid-cols-2 gap-2">
+              {navItems.map((item) =>
+                item.href.startsWith("/") ? (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    onClick={() => playClick()}
+                    className="font-mono text-[11px] uppercase tracking-wider text-[var(--muted)] hover:text-[var(--ink)] transition-colors py-1 flex items-center justify-between"
+                  >
+                    <span>{item.label}</span>
+                    <span>↗</span>
+                  </Link>
+                ) : (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => playClick()}
+                    className="font-mono text-[11px] uppercase tracking-wider text-[var(--muted)] hover:text-[var(--ink)] transition-colors py-1 flex items-center justify-between"
+                  >
+                    <span>{item.label}</span>
+                    <span>↓</span>
+                  </a>
+                ),
+              )}
+            </div>
+            <div className="pt-4 border-t border-[var(--line)] font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]">
+              Architecture: React • GSAP • Tailwind
             </div>
           </div>
 
           {/* Card 3: Social Connectivity & Back to Top */}
-          <div className="footer-bento-card rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] p-5 backdrop-blur-md flex flex-col justify-between gap-4">
+          <div className="footer-bento-card border border-[var(--line)] bg-[var(--surface)] p-6 flex flex-col justify-between gap-5 transition-colors hover:border-[var(--ink)]">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]/50 dark:text-white/50">
-                Network & Socials
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
+                03 / Dispatch & Network
               </span>
               <button
                 type="button"
                 onClick={scrollToTop}
-                className="group flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--ink)]/60 dark:text-white/60 hover:text-[var(--flame)] dark:hover:text-emerald-400 transition-colors"
+                className="group flex items-center gap-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
                 title="Scroll back to top"
               >
-                <span>Top</span>
-                <span className="transition-transform duration-300 group-hover:-translate-y-0.5">↑</span>
+                <span>[ Top ]</span>
+                <span className="transition-transform duration-300 group-hover:-translate-y-0.5">
+                  ↑
+                </span>
               </button>
             </div>
 
@@ -397,29 +459,36 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.name}
-                  className="flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] px-3 py-2 text-xs text-[var(--ink)]/80 dark:text-white/80 transition-all duration-300 hover:scale-105 hover:border-[var(--flame)]/50 dark:hover:border-emerald-400/50 hover:text-[var(--ink)] dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10"
+                  className="inline-flex items-center gap-2 border border-[var(--line)] bg-transparent px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-[var(--ink)] transition-colors hover:border-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--page)]"
                 >
-                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current">
+                  <svg viewBox="0 0 24 24" className="h-3 w-3 fill-current">
                     {social.icon}
                   </svg>
-                  <span className="text-[11px] font-medium">{social.name}</span>
+                  <span>{social.name} ↗</span>
                 </a>
               ))}
             </div>
 
-            <div className="pt-2 border-t border-black/5 dark:border-white/5 text-[11px] text-[var(--ink)]/50 dark:text-white/50">
+            <div className="pt-4 border-t border-[var(--line)] font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]">
               © {new Date().getFullYear()} Ayush Singh. All rights reserved.
             </div>
           </div>
         </div>
 
+        {/* Massive Editorial Studio Signature */}
+        <div className="mt-14 sm:mt-20 overflow-hidden select-none pointer-events-none opacity-20 dark:opacity-15">
+          <div className="font-sans text-[clamp(3.5rem,14vw,11.5rem)] font-black uppercase tracking-[-0.075em] leading-[0.8] text-[var(--ink)] text-center whitespace-nowrap">
+            Ayush Singh
+          </div>
+        </div>
+
         {/* Minimal Bottom Studio Stamp */}
-        <div className="footer-bottom-stamp mt-10 pt-6 border-t border-black/5 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between text-[10px] uppercase tracking-[0.25em] text-[var(--ink)]/60 dark:text-white/60 gap-3">
-          <span>Ayush Singh • Portfolio 2026</span>
+        <div className="footer-bottom-stamp mt-8 pt-6 border-t border-[var(--line)] flex flex-col sm:flex-row items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] gap-3">
+          <span>Ayush Singh • Portfolio Edition 2026</span>
           <button
             type="button"
             onClick={scrollToTop}
-            className="hover:text-[var(--flame)] dark:hover:text-emerald-400 transition-colors flex items-center gap-1"
+            className="hover:text-[var(--ink)] transition-colors flex items-center gap-1.5"
           >
             <span>Back to top</span>
             <span>↑</span>

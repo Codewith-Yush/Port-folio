@@ -3,14 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
-  ExternalLink,
-  Layers,
-  Sparkles,
   CheckCircle2,
   X,
   Zap,
-  ArrowUpRight,
-  Eye,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -24,18 +19,23 @@ import { playTab, playClick } from "../utils/soundEffects";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type FilterCategory = "all" | "web" | "design";
+type FilterCategory = "all" | "web" | "data" | "design";
 
 const FILTER_OPTIONS: { key: FilterCategory; label: string }[] = [
   { key: "all", label: "All" },
   { key: "web", label: "Web Apps" },
+  { key: "data", label: "Data & AI" },
   { key: "design", label: "Design Showcase" },
 ];
 
-// Single source of truth for "is this a design/Canva showcase piece" — used by
-// both the filter counts and the filter itself, so they can never drift apart.
 const isDesignProject = (p: Project) =>
-  Boolean(p.galleryLink) || p.stack.includes("Canva") || p.stack.includes("Branding");
+  p.category === "design" || Boolean(p.galleryLink) || p.stack.includes("Canva") || p.stack.includes("Branding");
+
+const isDataProject = (p: Project) =>
+  p.category === "data" || p.stack.includes("Power BI") || p.stack.includes("Python") || p.stack.includes("Data Science");
+
+const isWebProject = (p: Project) =>
+  p.category === "web" || (!isDesignProject(p) && !isDataProject(p));
 
 // Project Quick-View Deep Dive Modal
 function ProjectModal({
@@ -121,17 +121,17 @@ function ProjectModal({
       {/* Modal Content Window */}
       <div
         ref={cardRef}
-        className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl border border-black/15 dark:border-white/15 bg-[var(--surface)] p-6 sm:p-8 md:p-10 text-[var(--ink)] shadow-2xl backdrop-blur-2xl"
+        className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-[var(--ink)] dark:border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8 md:p-10 text-[var(--ink)] shadow-2xl backdrop-blur-2xl"
       >
         {/* Top Header Bar */}
-        <div className="flex items-center justify-between pb-6 mb-6 border-b border-black/10 dark:border-white/10">
+        <div className="flex items-center justify-between pb-6 mb-6 border-b border-[var(--line)]">
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/15 px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--ink)]">
-              <Sparkles className="h-3 w-3 text-emerald-500" />
-              <span>{isCanva ? "Design Portfolio" : "Full Stack Architecture"}</span>
+            <span className="inline-flex items-center gap-2 border border-[var(--line)] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--ink)]">
+              <span className="h-1.5 w-1.5 bg-emerald-600 dark:bg-emerald-400" />
+              <span>{isCanva ? "Design Portfolio" : project.category === "data" ? "Data Intelligence" : "Full Stack Architecture"}</span>
             </span>
             {total > 1 && (
-              <span className="text-xs font-mono text-[var(--ink)]/50">
+              <span className="text-xs font-mono text-[var(--muted)]">
                 {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
               </span>
             )}
@@ -142,14 +142,14 @@ function ProjectModal({
               <>
                 <button
                   onClick={() => onNavigate(index - 1)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 transition-all hover:scale-110 hover:bg-[#252A34] hover:text-white dark:hover:bg-white dark:hover:text-black"
+                  className="flex h-9 w-9 items-center justify-center border border-[var(--line)] bg-transparent transition-all hover:border-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--page)] font-mono"
                   aria-label="Previous project"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => onNavigate(index + 1)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 transition-all hover:scale-110 hover:bg-[#252A34] hover:text-white dark:hover:bg-white dark:hover:text-black"
+                  className="flex h-9 w-9 items-center justify-center border border-[var(--line)] bg-transparent transition-all hover:border-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--page)] font-mono"
                   aria-label="Next project"
                 >
                   <ChevronRight className="h-4 w-4" />
@@ -159,7 +159,7 @@ function ProjectModal({
             <button
               ref={closeButtonRef}
               onClick={requestClose}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-sm transition-all hover:scale-110 hover:bg-[#252A34] hover:text-white dark:hover:bg-white dark:hover:text-black"
+              className="flex h-9 w-9 items-center justify-center border border-[var(--line)] bg-transparent text-sm transition-all hover:border-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--page)]"
               aria-label="Close modal"
             >
               <X className="h-4 w-4" />
@@ -170,7 +170,7 @@ function ProjectModal({
         <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:items-start">
           {/* Media Side */}
           <div className="space-y-4">
-            <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 shadow-xl bg-black/5 dark:bg-black/40">
+            <div className="relative aspect-[16/10] overflow-hidden border border-[var(--line)] shadow-xl bg-black/5 dark:bg-black/40">
               <ChromaticImage
                 src={project.image}
                 alt={project.title}
@@ -188,10 +188,10 @@ function ProjectModal({
               {project.metrics.map((m) => (
                 <div
                   key={m.label}
-                  className="rounded-2xl border border-black/5 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] p-4 text-center"
+                  className="border border-[var(--line)] bg-[var(--surface)] p-4 text-center"
                 >
-                  <div className="text-2xl font-bold text-emerald-500">{m.value}</div>
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink)]/60 mt-1">
+                  <div className="font-sans text-2xl font-bold text-emerald-700 dark:text-emerald-400">{m.value}</div>
+                  <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)] mt-1">
                     {m.label}
                   </div>
                 </div>
@@ -204,57 +204,57 @@ function ProjectModal({
             <div>
               <h3
                 id="project-modal-title"
-                className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--ink)]"
+                className="font-sans text-2xl sm:text-3xl font-bold uppercase tracking-[-0.05em] text-[var(--ink)]"
               >
                 {project.title}
               </h3>
 
-              <p className="mt-4 text-sm leading-relaxed text-[var(--ink)]/75">
+              <p className="mt-4 text-sm leading-relaxed text-[var(--muted)]">
                 {project.description}
               </p>
 
               {/* Role, Timeline & Category info */}
-              <div className="mt-5 grid grid-cols-3 gap-3 p-3.5 rounded-2xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] text-xs">
+              <div className="mt-5 grid grid-cols-3 gap-3 p-3.5 border border-[var(--line)] bg-[var(--surface)] text-xs font-mono">
                 <div>
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-[var(--ink)]/50 block">
+                  <span className="text-[9px] uppercase tracking-wider font-bold text-[var(--muted)] block">
                     Role
                   </span>
                   <span className="font-semibold text-[var(--ink)]">{project.role}</span>
                 </div>
                 <div>
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-[var(--ink)]/50 block">
+                  <span className="text-[9px] uppercase tracking-wider font-bold text-[var(--muted)] block">
                     Timeline
                   </span>
                   <span className="font-semibold text-[var(--ink)]">{project.year}</span>
                 </div>
                 <div>
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-[var(--ink)]/50 block">
+                  <span className="text-[9px] uppercase tracking-wider font-bold text-[var(--muted)] block">
                     Category
                   </span>
                   <span className="font-semibold text-[var(--ink)]">
-                    {isCanva ? "Design" : "Web App"}
+                    {isCanva ? "Design" : project.category === "data" ? "Data & ML" : "Web App"}
                   </span>
                 </div>
               </div>
 
               {/* Impact Statement */}
-              <div className="mt-4 rounded-2xl border border-black/10 dark:border-white/10 border-l-4 border-l-emerald-500/70 bg-black/[0.03] dark:bg-white/[0.03] p-4 text-xs leading-relaxed text-[var(--ink)]">
-                <div className="flex items-center gap-1.5 text-emerald-500 font-bold uppercase text-[10px] tracking-wider mb-1.5">
+              <div className="mt-4 border border-[var(--line)] border-l-2 border-l-emerald-600 dark:border-l-emerald-400 bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--ink)]">
+                <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-mono font-bold uppercase text-[9px] tracking-[0.18em] mb-1.5">
                   <Zap className="h-3.5 w-3.5" />
                   <span>Impact & Purpose</span>
                 </div>
-                <p className="text-[var(--ink)]/80">{project.impact}</p>
+                <p className="text-[var(--muted)]">{project.impact}</p>
               </div>
 
               {/* Key Features List */}
               <div className="mt-5">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink)]/50 mb-3">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--muted)] mb-3">
                   Key Deliverables
                 </h4>
                 <ul className="space-y-2">
                   {project.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2.5 text-xs text-[var(--ink)]/80">
-                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500 mt-0.5" />
+                    <li key={feature} className="flex items-start gap-2.5 text-xs text-[var(--muted)]">
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -263,14 +263,14 @@ function ProjectModal({
 
               {/* Tech Stack Chips */}
               <div className="mt-5">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink)]/50 mb-2">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--muted)] mb-2">
                   Technologies Used
                 </h4>
                 <div className="flex flex-wrap gap-1.5">
                   {project.stack.map((t) => (
                     <span
                       key={t}
-                      className="px-3 py-1 rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-[10px] font-semibold text-[var(--ink)]/80"
+                      className="px-2.5 py-1 border border-[var(--line)] font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--muted)]"
                     >
                       {t}
                     </span>
@@ -280,7 +280,7 @@ function ProjectModal({
             </div>
 
             {/* Action CTAs */}
-            <div className="mt-8 flex flex-wrap gap-3 pt-6 border-t border-black/10 dark:border-white/10">
+            <div className="mt-8 flex flex-wrap gap-3 pt-6 border-t border-[var(--line)]">
               {project.galleryLink ? (
                 <button
                   onClick={() =>
@@ -289,26 +289,38 @@ function ProjectModal({
                       navigate(project.galleryLink!);
                     })
                   }
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#252A34] text-white dark:bg-white dark:text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-400 dark:hover:text-black hover:scale-[1.02] transition-all shadow-lg"
+                  className="group flex-1 inline-flex items-center justify-between gap-4 border border-[var(--ink)] bg-[var(--ink)] px-5 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.13em] text-[var(--page)] transition-colors duration-300 hover:bg-transparent hover:text-[var(--ink)]"
                 >
-                  <Layers className="h-4 w-4" />
-                  <span>Open Canva Showcase ↗</span>
+                  <span>Open Canva Showcase</span>
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">↗</span>
                 </button>
               ) : project.link ? (
                 <a
                   href={project.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#252A34] text-white dark:bg-white dark:text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-400 dark:hover:text-black hover:scale-[1.02] transition-all shadow-lg"
+                  className="group flex-1 inline-flex items-center justify-between gap-4 border border-[var(--ink)] bg-[var(--ink)] px-5 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.13em] text-[var(--page)] transition-colors duration-300 hover:bg-transparent hover:text-[var(--ink)]"
                 >
-                  <ExternalLink className="h-4 w-4" />
-                  <span>Launch Live Demo ↗</span>
+                  <span>Launch Live Demo</span>
+                  <span className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
                 </a>
               ) : null}
 
+              {project.github && (
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center justify-between gap-3 border border-[var(--line)] px-5 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.13em] text-[var(--ink)] transition-colors duration-300 hover:border-[var(--ink)]"
+                >
+                  <span>Source Code</span>
+                  <span className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+                </a>
+              )}
+
               <button
                 onClick={requestClose}
-                className="px-6 py-3 border border-black/15 dark:border-white/15 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#252A34] hover:text-white hover:border-[#252A34] dark:hover:bg-white dark:hover:text-black transition-all text-[var(--ink)]"
+                className="px-5 py-3 border border-[var(--line)] font-mono text-[11px] font-semibold uppercase tracking-[0.13em] hover:border-[var(--ink)] transition-colors text-[var(--ink)]"
               >
                 Close
               </button>
@@ -367,37 +379,20 @@ function ShowcaseMediaFrame({
           onClick();
         }
       }}
-      className="group relative overflow-hidden rounded-3xl border border-black/10 dark:border-white/15 bg-black/5 dark:bg-black/50 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+      className="group relative overflow-hidden border border-[var(--ink)] dark:border-[var(--line)] bg-[var(--surface)] shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
       role="button"
       tabIndex={0}
       aria-label={`View ${project.title}`}
     >
-      {/* Studio Window Chrome Bar — dots for shipped systems, layered squares for design/gallery work */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-black/[0.03] dark:bg-white/[0.03] border-b border-black/5 dark:border-white/10">
-        <div className="flex items-center gap-1.5">
-          {isCanva ? (
-            <>
-              <Layers className="h-3 w-3 text-[var(--ink)]/50" />
-              <Layers className="h-3 w-3 text-[var(--ink)]/30" />
-              <Layers className="h-3 w-3 text-[var(--ink)]/15" />
-            </>
-          ) : (
-            <>
-              <span className="h-2 w-2 rounded-full bg-red-400/80" />
-              <span className="h-2 w-2 rounded-full bg-amber-400/80" />
-              <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
-            </>
-          )}
+      {/* Studio Window Chrome Bar */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[var(--surface)] border-b border-[var(--line)]">
+        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--muted)]">
+          <span className="h-1.5 w-1.5 bg-emerald-600 dark:bg-emerald-400" />
+          <span>{isCanva ? "EXHIBITION / 01" : project.category === "data" ? "DATA & ML / 01" : "WEB APP / 01"}</span>
         </div>
-        <span className="text-[10px] font-mono tracking-widest text-[var(--ink)]/40 dark:text-white/40 uppercase">
-          {isCanva ? "gallery.exhibition" : "system.production"}
+        <span className="font-mono text-[10px] tracking-[0.18em] text-[var(--muted)] uppercase">
+          {project.year}
         </span>
-        <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-[10px] font-mono font-bold text-[var(--flame)] dark:text-emerald-400">
-            {project.year}
-          </span>
-        </div>
       </div>
 
       {/* Main Image Frame with Ambient Hover Scrim */}
@@ -413,44 +408,39 @@ function ShowcaseMediaFrame({
           tilt={0.4}
         />
 
-
         {/* Cinematic Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-45 group-hover:opacity-70 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
 
         {/* Top Floating Badge */}
         <div className="absolute top-4 left-4 z-10">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-3.5 py-1 font-mono text-[10px] font-bold text-white uppercase tracking-wider backdrop-blur-md shadow-lg">
-            <Sparkles className="h-3 w-3 text-emerald-400" />
-            <span>
-              {project.stack[0]} • {project.stack[1] || "Core"}
-            </span>
+          <span className="inline-flex items-center gap-1.5 border border-white/20 bg-black/75 px-3 py-1 font-mono text-[9px] font-bold text-white uppercase tracking-[0.18em] backdrop-blur-md">
+            <span>{project.stack[0]} <span className="px-1 text-emerald-400">×</span> {project.stack[1] || "Core"}</span>
           </span>
         </div>
 
         {/* Featured Ribbon (first project, only while browsing "All") */}
         {featured && (
           <div className="absolute top-4 right-4 z-10">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-emerald-500/90 px-3 py-1 font-mono text-[10px] font-bold text-white uppercase tracking-wider backdrop-blur-md shadow-lg">
-              Featured
+            <span className="inline-flex items-center gap-1.5 border border-white/20 bg-[#C7ED70] text-black px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.18em] backdrop-blur-md shadow-md">
+              Selected 01
             </span>
           </div>
         )}
 
         {/* Center Hover Action Capsule */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white text-black px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-2xl transform scale-90 group-hover:scale-100 transition-transform duration-300">
-            <Eye className="h-4 w-4 text-emerald-600" />
-            <span>Explore Case Study</span>
-            <ArrowUpRight className="h-4 w-4" />
+          <span className="inline-flex items-center gap-3 border border-white/40 bg-[var(--ink)] text-[var(--page)] px-6 py-3 font-mono text-[10px] font-bold uppercase tracking-[0.18em] shadow-2xl transform scale-95 group-hover:scale-100 transition-transform duration-300">
+            <span>Explore Project</span>
+            <span className="text-sm">↗</span>
           </span>
         </div>
 
         {/* Bottom Corner Metrics Preview */}
-        <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between text-white">
-          <span className="text-xs font-bold tracking-wider uppercase opacity-90 drop-shadow-md">
+        <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between text-white font-mono">
+          <span className="text-[10px] font-bold tracking-[0.18em] uppercase opacity-90 drop-shadow-md">
             {project.role}
           </span>
-          <span className="rounded-md border border-white/20 bg-black/70 px-2.5 py-0.5 text-[10px] font-mono font-bold text-emerald-300 backdrop-blur-md">
+          <span className="border border-white/20 bg-black/70 px-2.5 py-0.5 text-[9px] font-mono font-bold text-emerald-300 backdrop-blur-md">
             {project.metrics[0]?.value} {project.metrics[0]?.label}
           </span>
         </div>
@@ -459,9 +449,6 @@ function ShowcaseMediaFrame({
   );
 }
 
-// A single exhibition row — media frame + editorial copy. Its own component
-// (rather than inline JSX inside a .map) so it can safely own hooks, like the
-// magnetic CTA buttons below.
 function ShowcaseItem({
   project,
   idx,
@@ -502,11 +489,11 @@ function ShowcaseItem({
       <div data-content className={cn("flex flex-col justify-center", isEven && "lg:order-1")}>
         {/* Serial Number & Index */}
         <div className="flex items-center gap-3 mb-4">
-          <span className="text-2xl sm:text-3xl font-light font-mono text-[var(--flame)] dark:text-emerald-400">
+          <span className="text-xl sm:text-2xl font-bold font-mono text-emerald-700 dark:text-emerald-400">
             /{indexStr}
           </span>
-          <span data-line className="h-[1px] w-12 bg-black/15 dark:bg-white/15 origin-left" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink)]/70 dark:text-white/70">
+          <span data-line className="h-[1px] w-12 bg-[var(--line)] origin-left" />
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
             {project.role}
           </span>
         </div>
@@ -514,30 +501,30 @@ function ShowcaseItem({
         {/* Project Title */}
         <h3
           onClick={onOpen}
-          className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-[var(--ink)] cursor-pointer hover:text-[var(--flame)] dark:hover:text-emerald-400 transition-colors"
+          className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold uppercase leading-[0.88] tracking-[-0.065em] text-[var(--ink)] cursor-pointer hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
         >
           {project.title}
         </h3>
 
         {/* Description */}
-        <p className="mt-5 text-sm sm:text-base leading-relaxed text-[var(--ink)]/75 dark:text-white/75 font-light">
+        <p className="mt-5 text-sm sm:text-base leading-7 text-[var(--muted)] font-normal">
           {project.description}
         </p>
 
-        {/* Impact Highlight Card */}
-        <div className="mt-6 p-4 rounded-2xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] text-xs leading-relaxed text-[var(--ink)]/80 dark:text-white/80">
-          <span className="text-emerald-500 font-bold uppercase text-[9px] tracking-wider block mb-1">
-            Key Impact
+        {/* Impact Highlight Card in Brutalist Framing */}
+        <div className="mt-6 p-4 border border-[var(--line)] bg-[var(--surface)] text-xs leading-relaxed text-[var(--ink)]">
+          <span className="text-emerald-700 dark:text-emerald-400 font-mono font-bold uppercase text-[9px] tracking-[0.2em] block mb-1.5">
+            Key Impact & Outcome
           </span>
-          {project.impact}
+          <p className="text-[var(--muted)] text-xs leading-relaxed">{project.impact}</p>
         </div>
 
-        {/* Tech Stack Pills */}
+        {/* Tech Stack Chips */}
         <div className="mt-6 flex flex-wrap gap-2">
           {project.stack.map((t) => (
             <span
               key={t}
-              className="px-3 py-1 rounded-full border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] text-[11px] font-medium text-[var(--ink)]/80 dark:text-white/80"
+              className="px-3 py-1 border border-[var(--line)] bg-[var(--surface)] text-[10px] font-mono font-medium uppercase tracking-[0.14em] text-[var(--muted)]"
             >
               {t}
             </span>
@@ -545,29 +532,29 @@ function ShowcaseItem({
         </div>
 
         {/* Metrics & Action Buttons */}
-        <div className="mt-8 pt-6 border-t border-black/10 dark:border-white/10 flex flex-wrap items-center justify-between gap-4">
+        <div className="mt-8 pt-6 border-t border-[var(--line)] flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             {project.metrics.map((m) => (
               <div key={m.label}>
-                <div className="text-xl sm:text-2xl font-semibold text-[var(--ink)]">{m.value}</div>
-                <div className="text-[9px] uppercase tracking-wider text-[var(--ink)]/70 dark:text-white/70 font-semibold mt-0.5">
+                <div className="font-sans text-2xl sm:text-3xl font-bold tracking-tight text-[var(--ink)]">{m.value}</div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--muted)] font-semibold mt-0.5">
                   {m.label}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {project.galleryLink ? (
               <Link
                 ref={primaryCta.ref}
                 onMouseMove={primaryCta.onMouseMove}
                 onMouseLeave={primaryCta.onMouseLeave}
                 to={project.galleryLink}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#252A34] text-white dark:bg-white dark:text-black text-xs font-semibold uppercase tracking-wider hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-400 dark:hover:text-black transition-colors shadow-md"
+                className="group inline-flex h-11 items-center justify-between gap-4 border border-[var(--ink)] bg-[var(--ink)] px-5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--page)] transition-colors duration-300 hover:bg-transparent hover:text-[var(--ink)]"
               >
-                <Layers className="h-3.5 w-3.5" />
                 <span>Showcase</span>
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </Link>
             ) : project.link ? (
               <a
@@ -577,22 +564,35 @@ function ShowcaseItem({
                 href={project.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#252A34] text-white dark:bg-white dark:text-black text-xs font-semibold uppercase tracking-wider hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-400 dark:hover:text-black transition-colors shadow-md"
+                className="group inline-flex h-11 items-center justify-between gap-4 border border-[var(--ink)] bg-[var(--ink)] px-5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--page)] transition-colors duration-300 hover:bg-transparent hover:text-[var(--ink)]"
               >
-                <ExternalLink className="h-3.5 w-3.5" />
                 <span>Live Demo</span>
+                <span className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
               </a>
             ) : null}
+
+            {project.github && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex h-11 items-center justify-between gap-3 border border-[var(--line)] px-4 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink)] transition-colors duration-300 hover:border-[var(--ink)]"
+                title="View Source Code on GitHub"
+              >
+                <span>Code</span>
+                <span className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+              </a>
+            )}
 
             <button
               ref={secondaryCta.ref}
               onMouseMove={secondaryCta.onMouseMove}
               onMouseLeave={secondaryCta.onMouseLeave}
               onClick={onOpen}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-black/15 dark:border-white/15 text-xs font-semibold uppercase tracking-wider text-[var(--ink)] hover:border-black/40 dark:hover:border-white/40 transition-colors"
+              className="group inline-flex h-11 items-center justify-between gap-3 border border-[var(--line)] px-4 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink)] transition-colors duration-300 hover:border-[var(--ink)]"
             >
               <span>Details</span>
-              <ArrowUpRight className="h-3.5 w-3.5" />
+              <span className="transition-transform duration-300 group-hover:translate-y-0.5">↓</span>
             </button>
           </div>
         </div>
@@ -613,12 +613,11 @@ export function Projects() {
   const [activeFilter, setActiveFilter] = useState<FilterCategory>("all");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  // Counts derived live from the data set, so the filter bar never lies about
-  // how many projects are actually in each bucket.
   const counts = useMemo(
     () => ({
       all: projects.length,
-      web: projects.filter((p) => !isDesignProject(p)).length,
+      web: projects.filter(isWebProject).length,
+      data: projects.filter(isDataProject).length,
       design: projects.filter(isDesignProject).length,
     }),
     []
@@ -627,20 +626,18 @@ export function Projects() {
   const filteredProjects = useMemo(
     () =>
       projects.filter((p) => {
-        if (activeFilter === "web") return !isDesignProject(p);
+        if (activeFilter === "web") return isWebProject(p);
+        if (activeFilter === "data") return isDataProject(p);
         if (activeFilter === "design") return isDesignProject(p);
         return true;
       }),
     [activeFilter]
   );
 
-  // Close the deep-dive view whenever the filter changes, so we can never end
-  // up pointing at an index that no longer exists in the filtered list.
   useEffect(() => {
     setSelectedIndex(null);
   }, [activeFilter]);
 
-  // Slide the active-filter pill under whichever tab is selected.
   useLayoutEffect(() => {
     const positionIndicator = () => {
       const activeEl = tabRefs.current.get(activeFilter);
@@ -665,9 +662,6 @@ export function Projects() {
     return () => window.removeEventListener("resize", positionIndicator);
   }, [activeFilter, reducedMotion]);
 
-  // GSAP ScrollTrigger Entrance Animation for Exhibition Items — each row
-  // reveals its media from whichever side it sits on, echoing the alternating
-  // asymmetrical layout instead of a generic fade-up.
   useEffect(() => {
     if (reducedMotion) return;
 
@@ -763,38 +757,47 @@ export function Projects() {
       <div className="absolute bottom-1/4 -right-48 w-96 h-96 rounded-full bg-[var(--blush)]/5 dark:bg-cyan-500/10 blur-[150px] pointer-events-none" />
 
       <Container>
+        {/* Frame Top Sub-Bar */}
+        <div className="flex items-center justify-between border-b border-[var(--line)] pb-4 font-mono text-[10px] uppercase tracking-[0.18em] sm:text-[11px] mb-12 sm:mb-16">
+          <span className="flex items-center gap-3 text-[var(--muted)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" aria-hidden="true" />
+            <span>02 <span className="px-2">—</span> Selected Works</span>
+          </span>
+          <span className="text-[var(--muted)]">2025–2026 <span className="px-2">/</span> Index</span>
+        </div>
+
         {/* Editorial Section Header */}
         <div
           ref={headerRef}
           className="relative flex flex-col md:flex-row md:items-end justify-between mb-16 sm:mb-20 pb-8 gap-6"
         >
           <div className="max-w-2xl">
-            <div className="projects-header-eyebrow inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/15 bg-black/[0.03] dark:bg-white/[0.04] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--flame)] dark:text-emerald-400 backdrop-blur-md mb-4">
-              <Sparkles className="h-3 w-3" />
-              <span>Selected Works 2025–2026</span>
-            </div>
+            <p className="projects-header-eyebrow mb-5 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-7 sm:text-xs">
+              Engineered web platforms <span className="px-1 text-emerald-700 dark:text-emerald-400">×</span> design artifacts
+            </p>
 
-            <h2 className="projects-header-title text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-[var(--ink)] leading-[1.05]">
-              Featured{" "}
-              <span className="font-serif italic text-[var(--flame)] dark:text-emerald-400 font-normal">
-                Projects
+            <h2 className="projects-header-title font-sans text-[clamp(2.8rem,6.5vw,5.5rem)] font-bold uppercase leading-[0.85] tracking-[-0.075em] text-[var(--ink)]">
+              <span>Featured</span>{" "}
+              <span className="font-serif font-normal italic lowercase tracking-[-0.07em] text-emerald-700 dark:text-emerald-400">
+                works
               </span>
+              <span>.</span>
             </h2>
 
-            <p className="projects-header-desc mt-4 text-base sm:text-lg text-[var(--ink)]/70 max-w-xl font-light leading-relaxed">
-              A curated selection of modern web applications, bespoke design systems, and creative AI architectures.
+            <p className="projects-header-desc mt-6 max-w-xl text-sm leading-7 text-[var(--muted)] sm:text-base font-normal">
+              A curated selection of production web applications, predictive intelligence platforms, and high-impact brand design systems.
             </p>
           </div>
 
-          {/* Segmented Filter Control — a sliding pill tracks the active tab */}
+          {/* Segmented Filter Control */}
           <div
             ref={tabsWrapRef}
-            className="relative flex flex-wrap items-center gap-1 self-start md:self-auto p-1 rounded-full border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02]"
+            className="relative flex flex-wrap items-center gap-1 self-start md:self-auto p-1 border border-[var(--line)] bg-[var(--surface)]"
           >
             <div
               ref={indicatorRef}
               aria-hidden="true"
-              className="absolute inset-y-1 left-0 rounded-full bg-[#252A34] dark:bg-white shadow-md"
+              className="absolute inset-y-1 left-0 bg-[var(--ink)] dark:bg-white shadow-sm pointer-events-none"
             />
             {FILTER_OPTIONS.map(({ key, label }) => (
               <button
@@ -808,10 +811,10 @@ export function Projects() {
                 }}
                 aria-pressed={activeFilter === key}
                 className={cn(
-                  "relative z-10 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors duration-300",
+                  "relative z-10 px-3.5 py-2 font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors duration-200 select-none",
                   activeFilter === key
-                    ? "text-white dark:text-black"
-                    : "text-[var(--ink)]/70 hover:text-[var(--ink)]"
+                    ? "text-[var(--page)] dark:text-black font-bold"
+                    : "text-[var(--muted)] hover:text-[var(--ink)]"
                 )}
               >
                 {label} ({counts[key]})
@@ -822,7 +825,7 @@ export function Projects() {
           {/* Animated Header Divider Line */}
           <div
             aria-hidden="true"
-            className="projects-header-line absolute bottom-0 left-0 right-0 h-[1px] bg-black/10 dark:bg-white/10 origin-left"
+            className="projects-header-line absolute bottom-0 left-0 right-0 h-[1px] bg-[var(--line)] origin-left"
           />
         </div>
 

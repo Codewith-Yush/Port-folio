@@ -79,8 +79,12 @@ export function useSmoothScroll() {
       const anchor = (event.target as Element | null)?.closest("a");
       if (!anchor) return;
 
-      const href = anchor.getAttribute("href");
-      if (!href?.startsWith("#") || href === "#") return;
+      const rawHref = anchor.getAttribute("href");
+      if (!rawHref) return;
+
+      // Normalize "/#section" to "#section" for smooth scrolling
+      const href = rawHref.startsWith("/#") ? rawHref.slice(1) : rawHref;
+      if (!href.startsWith("#") || href === "#") return;
 
       const target = href === "#hero" ? 0 : document.querySelector<HTMLElement>(href);
       if (!target && href !== "#hero") return;
@@ -98,7 +102,8 @@ export function useSmoothScroll() {
 
     document.addEventListener("click", handleAnchorClick);
 
-    // Handle initial hash in URL if present
+    // Initial hash scrolling is now orchestrated gracefully by ScrollManager,
+    // but Locomotive Scroll can also do an immediate alignment if hash exists
     if (window.location.hash) {
       const hash = window.location.hash;
       const target = hash === "#hero" ? 0 : document.querySelector<HTMLElement>(hash);
@@ -108,7 +113,7 @@ export function useSmoothScroll() {
             offset: -80,
             duration: 1,
           });
-        }, 200);
+        }, 150);
       }
     }
 
@@ -118,6 +123,8 @@ export function useSmoothScroll() {
       locomotiveScroll.destroy();
       window.__locomotiveScroll = undefined;
       scrollRef.current = null;
+      document.documentElement.classList.remove("lenis", "lenis-smooth", "lenis-scrolling", "lenis-stopped");
+      document.documentElement.style.scrollBehavior = "";
     };
   }, [reducedMotion]);
 

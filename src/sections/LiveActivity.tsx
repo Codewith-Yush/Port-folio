@@ -116,16 +116,25 @@ export function LiveActivity() {
 
     switch (cmd) {
       case "help":
-        newLogs.push("Available commands: [about, skills, projects, contact, whoami, date, matrix, clear]");
+        newLogs.push("Available commands: [about, skills, projects, resume, github, contact, whoami, date, matrix, clear]");
         break;
       case "about":
         newLogs.push("Ayush Singh — Full Stack Developer & AI Creator focused on high-performance web systems.");
         break;
       case "skills":
-        newLogs.push("Stack: React 19, TypeScript, Next.js, GSAP, TailwindCSS, Python, Power BI, Web3.");
+        newLogs.push("Stack: React 19, TypeScript, Next.js, Python, Power BI, Tailwind CSS, GSAP, REST APIs.");
         break;
       case "projects":
-        newLogs.push("Highlighted: AI Creator Hub, Canva Design Showcase, Tadka Restaurant Platform.");
+        newLogs.push("Highlighted: AI Creator Hub, PulseAnalytics BI, Canva Design Showcase, Tadka Restaurant.");
+        break;
+      case "resume":
+      case "cv":
+        newLogs.push("Opening Ayush Singh's interactive resume...");
+        window.open("/resume", "_blank");
+        break;
+      case "github":
+        newLogs.push("Navigating to https://github.com/codewith-Yush...");
+        window.open("https://github.com/codewith-Yush", "_blank");
         break;
       case "contact":
         newLogs.push("Email: ayushsingh7360@gmail.com | GitHub: github.com/codewith-Yush | LinkedIn: Ayush Singh");
@@ -210,72 +219,72 @@ export function LiveActivity() {
   return (
     <section
       id="telemetry"
+      data-section="live-activity"
       ref={containerRef}
-      className="relative py-8 sm:py-12 md:py-16 overflow-hidden bg-[var(--page)] border-t border-black/5 dark:border-white/5 transition-colors duration-500"
+      className="relative py-16 sm:py-20 md:py-24 overflow-hidden bg-[var(--page)] border-t border-[var(--line)] transition-colors duration-500"
     >
-      {/* Background Subtle Grid Pattern */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]"
-        style={{
-          backgroundImage:
-            "linear-gradient(var(--ink) 1px, transparent 1px), linear-gradient(90deg, var(--ink) 1px, transparent 1px)",
-          backgroundSize: "36px 36px",
-          backgroundPosition: "center center",
-        }}
-      />
+      {/* Anchor alias so both #telemetry and #live-activity navigation work seamlessly */}
+      <div id="live-activity" className="absolute -top-24 left-0 pointer-events-none" aria-hidden="true" />
 
       {/* Cyber Status Bar */}
-      <div className="w-full border-y border-black/10 dark:border-white/10 bg-[var(--surface)]/50 overflow-hidden flex whitespace-nowrap py-2.5 mb-8 sm:mb-10 relative z-10 shadow-sm">
-        <div className="flex gap-8 px-4 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-[var(--ink)] opacity-80 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="w-full border-y border-[var(--line)] bg-[var(--surface)] overflow-hidden flex whitespace-nowrap py-2.5 mb-12 sm:mb-16 relative z-10 font-mono">
+        <div className="flex gap-8 px-6 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-[var(--muted)] overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <span className="flex gap-6 sm:gap-8 items-center shrink-0">
-            <span className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+            <span className="flex items-center gap-2 text-[var(--ink)]">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
               SYSTEM STATUS: ONLINE
             </span>
-            <span>•</span>
-            <span className="text-[var(--flame)]">
-              ACTIVE FOCUS: FULL STACK & AI
+            <span>/</span>
+            <span className="text-emerald-700 dark:text-emerald-400">
+              ACTIVE FOCUS: FULL STACK &amp; AI
             </span>
-            <span>•</span>
-            <span>FREELANCE: OPEN FOR BOOKING</span>
-            <span>•</span>
-            <span>PRODUCTION METRICS: HEALTHY</span>
+            <span>/</span>
+            <span>FREELANCE: OPEN FOR SELECT WORK</span>
+            <span>/</span>
+            <span>TIMEZONE: IST (UTC +5:30)</span>
           </span>
         </div>
       </div>
 
       <Container>
-        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        {/* Frame Top Sub-Bar */}
+        <div className="flex items-center justify-between border-b border-[var(--line)] pb-4 font-mono text-[10px] uppercase tracking-[0.18em] sm:text-[11px] mb-12 sm:mb-16">
+          <span className="flex items-center gap-3 text-[var(--muted)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" aria-hidden="true" />
+            <span>04 <span className="px-2">—</span> Live Telemetry</span>
+          </span>
+          <span className="text-[var(--muted)]">Realtime Feed <span className="px-2">/</span> New Delhi, IST</span>
+        </div>
+
+        <div className="mb-10 sm:mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-[var(--ink)] flex items-center gap-3">
-              <div className="relative flex h-4 w-4 items-center justify-center">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </div>
-              LIVE TELEMETRY
-            </h2>
-            <p className="mt-1.5 text-xs sm:text-sm font-semibold uppercase tracking-widest text-[var(--flame)]">
-              Developer activity & interactive terminal
+            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-6 sm:text-xs">
+              System health <span className="px-1 text-emerald-700 dark:text-emerald-400">×</span> real-time activity
             </p>
+            <h2 className="font-sans text-[clamp(2.5rem,5.5vw,4.8rem)] font-bold uppercase leading-[0.88] tracking-[-0.07em] text-[var(--ink)]">
+              <span>Live</span>{" "}
+              <span className="font-serif font-normal italic lowercase tracking-[-0.07em] text-emerald-700 dark:text-emerald-400">
+                telemetry
+              </span>
+              <span>.</span>
+            </h2>
           </div>
 
           <button
             onClick={handleCopyEmail}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-black/10 dark:border-white/10 bg-[var(--surface)] text-xs font-medium text-[var(--ink)] hover:bg-[#252A34] hover:text-white hover:border-[#252A34] transition-all shadow-sm w-fit"
+            className="group inline-flex h-11 items-center justify-between gap-3 border border-[var(--line)] px-4 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink)] transition-colors duration-300 hover:border-[var(--ink)] w-fit"
           >
             <span>{copiedEmail ? "Copied to Clipboard! ✓" : "Copy Direct Email"}</span>
+            <span className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 md:gap-6">
           {/* LEFT COL: Status & Spotify */}
-          <div className="lg:col-span-4 flex flex-col gap-4 md:gap-6">
+          <div className="lg:col-span-4 flex flex-col gap-5 md:gap-6">
             {/* Status Panel */}
-            <div className="dashboard-panel border border-black/10 dark:border-white/10 bg-[var(--surface)]/70 backdrop-blur-xl rounded-3xl p-6 relative overflow-hidden group shadow-sm transition-all hover:shadow-md hover:border-emerald-500/20">
-              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-500 via-teal-400 to-transparent" />
-              {/* Subtle ambient glow on hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-teal-500/0 group-hover:from-emerald-500/[0.03] group-hover:to-teal-500/[0.03] transition-all duration-700 rounded-3xl" />
-              <h3 className="relative text-[10px] font-bold uppercase tracking-widest text-[var(--ink)]/60 mb-5 flex items-center gap-2">
+            <div className="dashboard-panel border border-[var(--line)] hover:border-[var(--ink)] bg-[var(--surface)] p-6 relative overflow-hidden group transition-colors shadow-sm">
+              <h3 className="relative font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] mb-5 flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
@@ -283,21 +292,21 @@ export function LiveActivity() {
                 Core Status
               </h3>
 
-              <div className="relative space-y-3.5">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm font-medium text-[var(--ink)]">Availability</span>
-                  <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-widest rounded-md border border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.15)]">
+              <div className="relative space-y-4">
+                <div className="flex justify-between items-center font-mono text-xs">
+                  <span className="text-[var(--muted)] uppercase tracking-wider">Availability</span>
+                  <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">
                     Active
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm font-medium text-[var(--ink)]">Freelance</span>
-                  <span className="px-2.5 py-1 bg-[#252A34]/10 dark:bg-white/10 text-[var(--ink)] text-[10px] font-bold uppercase tracking-widest rounded-md border border-[#252A34]/20 dark:border-white/20">
+                <div className="flex justify-between items-center font-mono text-xs">
+                  <span className="text-[var(--muted)] uppercase tracking-wider">Freelance</span>
+                  <span className="px-2 py-0.5 border border-[var(--line)] text-[var(--ink)] text-[10px] font-bold uppercase tracking-widest">
                     Accepting
                   </span>
                 </div>
-                <div className="flex justify-between items-center pt-3 border-t border-black/5 dark:border-white/5">
-                  <span className="text-xs sm:text-sm font-medium text-[var(--ink)]/70">Local Time</span>
+                <div className="flex justify-between items-center pt-3 border-t border-[var(--line)] font-mono text-xs">
+                  <span className="text-[var(--muted)] uppercase tracking-wider">Local Time</span>
                   <LocalTimeClock />
                 </div>
               </div>
@@ -306,62 +315,58 @@ export function LiveActivity() {
             {/* Spotify Interactive Music Visualizer */}
             <div
               onClick={toggleSoundtrack}
-              className="dashboard-panel border border-black/10 dark:border-white/10 bg-[var(--surface)]/70 backdrop-blur-xl rounded-3xl p-6 relative overflow-hidden group shadow-sm transition-all hover:shadow-md hover:border-emerald-500/20 cursor-pointer"
+              className="dashboard-panel border border-[var(--line)] hover:border-[var(--ink)] bg-[var(--surface)] p-6 relative overflow-hidden group transition-colors shadow-sm cursor-pointer"
             >
-              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-zinc-700 via-emerald-500 to-cyan-500" />
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-[var(--ink)]/60 mb-4 flex items-center justify-between">
+              <h3 className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] mb-4 flex items-center justify-between">
                 <span className="flex items-center gap-2">
                   <span className={cn("h-2 w-2 rounded-full bg-emerald-500", isPlayingAudio && "animate-pulse")} />
                   Focused Soundtrack
                 </span>
-                <span
-                  className="text-[9px] uppercase font-bold text-emerald-500 hover:underline transition-colors hover:text-emerald-400"
-                >
+                <span className="text-[9px] uppercase font-bold text-emerald-600 dark:text-emerald-400 hover:underline transition-colors">
                   {isPlayingAudio ? "Pause Audio" : "Play Lo-Fi"}
                 </span>
               </h3>
               <div className="flex items-center gap-3.5">
                 <div className={cn(
-                  "w-12 h-12 rounded-2xl bg-gradient-to-br from-[#252A34] via-zinc-800 to-emerald-700 shadow-lg flex-shrink-0 relative overflow-hidden flex items-center justify-center text-white text-lg transition-all duration-500",
-                  isPlayingAudio && "shadow-[0_4px_20px_rgba(16,185,129,0.3)] scale-105"
+                  "w-12 h-12 border border-[var(--line)] bg-[var(--surface-strong)] flex-shrink-0 flex items-center justify-center text-lg transition-all duration-300",
+                  isPlayingAudio && "border-emerald-500 scale-105"
                 )}>
-                  <span className={cn("transition-transform duration-700", isPlayingAudio && "scale-110")}>🎧</span>
+                  <span>🎧</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-bold text-[var(--ink)] truncate leading-tight mb-1">
-                    Synthwave & Ambient Flow
+                  <p className="font-sans text-xs sm:text-sm font-bold uppercase tracking-tight text-[var(--ink)] truncate leading-tight mb-1">
+                    Synthwave &amp; Ambient Flow
                   </p>
-                  <p className="text-xs font-medium text-[var(--ink)]/60 truncate">
+                  <p className="text-xs font-normal text-[var(--muted)] truncate">
                     {isPlayingAudio ? "Synthesizing generative lo-fi (0KB)" : "Click to play generative audio"}
                   </p>
                   {/* Mini progress bar */}
-                  <div className="mt-2 h-1 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+                  <div className="mt-2 h-1 w-full bg-[var(--line)] overflow-hidden">
                     <div className={cn(
-                      "h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-1000",
+                      "h-full bg-emerald-500 transition-all duration-1000",
                       isPlayingAudio ? "w-[85%] animate-pulse" : "w-[20%]"
                     )} />
                   </div>
                 </div>
                 {/* Audio Visualizer Bars */}
                 <div className="ml-auto flex gap-[3px] items-end h-6 flex-shrink-0">
-                  <div className={cn("w-1 rounded-full transition-all duration-300", isPlayingAudio ? "bg-emerald-500 h-4 animate-bounce" : "bg-emerald-500/40 h-1.5")} />
-                  <div className={cn("w-1 rounded-full transition-all duration-300", isPlayingAudio ? "bg-teal-400 h-6 animate-pulse" : "bg-teal-400/40 h-2")} />
-                  <div className={cn("w-1 rounded-full transition-all duration-300", isPlayingAudio ? "bg-emerald-500 h-3.5 animate-bounce" : "bg-emerald-500/40 h-1")} />
-                  <div className={cn("w-1 rounded-full transition-all duration-300", isPlayingAudio ? "bg-cyan-400 h-5 animate-pulse" : "bg-cyan-400/40 h-1.5")} />
+                  <div className={cn("w-1 transition-all duration-300", isPlayingAudio ? "bg-emerald-500 h-4 animate-bounce" : "bg-[var(--line)] h-1.5")} />
+                  <div className={cn("w-1 transition-all duration-300", isPlayingAudio ? "bg-teal-400 h-6 animate-pulse" : "bg-[var(--line)] h-2")} />
+                  <div className={cn("w-1 transition-all duration-300", isPlayingAudio ? "bg-emerald-500 h-3.5 animate-bounce" : "bg-[var(--line)] h-1")} />
+                  <div className={cn("w-1 transition-all duration-300", isPlayingAudio ? "bg-cyan-400 h-5 animate-pulse" : "bg-[var(--line)] h-1.5")} />
                 </div>
               </div>
             </div>
           </div>
 
           {/* MIDDLE COL: Metrics & GitHub Grid */}
-          <div className="lg:col-span-4 flex flex-col gap-4 md:gap-6">
+          <div className="lg:col-span-4 flex flex-col gap-5 md:gap-6">
             {/* GitHub Grid */}
-            <div className="dashboard-panel border border-black/10 dark:border-white/10 bg-[var(--surface)]/70 backdrop-blur-xl rounded-3xl p-6 relative overflow-hidden group shadow-sm flex-1">
-              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-indigo-500 via-[var(--flame)] to-[var(--blush)]" />
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-[var(--ink)]/60 mb-4 flex items-center justify-between">
-                <span>Contribution Heatmap</span>
-                <span className="text-[var(--flame)] bg-[var(--flame)]/10 px-2 py-0.5 rounded text-[9px]">
-                  Recent Activity
+            <div className="dashboard-panel border border-[var(--line)] hover:border-[var(--ink)] bg-[var(--surface)] p-6 relative overflow-hidden group shadow-sm flex-1">
+              <h3 className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] mb-4 flex items-center justify-between">
+                <span>Contribution Activity</span>
+                <span className="text-emerald-700 dark:text-emerald-400 font-semibold text-[9px] uppercase tracking-wider">
+                  Live Ticker
                 </span>
               </h3>
 
@@ -372,16 +377,16 @@ export function LiveActivity() {
                       key={i}
                       title={`${val === 0 ? "No" : val * 3} contributions`}
                       className={cn(
-                        "rounded-[2px] transition-all duration-300 hover:scale-125 cursor-pointer",
+                        "rounded-[1px] transition-all duration-200 hover:scale-125 cursor-pointer",
                         val === 0
                           ? "bg-black/5 dark:bg-white/5"
                           : val === 1
-                            ? "bg-emerald-500/30 dark:bg-[var(--flame)]/30"
+                            ? "bg-emerald-500/30"
                             : val === 2
-                              ? "bg-emerald-500/50 dark:bg-[var(--flame)]/50 shadow-[0_0_6px_rgba(16,185,129,0.3)] dark:shadow-[0_0_6px_rgba(163,230,53,0.3)]"
+                              ? "bg-emerald-500/50"
                               : val === 3
-                                ? "bg-emerald-500/80 dark:bg-[var(--flame)]/80 shadow-[0_0_10px_rgba(16,185,129,0.5)] dark:shadow-[0_0_10px_rgba(163,230,53,0.5)]"
-                                : "bg-emerald-500 dark:bg-[var(--flame)] shadow-[0_0_12px_rgba(16,185,129,0.7)] dark:shadow-[0_0_12px_rgba(163,230,53,0.7)]"
+                                ? "bg-emerald-500/80"
+                                : "bg-emerald-500"
                       )}
                     />
                   ))}
@@ -395,22 +400,20 @@ export function LiveActivity() {
 
             {/* Streak & Milestone */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="dashboard-panel border border-black/10 dark:border-white/10 bg-[var(--surface)]/70 backdrop-blur-xl rounded-3xl p-5 flex flex-col justify-center items-center text-center shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[var(--flame)] to-transparent" />
-                <div className="text-3xl font-light text-[var(--ink)] flex items-center leading-none mb-1">
+              <div className="dashboard-panel border border-[var(--line)] hover:border-[var(--ink)] bg-[var(--surface)] p-5 flex flex-col justify-center items-center text-center shadow-sm transition-colors">
+                <div className="font-sans text-3xl font-bold uppercase tracking-tight text-[var(--ink)] flex items-center leading-none mb-1">
                   <span className="streak-counter">0</span>
                 </div>
-                <p className="text-[9px] uppercase tracking-widest font-bold text-[var(--ink)]/60">
+                <p className="font-mono text-[9px] uppercase tracking-[0.18em] font-semibold text-[var(--muted)]">
                   Day Streak
                 </p>
               </div>
 
-              <div className="dashboard-panel border border-black/10 dark:border-white/10 bg-[var(--surface)]/70 backdrop-blur-xl rounded-3xl p-5 flex flex-col justify-center items-center text-center shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[var(--blush)] to-transparent" />
-                <div className="text-base font-bold text-[var(--ink)] leading-tight mb-1">
-                  Portfolio v2.5
+              <div className="dashboard-panel border border-[var(--line)] hover:border-[var(--ink)] bg-[var(--surface)] p-5 flex flex-col justify-center items-center text-center shadow-sm transition-colors">
+                <div className="font-sans text-base font-bold uppercase tracking-tight text-[var(--ink)] leading-tight mb-1">
+                  Production
                 </div>
-                <p className="text-[9px] uppercase tracking-widest font-bold text-[var(--ink)]/60">
+                <p className="font-mono text-[9px] uppercase tracking-[0.18em] font-semibold text-[var(--muted)]">
                   Latest Build
                 </p>
               </div>
@@ -418,28 +421,24 @@ export function LiveActivity() {
           </div>
 
           {/* RIGHT COL: Interactive Terminal Emulator */}
-          <div className="lg:col-span-4 flex flex-col gap-4 md:gap-6">
-            <div className="dashboard-panel border border-black/10 dark:border-white/10 bg-[#09090c] text-zinc-100 rounded-3xl p-5 sm:p-6 relative overflow-hidden group shadow-md flex-1 flex flex-col justify-between font-mono text-xs">
-              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[var(--flame)] via-emerald-400 to-indigo-500" />
-
+          <div className="lg:col-span-4 flex flex-col gap-5 md:gap-6">
+            <div className="dashboard-panel border border-[var(--ink)] dark:border-[var(--line)] bg-[#09090c] text-zinc-100 p-5 sm:p-6 relative overflow-hidden group shadow-md flex-1 flex flex-col justify-between font-mono text-xs">
               {/* Terminal Header */}
               <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-500/80" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/80" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-green-500/80" />
-                  <span className="text-[10px] text-zinc-400 ml-2">ayush@kernel:~</span>
+                  <span className="h-2 w-2 bg-emerald-500" />
+                  <span className="text-[10px] text-zinc-400">ayush@kernel:~</span>
                 </div>
-                <span className="text-[9px] text-[var(--flame)] font-bold">BASH</span>
+                <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest">BASH</span>
               </div>
 
               {/* Terminal Output Log Area */}
-              <div className="h-44 overflow-y-auto space-y-1.5 pr-1 mb-3 text-[11px] leading-relaxed select-text">
+              <div className="h-44 overflow-y-auto space-y-1.5 pr-1 mb-3 text-[11px] leading-relaxed select-text font-mono">
                 {terminalLogs.map((log, idx) => (
                   <div
                     key={idx}
                     className={cn(
-                      log.startsWith(">") ? "text-[var(--flame)] font-bold" : "text-zinc-300"
+                      log.startsWith(">") ? "text-emerald-400 font-bold" : "text-zinc-300"
                     )}
                   >
                     {log}
@@ -450,12 +449,12 @@ export function LiveActivity() {
 
               {/* Terminal Quick Command Chips */}
               <div className="flex flex-wrap gap-1.5 border-t border-white/10 pt-2.5 pb-1">
-                {["help", "about", "projects", "skills", "contact", "clear"].map((cmd) => (
+                {["help", "about", "projects", "skills", "resume", "github", "contact", "clear"].map((cmd) => (
                   <button
                     key={cmd}
                     type="button"
                     onClick={() => runCommand(cmd)}
-                    className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-mono text-zinc-300 transition-colors hover:border-emerald-400/50 hover:bg-emerald-500/10 hover:text-emerald-300"
+                    className="border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-mono text-zinc-300 transition-colors hover:border-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300"
                   >
                     {cmd}
                   </button>
@@ -464,19 +463,19 @@ export function LiveActivity() {
 
               {/* Terminal Interactive Input Form */}
               <form onSubmit={handleCommandSubmit} className="flex items-center gap-2 border-t border-white/10 pt-2.5">
-                <span className="text-[var(--flame)] font-bold">$</span>
+                <span className="text-emerald-400 font-bold">$</span>
                 <div className="relative flex-1">
                   <input
                     type="text"
                     value={terminalInput}
                     onChange={(e) => setTerminalInput(e.target.value)}
-                    placeholder="Type a command or click a chip above..."
-                    className="w-full bg-transparent text-xs text-white placeholder-zinc-500 focus:outline-none caret-[var(--flame)]"
+                    placeholder="Type command..."
+                    className="w-full bg-transparent text-xs text-white placeholder-zinc-500 focus:outline-none caret-emerald-400 font-mono"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="px-2.5 py-1 rounded bg-white/10 text-[9px] font-bold text-zinc-300 hover:bg-emerald-500 hover:text-black transition-colors"
+                  className="px-2.5 py-1 border border-white/20 text-[9px] font-mono font-bold text-zinc-300 hover:bg-white hover:text-black transition-colors"
                 >
                   RUN
                 </button>

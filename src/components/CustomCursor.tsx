@@ -44,7 +44,11 @@ export function CustomCursor() {
 
     const interactive =
       isLinkOrBtn ||
-      Boolean(target.closest("a, button, [role='button'], input, textarea, select, label, .cursor-pointer"));
+      Boolean(
+        target.closest(
+          "a, button, [role='button'], input, textarea, select, label, .cursor-pointer",
+        ),
+      );
 
     const heading =
       tag === "H1" ||
@@ -110,53 +114,76 @@ export function CustomCursor() {
       document.removeEventListener("mouseleave", onMouseLeave);
       document.removeEventListener("mouseenter", onMouseEnter);
     };
-  }, [onMouseMove, onMouseOver, onMouseDown, onMouseUp, onMouseLeave, onMouseEnter]);
+  }, [
+    onMouseMove,
+    onMouseOver,
+    onMouseDown,
+    onMouseUp,
+    onMouseLeave,
+    onMouseEnter,
+  ]);
 
   if (isTouchDevice) return null;
 
   return (
     <>
-      {/* ── Outer Ring ── */}
+      {/* Playful neon cursor aura */}
       <div
         ref={ringRef}
         aria-hidden="true"
-        className="pointer-events-none fixed top-0 left-0 z-[9999] rounded-full will-change-transform"
+        className={`pointer-events-none fixed left-0 top-0 z-[9999] grid place-items-center rounded-full border will-change-transform ${isTextHover ? "border-fuchsia-700 bg-fuchsia-800/10 shadow-[0_0_28px_rgba(190,24,93,0.2)] dark:border-fuchsia-400 dark:bg-fuchsia-400/10 dark:shadow-[0_0_28px_rgba(255,84,200,0.28)]" : hovering ? "border-emerald-800 bg-emerald-900/10 shadow-[0_0_24px_rgba(4,120,87,0.2)] dark:border-lime-300 dark:bg-lime-300/10 dark:shadow-[0_0_24px_rgba(197,255,47,0.28)]" : "border-emerald-800/60 bg-emerald-950/[0.03] shadow-[0_0_14px_rgba(4,120,87,0.12)] dark:border-lime-300/60 dark:bg-lime-300/[0.035] dark:shadow-[0_0_14px_rgba(197,255,47,0.12)]"}`}
         style={{
-          width: isTextHover ? "84px" : hovering ? "54px" : "34px",
-          height: isTextHover ? "84px" : hovering ? "54px" : "34px",
+          width: isTextHover ? "72px" : hovering ? "56px" : "30px",
+          height: isTextHover ? "72px" : hovering ? "56px" : "30px",
           border: isTextHover
-            ? "none"
+            ? "1px solid rgba(255, 84, 200, 0.9)"
             : hovering
-            ? "2px solid #10B981"
-            : "1.5px solid var(--cursor-ring, rgba(16, 185, 129, 0.6))",
+              ? "1px solid rgba(197, 255, 47, 0.95)"
+              : "1px solid rgba(197, 255, 47, 0.58)",
           backgroundColor: isTextHover
-            ? "rgba(255, 255, 255, 0.9)"
+            ? "rgba(255, 84, 200, 0.12)"
             : hovering
-            ? "rgba(16, 185, 129, 0.12)"
-            : "transparent",
+              ? "rgba(197, 255, 47, 0.12)"
+              : "rgba(197, 255, 47, 0.035)",
           mixBlendMode: isTextHover ? "difference" : "normal",
           opacity: visible ? 1 : 0,
-          scale: clicking ? "0.85" : "1",
-          boxShadow: hovering
-            ? "0 0 16px rgba(16, 185, 129, 0.35)"
-            : "none",
+          scale: clicking ? "0.82" : "1",
+          boxShadow: isTextHover
+            ? "0 0 28px rgba(255, 84, 200, 0.28), inset 0 0 18px rgba(255, 84, 200, 0.1)"
+            : hovering
+              ? "0 0 24px rgba(197, 255, 47, 0.28), inset 0 0 14px rgba(197, 255, 47, 0.08)"
+              : "0 0 14px rgba(197, 255, 47, 0.12)",
           transition:
-            "width 0.28s cubic-bezier(0.16, 1, 0.3, 1), height 0.28s cubic-bezier(0.16, 1, 0.3, 1), border 0.2s ease, background-color 0.25s ease, opacity 0.2s ease, scale 0.12s ease, box-shadow 0.25s ease",
+            "width 0.32s cubic-bezier(0.16, 1, 0.3, 1), height 0.32s cubic-bezier(0.16, 1, 0.3, 1), border 0.2s ease, background-color 0.25s ease, opacity 0.2s ease, scale 0.14s ease, box-shadow 0.25s ease",
         }}
-      />
+      >
+        <span
+          className={`font-mono text-[17px] font-bold leading-none ${isTextHover ? "text-fuchsia-800 dark:text-fuchsia-300" : "text-emerald-900 dark:text-lime-300"}`}
+          style={{
+            color: isTextHover ? "#ff54c8" : "#c5ff2f",
+            opacity: hovering || isTextHover ? 1 : 0,
+            transform: clicking
+              ? "scale(0.75) rotate(-12deg)"
+              : "scale(1) rotate(0deg)",
+            transition: "opacity 0.2s ease, transform 0.2s ease",
+          }}
+        >
+          {isTextHover ? "✳" : "↗"}
+        </span>
+      </div>
 
-      {/* ── Inner Sharp Dot ── */}
+      {/* Bright pinpoint when the cursor is in its default state */}
       <div
         ref={dotRef}
         aria-hidden="true"
-        className="pointer-events-none fixed top-0 left-0 z-[10000] rounded-full will-change-transform"
+        className="pointer-events-none fixed left-0 top-0 z-[10000] rounded-full will-change-transform shadow-[0_0_10px_rgba(4,120,87,0.8)] dark:[--cursor-dot:#c5ff2f] dark:shadow-[0_0_10px_rgba(197,255,47,0.95)]"
         style={{
-          width: hovering || isTextHover ? "0px" : "6px",
-          height: hovering || isTextHover ? "0px" : "6px",
-          backgroundColor: "#10B981",
-          boxShadow: "0 0 8px #10B981",
+          width: hovering || isTextHover ? "0px" : "5px",
+          height: hovering || isTextHover ? "0px" : "5px",
+          boxShadow: "0 0 10px rgba(197, 255, 47, 0.95)",
+          backgroundColor: "var(--cursor-dot, #047857)",
           opacity: visible && !hovering && !isTextHover ? 1 : 0,
-          scale: clicking ? "0.6" : "1",
+          scale: clicking ? "0.55" : "1",
           transition:
             "opacity 0.2s ease, scale 0.12s ease, width 0.2s ease, height 0.2s ease",
         }}

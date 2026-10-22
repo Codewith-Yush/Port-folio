@@ -80,6 +80,15 @@ export type PreloaderProps = {
   minDuration?: number;
 };
 
+// Clean up any stale session flags from previous tests
+if (typeof window !== "undefined") {
+  try {
+    sessionStorage.removeItem("portfolio_preloaded");
+  } catch {
+    // Ignore
+  }
+}
+
 /**
  * Cinematic High-Tech Entry Preloader Overlay with Telemetry HUD,
  * Live Speedometer, and Hyperdrive Warp Slingshot Transition.
