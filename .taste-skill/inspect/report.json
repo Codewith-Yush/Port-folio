@@ -1,0 +1,4021 @@
+{
+ "url": "http://localhost:4173",
+ "at": "2026-10-23T17:34:35.349Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 11,
+   "filled": [
+    0.38,
+    0.39,
+    0.49,
+    0.49,
+    0.37,
+    0.74,
+    0.43,
+    0.5,
+    0.43,
+    0.41,
+    0.58
+   ],
+   "motion": {
+    "elements": 64,
+    "css": 9,
+    "transitions": 7,
+    "scripted": 48,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 9338,
+     "screens": 10.4,
+     "words": 1166,
+     "img": 7,
+     "video": 0,
+     "canvas": 7,
+     "svg": 30,
+     "sections": 5,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 7,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "ai-creator.png",
+      "web.png",
+      "design1.jpeg",
+      "tadka.png",
+      "ai-creator.png",
+      "web.png",
+      "design1.jpeg"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [
+      "🎧"
+     ],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "&",
+     "words": 1,
+     "chars": 1,
+     "lines": 1,
+     "size": 352,
+     "vw": 24.4,
+     "font": "Instrument Serif",
+     "weight": 400,
+     "tracking": -0.12,
+     "leading": 0.88,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "right",
+     "widthRatio": 0.12,
+     "top": 316,
+     "tag": "span",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Crafting resilient web systems & creative tools.",
+     "words": 7,
+     "lines": 4,
+     "size": 72,
+     "font": "Plus Jakarta Sans"
+    },
+    "headings": [
+     {
+      "text": "Crafting resilient web systems & creative tools.",
+      "words": 7,
+      "chars": 48,
+      "lines": 4,
+      "size": 72,
+      "vw": 5,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.06,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.38,
+      "top": 200,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "&",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 352,
+      "vw": 24.4,
+      "font": "Instrument Serif",
+      "weight": 400,
+      "tracking": -0.12,
+      "leading": 0.88,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.12,
+      "top": 316,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "FEATURED works.",
+      "words": 2,
+      "chars": 15,
+      "lines": 1,
+      "size": 88,
+      "vw": 6.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.075,
+      "leading": 0.85,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.41,
+      "top": 1154,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "AI CREATOR HUB",
+      "words": 3,
+      "chars": 14,
+      "lines": 1,
+      "size": 48,
+      "vw": 3.3,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 1,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.39,
+      "top": 1465,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "40%",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.1,
+      "top": 1811,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "15+",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.12,
+      "top": 1811,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "PULSEANALYTICS - PREDICTIVE BI PLATFORM",
+      "words": 5,
+      "chars": 39,
+      "lines": 2,
+      "size": 48,
+      "vw": 3.3,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 1,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.39,
+      "top": 2091,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "60%",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.11,
+      "top": 2508,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "99.4%",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.11,
+      "top": 2508,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "CANVA DESIGN SHOWCASE",
+      "words": 3,
+      "chars": 21,
+      "lines": 2,
+      "size": 48,
+      "vw": 3.3,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 1,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.39,
+      "top": 2788,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "15+",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.14,
+      "top": 3181,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "100%",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.16,
+      "top": 3181,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "TADKA - INDIAN RESTAURANT EXPERIENCE",
+      "words": 5,
+      "chars": 36,
+      "lines": 2,
+      "size": 48,
+      "vw": 3.3,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 1,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.39,
+      "top": 3461,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "98/100",
+      "words": 1,
+      "chars": 6,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.14,
+      "top": 3879,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "100%",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.16,
+      "top": 3879,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "TECHNICAL systems.",
+      "words": 2,
+      "chars": 18,
+      "lines": 1,
+      "size": 76.8,
+      "vw": 5.3,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.07,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.53,
+      "top": 4361,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "LIVE telemetry.",
+      "words": 2,
+      "chars": 15,
+      "lines": 1,
+      "size": 76.8,
+      "vw": 5.3,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.07,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.27,
+      "top": 5963,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "68+",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.04,
+      "top": 6397,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "LET'S BUILD together.",
+      "words": 3,
+      "chars": 21,
+      "lines": 2,
+      "size": 86.4,
+      "vw": 6,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.075,
+      "leading": 0.85,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.38,
+      "top": 6816,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "HAVE A PROJECT IN MIND? let's build it together.",
+      "words": 9,
+      "chars": 48,
+      "lines": 2,
+      "size": 88,
+      "vw": 6.1,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.075,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.62,
+      "top": 8244,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "AYUSH SINGH",
+      "words": 2,
+      "chars": 11,
+      "lines": 1,
+      "size": 184,
+      "vw": 12.8,
+      "font": "Plus Jakarta Sans",
+      "weight": 900,
+      "tracking": -0.075,
+      "leading": 0.8,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.91,
+      "top": 9039,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 21,
+     "maxLines": 4,
+     "over2Lines": 1,
+     "statements": 0,
+     "centered": 3,
+     "medianWords": 2,
+     "mixedFontHeadings": 5
+    },
+    "type": {
+     "families": [
+      {
+       "family": "JetBrains Mono",
+       "share": 0.5,
+       "mono": true
+      },
+      {
+       "family": "Plus Jakarta Sans",
+       "share": 0.49,
+       "mono": false
+      },
+      {
+       "family": "Instrument Serif",
+       "share": 0.01,
+       "mono": false
+      },
+      {
+       "family": "Syne",
+       "share": 0,
+       "mono": false
+      }
+     ],
+     "familyCount": 4,
+     "sizes": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      16,
+      17,
+      18,
+      24,
+      30,
+      48,
+      72,
+      77,
+      86,
+      88,
+      184,
+      352
+     ],
+     "sizeCount": 18,
+     "notLoaded": [],
+     "body": {
+      "font": "Plus Jakarta Sans",
+      "size": 16,
+      "leading": 1.5,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 4.5
+     },
+     "measureChars": 69,
+     "max": {
+      "size": 352,
+      "vw": 24.4,
+      "font": "Instrument Serif",
+      "text": "&"
+     },
+     "monoShare": 0.5,
+     "monoProseShare": 0.5,
+     "monoFamilies": [
+      "JetBrains Mono"
+     ],
+     "monoSamples": [
+      "↗",
+      "02 Selected Works",
+      "—",
+      "2025–2026 Index",
+      "/",
+      "Engineered web platforms design artifact"
+     ],
+     "microLabels": 138,
+     "microLabelShare": 0.345,
+     "microSamples": [
+      "02 Selected Works",
+      "—",
+      "2025–2026 Index",
+      "/",
+      "Engineered web platforms design artifact",
+      "×"
+     ],
+     "upperShare": 0.46,
+     "centerShare": 0.07,
+     "smallText": 137
+    },
+    "eyebrows": [
+     {
+      "text": "Ayush Singh",
+      "above": "Crafting resilient web systems & creativ",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 12,
+      "top": 136
+     },
+     {
+      "text": "Ayush Singh Studio",
+      "above": "&",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 12,
+      "top": 292
+     },
+     {
+      "text": "Engineered web platforms design artifacts",
+      "above": "FEATURED works.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 12,
+      "top": 1110
+     },
+     {
+      "text": "Frontend Development & UI Design",
+      "above": "AI CREATOR HUB",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 1426
+     },
+     {
+      "text": "React",
+      "above": "40%",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 1723
+     },
+     {
+      "text": "Tailwind CSS",
+      "above": "15+",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 1723
+     },
+     {
+      "text": "Data Engineering & Full Stack Development",
+      "above": "PULSEANALYTICS - PREDICTIVE BI PLATFORM",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 2051
+     },
+     {
+      "text": "Python",
+      "above": "60%",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 2420
+     },
+     {
+      "text": "React",
+      "above": "99.4%",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 2420
+     },
+     {
+      "text": "Creative Direction & Visual Systems",
+      "above": "CANVA DESIGN SHOWCASE",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 2748
+     },
+     {
+      "text": "Canva Pro",
+      "above": "15+",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 3093
+     },
+     {
+      "text": "Brand Systems",
+      "above": "100%",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 3093
+     },
+     {
+      "text": "UI/UX Design & Frontend Engineering",
+      "above": "TADKA - INDIAN RESTAURANT EXPERIENCE",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 3421
+     },
+     {
+      "text": "React",
+      "above": "98/100",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 3791
+     },
+     {
+      "text": "JavaScript",
+      "above": "100%",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 3791
+     },
+     {
+      "text": "Frontend depth × architectural precision",
+      "above": "TECHNICAL systems.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 12,
+      "top": 4321
+     },
+     {
+      "text": "System health real-time activity",
+      "above": "LIVE telemetry.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 12,
+      "top": 5923
+     },
+     {
+      "text": "Direct inquiries collaboration",
+      "above": "LET'S BUILD together.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 12,
+      "top": 6772
+     }
+    ],
+    "numbered": [
+     {
+      "text": "/01",
+      "size": 24,
+      "top": 1417
+     },
+     {
+      "text": "/02",
+      "size": 24,
+      "top": 2043
+     },
+     {
+      "text": "/03",
+      "size": 24,
+      "top": 2740
+     },
+     {
+      "text": "/04",
+      "size": 24,
+      "top": 3413
+     },
+     {
+      "text": "01 / Your Name",
+      "size": 12,
+      "top": 6825
+     },
+     {
+      "text": "02 / Email Address",
+      "size": 12,
+      "top": 6918
+     },
+     {
+      "text": "03 / Project Scope & Brief",
+      "size": 12,
+      "top": 7011
+     },
+     {
+      "text": "06 — Colophon",
+      "size": 11,
+      "top": 7624
+     },
+     {
+      "text": "[ 01 ]",
+      "size": 9,
+      "top": 7834
+     },
+     {
+      "text": "[ 02 ]",
+      "size": 9,
+      "top": 7834
+     },
+     {
+      "text": "[ 03 ]",
+      "size": 9,
+      "top": 7834
+     },
+     {
+      "text": "01 / Station & Coordinates",
+      "size": 10,
+      "top": 8719
+     }
+    ],
+    "color": {
+     "bodyBg": "#f7f8fa",
+     "bodyBgHsl": {
+      "h": 220,
+      "s": 0.23,
+      "l": 0.97
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#f7f8fa",
+       "top": 0,
+       "hsl": {
+        "h": 220,
+        "s": 0.23,
+        "l": 0.97
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#6b7280",
+       "share": 0.57
+      },
+      {
+       "color": "#252a34",
+       "share": 0.24
+      },
+      {
+       "color": "#047857",
+       "share": 0.05
+      },
+      {
+       "color": "#d4d4d8",
+       "share": 0.04
+      },
+      {
+       "color": "#f7f8fa",
+       "share": 0.03
+      }
+     ],
+     "button": {
+      "bg": "#ffffff",
+      "hsl": {
+       "h": 0,
+       "s": 0,
+       "l": 1
+      },
+      "fg": "#252a34"
+     },
+     "lowContrast": [
+      {
+       "text": "Advanced",
+       "ratio": 3.8,
+       "need": 4.5,
+       "size": 9,
+       "fg": "#059669",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "Advanced",
+       "ratio": 3.8,
+       "need": 4.5,
+       "size": 9,
+       "fg": "#059669",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "Production",
+       "ratio": 3.8,
+       "need": 4.5,
+       "size": 9,
+       "fg": "#059669",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "Core",
+       "ratio": 3.8,
+       "need": 4.5,
+       "size": 9,
+       "fg": "#059669",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "Advanced",
+       "ratio": 3.8,
+       "need": 4.5,
+       "size": 9,
+       "fg": "#059669",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "Production",
+       "ratio": 3.8,
+       "need": 4.5,
+       "size": 9,
+       "fg": "#059669",
+       "bg": "#ffffff"
+      }
+     ]
+    },
+    "buttons": {
+     "count": 33,
+     "inHero": 5,
+     "radius": "pill",
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 8,
+     "upper": 8,
+     "heroLabels": [
+      "Explore Selected Work",
+      "View Résumé",
+      "GitHub ↗",
+      "LinkedIn ↗",
+      "X ↗"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 42,
+     "shadowOverlay": 4,
+     "shadowSamples": [
+      "div.relative.flex → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "div.absolute.inset-y-1.5 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "div.group.relative → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "span.badge-neo-pill.border-white/20 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0"
+     ],
+     "gradients": 0,
+     "scrims": 7,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 32,
+     "hairlineSamples": [
+      "header.fixed.inset-x-0 1440px",
+      "div.flex.items-center 1312px",
+      "div.flex.items-center 691px",
+      "div.mt-8.pt-6 555px",
+      "div.flex.items-center 691px"
+     ],
+     "outlinedBoxes": 33,
+     "dashed": 1,
+     "blurred": 13,
+     "roundedBoxes": 27,
+     "boxRadius": 24,
+     "squareMedia": 6,
+     "roundedMedia": 8,
+     "mediaRadius": 16,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 4594
+      },
+      {
+       "count": 3,
+       "iconTopped": true,
+       "rounded": true,
+       "top": 5121
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": false,
+       "top": 7810
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 8690
+      }
+     ]
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 6,
+     "fixed": true,
+     "height": 67,
+     "floatingPill": false,
+     "blur": true
+    },
+    "fontsLoaded": [
+     "instrument serif",
+     "jetbrains mono",
+     "plus jakarta sans",
+     "syne"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 9338,
+    "margins": {
+     "left": 64,
+     "right": 64
+    },
+    "sections": [
+     {
+      "sel": "section#hero.relative.flex",
+      "tag": "section",
+      "top": 0,
+      "height": 900,
+      "words": 77,
+      "media": 0,
+      "middle": 138,
+      "heading": {
+       "text": "Crafting resilient web systems & creative tools.",
+       "size": 72,
+       "tag": "h1"
+      },
+      "left": 192,
+      "right": 192,
+      "textLeft": 192,
+      "textRight": 192,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#work.relative.bg-[var(--page)]",
+      "tag": "section",
+      "top": 900,
+      "height": 3210,
+      "words": 423,
+      "media": 4,
+      "middle": 0,
+      "heading": {
+       "text": "Featured",
+       "size": 88,
+       "tag": "h2"
+      },
+      "left": 39,
+      "right": 39,
+      "textLeft": 64,
+      "textRight": 64,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#skills.relative.overflow-hidden",
+      "tag": "section",
+      "top": 4110,
+      "height": 1516,
+      "words": 258,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Technical",
+       "size": 77,
+       "tag": "h2"
+      },
+      "left": 64,
+      "right": 64,
+      "textLeft": 64,
+      "textRight": 64,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#telemetry.relative.py-16",
+      "tag": "section",
+      "top": 5626,
+      "height": 935,
+      "words": 109,
+      "media": 0,
+      "middle": 17,
+      "heading": {
+       "text": "Live",
+       "size": 77,
+       "tag": "h2"
+      },
+      "left": 38,
+      "right": 64,
+      "textLeft": 38,
+      "textRight": 64,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#contact.relative.overflow-hidden",
+      "tag": "section",
+      "top": 6561,
+      "height": 877,
+      "words": 62,
+      "media": 0,
+      "middle": 150,
+      "heading": {
+       "text": "Let's build",
+       "size": 86,
+       "tag": "h2"
+      },
+      "left": 64,
+      "right": 64,
+      "textLeft": 64,
+      "textRight": 64,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer.relative.overflow-hidden",
+      "tag": "footer",
+      "top": 7438,
+      "height": 1860,
+      "words": 231,
+      "media": 3,
+      "middle": 3292,
+      "heading": {
+       "text": "Have a project in mind?",
+       "size": 88,
+       "tag": "h2"
+      },
+      "left": 0,
+      "right": 0,
+      "textLeft": -1263,
+      "textRight": -3561,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Crafting resilient web systems & creative tools.",
+      "size": 72,
+      "top": 200,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 64,
+      "n": 12
+     },
+     {
+      "x": 821,
+      "n": 4
+     },
+     {
+      "x": 97,
+      "n": 3
+     },
+     {
+      "x": 542,
+      "n": 3
+     },
+     {
+      "x": 988,
+      "n": 3
+     },
+     {
+      "x": 192,
+      "n": 2
+     },
+     {
+      "x": 461,
+      "n": 2
+     },
+     {
+      "x": 213,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 30,
+    "bodySize": 16,
+    "stage": false,
+    "explains": true,
+    "slivers": [],
+    "voidShare": 0.12,
+    "voidBox": {
+     "x": 1020,
+     "y": 180,
+     "w": 420,
+     "h": 360
+    }
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 12,
+   "filled": [
+    0.43,
+    0.39,
+    0.42,
+    0.43,
+    0.57,
+    0.59,
+    0.52,
+    0.6,
+    0.54,
+    0.54,
+    0.61,
+    0.48
+   ],
+   "motion": {
+    "elements": 64,
+    "css": 9,
+    "transitions": 7,
+    "scripted": 48,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 13413,
+     "screens": 13.1,
+     "words": 1166,
+     "img": 7,
+     "video": 0,
+     "canvas": 7,
+     "svg": 30,
+     "sections": 5,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 7,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "ai-creator.png",
+      "web.png",
+      "design1.jpeg",
+      "tadka.png",
+      "ai-creator.png",
+      "web.png",
+      "design1.jpeg"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [
+      "🎧"
+     ],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "&",
+     "words": 1,
+     "chars": 1,
+     "lines": 1,
+     "size": 261.1,
+     "vw": 34,
+     "font": "Instrument Serif",
+     "weight": 400,
+     "tracking": -0.12,
+     "leading": 0.88,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.17,
+     "top": 680,
+     "tag": "span",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Crafting resilient web systems & creative tools.",
+     "words": 7,
+     "lines": 2,
+     "size": 40,
+     "font": "Plus Jakarta Sans"
+    },
+    "headings": [
+     {
+      "text": "Crafting resilient web systems & creative tools.",
+      "words": 7,
+      "chars": 48,
+      "lines": 2,
+      "size": 40,
+      "vw": 5.2,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.06,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 200,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "&",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 261.1,
+      "vw": 34,
+      "font": "Instrument Serif",
+      "weight": 400,
+      "tracking": -0.12,
+      "leading": 0.88,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.17,
+      "top": 680,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "FEATURED works.",
+      "words": 2,
+      "chars": 15,
+      "lines": 1,
+      "size": 49.9,
+      "vw": 6.5,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.075,
+      "leading": 0.85,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.44,
+      "top": 1518,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "AI CREATOR HUB",
+      "words": 3,
+      "chars": 14,
+      "lines": 1,
+      "size": 36,
+      "vw": 4.7,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 1.11,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 2358,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "40%",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.19,
+      "top": 2696,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "15+",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.22,
+      "top": 2696,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "PULSEANALYTICS - PREDICTIVE BI PLATFORM",
+      "words": 5,
+      "chars": 39,
+      "lines": 2,
+      "size": 36,
+      "vw": 4.7,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 1.11,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 3490,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "60%",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.21,
+      "top": 3868,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "99.4%",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.21,
+      "top": 3868,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "CANVA DESIGN SHOWCASE",
+      "words": 3,
+      "chars": 21,
+      "lines": 1,
+      "size": 36,
+      "vw": 4.7,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 1.11,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 4662,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "15+",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.27,
+      "top": 5000,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "100%",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.29,
+      "top": 5000,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "TADKA - INDIAN RESTAURANT EXPERIENCE",
+      "words": 5,
+      "chars": 36,
+      "lines": 1,
+      "size": 36,
+      "vw": 4.7,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 1.11,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 5794,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "98/100",
+      "words": 1,
+      "chars": 6,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.26,
+      "top": 6132,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "100%",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.3,
+      "top": 6132,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "TECHNICAL systems.",
+      "words": 2,
+      "chars": 18,
+      "lines": 1,
+      "size": 42.2,
+      "vw": 5.5,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.07,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 6614,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "LIVE telemetry.",
+      "words": 2,
+      "chars": 15,
+      "lines": 1,
+      "size": 42.2,
+      "vw": 5.5,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.07,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.44,
+      "top": 9313,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "68+",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "right",
+      "widthRatio": 0.07,
+      "top": 9728,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "LET'S BUILD together.",
+      "words": 3,
+      "chars": 21,
+      "lines": 2,
+      "size": 46.1,
+      "vw": 6,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.075,
+      "leading": 0.85,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 10552,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "HAVE A PROJECT IN MIND? let's build it together.",
+      "words": 9,
+      "chars": 48,
+      "lines": 2,
+      "size": 53.8,
+      "vw": 7,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.075,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 12405,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "AYUSH SINGH",
+      "words": 2,
+      "chars": 11,
+      "lines": 1,
+      "size": 107.5,
+      "vw": 14,
+      "font": "Plus Jakarta Sans",
+      "weight": 900,
+      "tracking": -0.075,
+      "leading": 0.8,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 13175,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 21,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 3,
+     "medianWords": 2,
+     "mixedFontHeadings": 5
+    },
+    "type": {
+     "families": [
+      {
+       "family": "JetBrains Mono",
+       "share": 0.5,
+       "mono": true
+      },
+      {
+       "family": "Plus Jakarta Sans",
+       "share": 0.49,
+       "mono": false
+      },
+      {
+       "family": "Instrument Serif",
+       "share": 0.01,
+       "mono": false
+      },
+      {
+       "family": "Syne",
+       "share": 0,
+       "mono": false
+      }
+     ],
+     "familyCount": 4,
+     "sizes": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      16,
+      17,
+      18,
+      24,
+      30,
+      36,
+      40,
+      42,
+      46,
+      50,
+      54,
+      108,
+      261
+     ],
+     "sizeCount": 19,
+     "notLoaded": [],
+     "body": {
+      "font": "Plus Jakarta Sans",
+      "size": 16,
+      "leading": 1.5,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 4.5
+     },
+     "measureChars": 86,
+     "max": {
+      "size": 261.1,
+      "vw": 34,
+      "font": "Instrument Serif",
+      "text": "&"
+     },
+     "monoShare": 0.5,
+     "monoProseShare": 0.5,
+     "monoFamilies": [
+      "JetBrains Mono"
+     ],
+     "monoSamples": [
+      "↗",
+      "02 Selected Works",
+      "—",
+      "2025–2026 Index",
+      "/",
+      "Engineered web platforms design artifact"
+     ],
+     "microLabels": 138,
+     "microLabelShare": 0.345,
+     "microSamples": [
+      "02 Selected Works",
+      "—",
+      "2025–2026 Index",
+      "/",
+      "Engineered web platforms design artifact",
+      "×"
+     ],
+     "upperShare": 0.46,
+     "centerShare": 0.07,
+     "smallText": 137
+    },
+    "eyebrows": [
+     {
+      "text": "Ayush Singh",
+      "above": "Crafting resilient web systems & creativ",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 12,
+      "top": 136
+     },
+     {
+      "text": "Ayush Singh Studio",
+      "above": "&",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 12,
+      "top": 653
+     },
+     {
+      "text": "Engineered web platforms design artifacts",
+      "above": "FEATURED works.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 12,
+      "top": 1458
+     },
+     {
+      "text": "Frontend Development & UI Design",
+      "above": "AI CREATOR HUB",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 2319
+     },
+     {
+      "text": "React",
+      "above": "40%",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 2608
+     },
+     {
+      "text": "Tailwind CSS",
+      "above": "15+",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 2608
+     },
+     {
+      "text": "Data Engineering & Full Stack Development",
+      "above": "PULSEANALYTICS - PREDICTIVE BI PLATFORM",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 3451
+     },
+     {
+      "text": "Python",
+      "above": "60%",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 3780
+     },
+     {
+      "text": "React",
+      "above": "99.4%",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 3780
+     },
+     {
+      "text": "Creative Direction & Visual Systems",
+      "above": "CANVA DESIGN SHOWCASE",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 4623
+     },
+     {
+      "text": "Canva Pro",
+      "above": "15+",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 4912
+     },
+     {
+      "text": "Brand Systems",
+      "above": "100%",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 4912
+     },
+     {
+      "text": "UI/UX Design & Frontend Engineering",
+      "above": "TADKA - INDIAN RESTAURANT EXPERIENCE",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 5755
+     },
+     {
+      "text": "React",
+      "above": "98/100",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 6044
+     },
+     {
+      "text": "JavaScript",
+      "above": "100%",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": true,
+      "size": 13,
+      "top": 6044
+     },
+     {
+      "text": "Frontend depth × architectural precision",
+      "above": "TECHNICAL systems.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 12,
+      "top": 6574
+     },
+     {
+      "text": "System health real-time activity",
+      "above": "LIVE telemetry.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 12,
+      "top": 9273
+     },
+     {
+      "text": "Direct inquiries collaboration",
+      "above": "LET'S BUILD together.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 12,
+      "top": 10508
+     }
+    ],
+    "numbered": [
+     {
+      "text": "/01",
+      "size": 24,
+      "top": 2310
+     },
+     {
+      "text": "/02",
+      "size": 24,
+      "top": 3442
+     },
+     {
+      "text": "/03",
+      "size": 24,
+      "top": 4614
+     },
+     {
+      "text": "/04",
+      "size": 24,
+      "top": 5746
+     },
+     {
+      "text": "01 / Your Name",
+      "size": 12,
+      "top": 11070
+     },
+     {
+      "text": "02 / Email Address",
+      "size": 12,
+      "top": 11163
+     },
+     {
+      "text": "03 / Project Scope & Brief",
+      "size": 12,
+      "top": 11256
+     },
+     {
+      "text": "06 — Colophon",
+      "size": 11,
+      "top": 11869
+     },
+     {
+      "text": "[ 01 ]",
+      "size": 9,
+      "top": 12080
+     },
+     {
+      "text": "[ 02 ]",
+      "size": 9,
+      "top": 12080
+     },
+     {
+      "text": "[ 03 ]",
+      "size": 9,
+      "top": 12080
+     },
+     {
+      "text": "01 / Station & Coordinates",
+      "size": 10,
+      "top": 12810
+     }
+    ],
+    "color": {
+     "bodyBg": "#f7f8fa",
+     "bodyBgHsl": {
+      "h": 220,
+      "s": 0.23,
+      "l": 0.97
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#f7f8fa",
+       "top": 0,
+       "hsl": {
+        "h": 220,
+        "s": 0.23,
+        "l": 0.97
+       }
+      },
+      {
+       "color": "#ffffff",
+       "top": 1795,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      },
+      {
+       "color": "#0a0a0a",
+       "top": 1832,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 0.04
+       }
+      },
+      {
+       "color": "#f5f5f5",
+       "top": 1832,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 0.96
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#6b7280",
+       "share": 0.58
+      },
+      {
+       "color": "#252a34",
+       "share": 0.24
+      },
+      {
+       "color": "#047857",
+       "share": 0.05
+      },
+      {
+       "color": "#d4d4d8",
+       "share": 0.04
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.03
+      }
+     ],
+     "button": {
+      "bg": "#ffffff",
+      "hsl": {
+       "h": 0,
+       "s": 0,
+       "l": 1
+      },
+      "fg": "#252a34"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 32,
+     "inHero": 5,
+     "radius": "pill",
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 8,
+     "upper": 8,
+     "heroLabels": [
+      "Explore Selected Work",
+      "View Résumé",
+      "GitHub ↗",
+      "LinkedIn ↗",
+      "X ↗"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 30,
+     "shadowOverlay": 2,
+     "shadowSamples": [
+      "div.relative.flex → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "div.absolute.inset-y-1.5 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "div.group.relative → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "span.badge-neo-pill.border-white/20 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0"
+     ],
+     "gradients": 0,
+     "scrims": 7,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 28,
+     "hairlineSamples": [
+      "div.flex.items-center 688px",
+      "div.flex.items-center 686px",
+      "div.mt-8.pt-6 688px",
+      "div.flex.items-center 686px",
+      "div.mt-8.pt-6 688px"
+     ],
+     "outlinedBoxes": 35,
+     "dashed": 1,
+     "blurred": 13,
+     "roundedBoxes": 29,
+     "boxRadius": 24,
+     "squareMedia": 0,
+     "roundedMedia": 8,
+     "mediaRadius": 16,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 6814
+      },
+      {
+       "count": 3,
+       "iconTopped": true,
+       "rounded": true,
+       "top": 7898
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": false,
+       "top": 12056
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 12772
+      }
+     ]
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 6,
+     "fixed": true,
+     "height": 75,
+     "floatingPill": false,
+     "blur": true
+    },
+    "fontsLoaded": [
+     "instrument serif",
+     "jetbrains mono",
+     "plus jakarta sans",
+     "syne"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 13413,
+    "margins": {
+     "left": 40,
+     "right": 40
+    },
+    "sections": [
+     {
+      "sel": "section#hero.relative.flex",
+      "tag": "section",
+      "top": 0,
+      "height": 1249,
+      "words": 77,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Crafting resilient web systems & creative tools.",
+       "size": 40,
+       "tag": "h1"
+      },
+      "left": 40,
+      "right": 40,
+      "textLeft": 40,
+      "textRight": 40,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#work.relative.bg-[var(--page)]",
+      "tag": "section",
+      "top": 1249,
+      "height": 5115,
+      "words": 423,
+      "media": 4,
+      "middle": 0,
+      "heading": {
+       "text": "Featured",
+       "size": 50,
+       "tag": "h2"
+      },
+      "left": 15,
+      "right": 15,
+      "textLeft": 40,
+      "textRight": 40,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#skills.relative.overflow-hidden",
+      "tag": "section",
+      "top": 6363,
+      "height": 2614,
+      "words": 258,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Technical",
+       "size": 42,
+       "tag": "h2"
+      },
+      "left": 40,
+      "right": 40,
+      "textLeft": 40,
+      "textRight": 40,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#telemetry.relative.py-16",
+      "tag": "section",
+      "top": 8977,
+      "height": 1320,
+      "words": 109,
+      "media": 0,
+      "middle": 268,
+      "heading": {
+       "text": "Live",
+       "size": 42,
+       "tag": "h2"
+      },
+      "left": 38,
+      "right": 0,
+      "textLeft": 38,
+      "textRight": -508,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#contact.relative.overflow-hidden",
+      "tag": "section",
+      "top": 10297,
+      "height": 1386,
+      "words": 62,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Let's build",
+       "size": 46,
+       "tag": "h2"
+      },
+      "left": 40,
+      "right": 40,
+      "textLeft": 40,
+      "textRight": 40,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer.relative.overflow-hidden",
+      "tag": "footer",
+      "top": 11683,
+      "height": 1690,
+      "words": 222,
+      "media": 3,
+      "middle": 3899,
+      "heading": {
+       "text": "Visual catalogue & artifacts.",
+       "size": 24,
+       "tag": "h3"
+      },
+      "left": 0,
+      "right": 0,
+      "textLeft": -1329,
+      "textRight": -4168,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Crafting resilient web systems & creative tools.",
+      "size": 40,
+      "top": 200,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 40,
+      "n": 18
+     },
+     {
+      "x": 73,
+      "n": 8
+     },
+     {
+      "x": 122,
+      "n": 1
+     },
+     {
+      "x": 258,
+      "n": 1
+     },
+     {
+      "x": 270,
+      "n": 1
+     },
+     {
+      "x": 429,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 30,
+    "bodySize": 16,
+    "stage": false,
+    "explains": true,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 12,
+   "filled": [
+    0.55,
+    0.38,
+    0.47,
+    0.64,
+    0.5,
+    0.38,
+    0.37,
+    0.74,
+    0.91,
+    0.76,
+    0.49,
+    0.78
+   ],
+   "motion": {
+    "elements": 64,
+    "css": 9,
+    "transitions": 7,
+    "scripted": 48,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 14379,
+     "screens": 17,
+     "words": 1156,
+     "img": 7,
+     "video": 0,
+     "canvas": 7,
+     "svg": 30,
+     "sections": 5,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 5,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "ai-creator.png",
+      "web.png",
+      "design1.jpeg",
+      "tadka.png",
+      "ai-creator.png"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [
+      "🎧"
+     ],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "&",
+     "words": 1,
+     "chars": 1,
+     "lines": 1,
+     "size": 224,
+     "vw": 57.4,
+     "font": "Instrument Serif",
+     "weight": 400,
+     "tracking": -0.12,
+     "leading": 0.88,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.28,
+     "top": 749,
+     "tag": "span",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Crafting resilient web systems & creative tools.",
+     "words": 7,
+     "lines": 3,
+     "size": 40,
+     "font": "Plus Jakarta Sans"
+    },
+    "headings": [
+     {
+      "text": "Crafting resilient web systems & creative tools.",
+      "words": 7,
+      "chars": 48,
+      "lines": 3,
+      "size": 40,
+      "vw": 10.3,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.06,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 184,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "&",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 224,
+      "vw": 57.4,
+      "font": "Instrument Serif",
+      "weight": 400,
+      "tracking": -0.12,
+      "leading": 0.88,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.28,
+      "top": 749,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "FEATURED works.",
+      "words": 2,
+      "chars": 15,
+      "lines": 1,
+      "size": 44.8,
+      "vw": 11.5,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.075,
+      "leading": 0.85,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 1393,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "AI CREATOR HUB",
+      "words": 3,
+      "chars": 14,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 2074,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "40%",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.38,
+      "top": 2493,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "15+",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.43,
+      "top": 2493,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "PULSEANALYTICS - PREDICTIVE BI PLATFORM",
+      "words": 5,
+      "chars": 39,
+      "lines": 2,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 3055,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "60%",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.41,
+      "top": 3548,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "99.4%",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.41,
+      "top": 3548,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "CANVA DESIGN SHOWCASE",
+      "words": 3,
+      "chars": 21,
+      "lines": 2,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 4123,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "15+",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.39,
+      "top": 4568,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "100%",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.43,
+      "top": 4568,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "TADKA - INDIAN RESTAURANT EXPERIENCE",
+      "words": 5,
+      "chars": 36,
+      "lines": 3,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.065,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 5090,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "98/100",
+      "words": 1,
+      "chars": 6,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.37,
+      "top": 5589,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "100%",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.44,
+      "top": 5589,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "TECHNICAL systems.",
+      "words": 2,
+      "chars": 18,
+      "lines": 1,
+      "size": 40,
+      "vw": 10.3,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.07,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 6042,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "LIVE telemetry.",
+      "words": 2,
+      "chars": 15,
+      "lines": 1,
+      "size": 40,
+      "vw": 10.3,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.07,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 9044,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "68+",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "left",
+      "widthRatio": 0.14,
+      "top": 9851,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "LET'S BUILD together.",
+      "words": 3,
+      "chars": 21,
+      "lines": 2,
+      "size": 44.8,
+      "vw": 11.5,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.075,
+      "leading": 0.85,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 10606,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "HAVE A PROJECT IN MIND? let's build it together.",
+      "words": 9,
+      "chars": 48,
+      "lines": 3,
+      "size": 40,
+      "vw": 10.3,
+      "font": "Plus Jakarta Sans",
+      "weight": 700,
+      "tracking": -0.075,
+      "leading": 0.88,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 12965,
+      "mixedFonts": [
+       "Plus Jakarta Sans",
+       "Instrument Serif italic"
+      ],
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "AYUSH SINGH",
+      "words": 2,
+      "chars": 11,
+      "lines": 1,
+      "size": 56,
+      "vw": 14.4,
+      "font": "Plus Jakarta Sans",
+      "weight": 900,
+      "tracking": -0.075,
+      "leading": 0.8,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 14156,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 21,
+     "maxLines": 3,
+     "over2Lines": 3,
+     "statements": 0,
+     "centered": 3,
+     "medianWords": 2,
+     "mixedFontHeadings": 5
+    },
+    "type": {
+     "families": [
+      {
+       "family": "JetBrains Mono",
+       "share": 0.5,
+       "mono": true
+      },
+      {
+       "family": "Plus Jakarta Sans",
+       "share": 0.49,
+       "mono": false
+      },
+      {
+       "family": "Instrument Serif",
+       "share": 0.01,
+       "mono": false
+      },
+      {
+       "family": "Syne",
+       "share": 0,
+       "mono": false
+      }
+     ],
+     "familyCount": 4,
+     "sizes": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      16,
+      18,
+      20,
+      24,
+      30,
+      40,
+      45,
+      56,
+      224
+     ],
+     "sizeCount": 15,
+     "notLoaded": [],
+     "body": {
+      "font": "Plus Jakarta Sans",
+      "size": 14,
+      "leading": 2,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 4.5
+     },
+     "measureChars": 49,
+     "max": {
+      "size": 224,
+      "vw": 57.4,
+      "font": "Instrument Serif",
+      "text": "&"
+     },
+     "monoShare": 0.5,
+     "monoProseShare": 0.5,
+     "monoFamilies": [
+      "JetBrains Mono"
+     ],
+     "monoSamples": [
+      "02 Selected Works",
+      "—",
+      "2025–2026 Index",
+      "/",
+      "Engineered web platforms design artifact",
+      "×"
+     ],
+     "microLabels": 138,
+     "microLabelShare": 0.348,
+     "microSamples": [
+      "02 Selected Works",
+      "—",
+      "2025–2026 Index",
+      "/",
+      "Engineered web platforms design artifact",
+      "×"
+     ],
+     "upperShare": 0.46,
+     "centerShare": 0.07,
+     "smallText": 152
+    },
+    "eyebrows": [
+     {
+      "text": "Ayush Singh",
+      "above": "Crafting resilient web systems & creativ",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 12,
+      "top": 120
+     },
+     {
+      "text": "Ayush Singh Studio",
+      "above": "&",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 12,
+      "top": 729
+     },
+     {
+      "text": "Engineered web platforms design artifacts",
+      "above": "FEATURED works.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 1343
+     },
+     {
+      "text": "Frontend Development & UI Design",
+      "above": "AI CREATOR HUB",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 2028
+     },
+     {
+      "text": "Data Engineering & Full Stack Development",
+      "above": "PULSEANALYTICS - PREDICTIVE BI PLATFORM",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 3009
+     },
+     {
+      "text": "Creative Direction & Visual Systems",
+      "above": "CANVA DESIGN SHOWCASE",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 4077
+     },
+     {
+      "text": "UI/UX Design & Frontend Engineering",
+      "above": "TADKA - INDIAN RESTAURANT EXPERIENCE",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 5044
+     },
+     {
+      "text": "Frontend depth × architectural precision",
+      "above": "TECHNICAL systems.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 5996
+     },
+     {
+      "text": "System health real-time activity",
+      "above": "LIVE telemetry.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 9013
+     },
+     {
+      "text": "Direct inquiries collaboration",
+      "above": "LET'S BUILD together.",
+      "upper": true,
+      "tracked": true,
+      "mono": true,
+      "pill": false,
+      "size": 10,
+      "top": 10571
+     }
+    ],
+    "numbered": [
+     {
+      "text": "/01",
+      "size": 20,
+      "top": 2029
+     },
+     {
+      "text": "/02",
+      "size": 20,
+      "top": 3010
+     },
+     {
+      "text": "/03",
+      "size": 20,
+      "top": 4078
+     },
+     {
+      "text": "/04",
+      "size": 20,
+      "top": 5045
+     },
+     {
+      "text": "01 / Your Name",
+      "size": 12,
+      "top": 11189
+     },
+     {
+      "text": "02 / Email Address",
+      "size": 12,
+      "top": 11270
+     },
+     {
+      "text": "03 / Project Scope & Brief",
+      "size": 12,
+      "top": 11351
+     },
+     {
+      "text": "06 — Colophon",
+      "size": 10,
+      "top": 11816
+     },
+     {
+      "text": "[ 01 ]",
+      "size": 9,
+      "top": 12060
+     },
+     {
+      "text": "[ 02 ]",
+      "size": 9,
+      "top": 12335
+     },
+     {
+      "text": "[ 03 ]",
+      "size": 9,
+      "top": 12610
+     },
+     {
+      "text": "01 / Station & Coordinates",
+      "size": 10,
+      "top": 13411
+     }
+    ],
+    "color": {
+     "bodyBg": "#f7f8fa",
+     "bodyBgHsl": {
+      "h": 220,
+      "s": 0.23,
+      "l": 0.97
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#f7f8fa",
+       "top": 0,
+       "hsl": {
+        "h": 220,
+        "s": 0.23,
+        "l": 0.97
+       }
+      },
+      {
+       "color": "#ffffff",
+       "top": 6265,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      },
+      {
+       "color": "#09090c",
+       "top": 9939,
+       "hsl": {
+        "h": 240,
+        "s": 0.14,
+        "l": 0.04
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#6b7280",
+       "share": 0.57
+      },
+      {
+       "color": "#252a34",
+       "share": 0.24
+      },
+      {
+       "color": "#047857",
+       "share": 0.06
+      },
+      {
+       "color": "#d4d4d8",
+       "share": 0.04
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.03
+      }
+     ],
+     "button": {
+      "bg": "#ffffff",
+      "hsl": {
+       "h": 0,
+       "s": 0,
+       "l": 1
+      },
+      "fg": "#252a34"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 33,
+     "inHero": 5,
+     "radius": "pill",
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 8,
+     "upper": 8,
+     "heroLabels": [
+      "Explore Selected Work",
+      "View Résumé",
+      "GitHub ↗",
+      "LinkedIn ↗",
+      "X ↗"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 30,
+     "shadowOverlay": 0,
+     "shadowSamples": [
+      "div.relative.flex → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "div.absolute.inset-y-1.5 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "div.group.relative → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "span.badge-neo-pill.border-white/20 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0"
+     ],
+     "gradients": 0,
+     "scrims": 7,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 31,
+     "hairlineSamples": [
+      "div.flex.items-center 342px",
+      "div.flex.items-center 340px",
+      "div.mt-8.pt-6 342px",
+      "div.flex.items-center 340px",
+      "div.mt-8.pt-6 342px"
+     ],
+     "outlinedBoxes": 35,
+     "dashed": 1,
+     "blurred": 12,
+     "roundedBoxes": 29,
+     "boxRadius": 24,
+     "squareMedia": 6,
+     "roundedMedia": 8,
+     "mediaRadius": 16,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 6265
+      },
+      {
+       "count": 3,
+       "iconTopped": true,
+       "rounded": true,
+       "top": 7729
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": false,
+       "top": 12036
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 13385
+      }
+     ]
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 1,
+     "fixed": true,
+     "height": 65,
+     "floatingPill": false,
+     "blur": true
+    },
+    "fontsLoaded": [
+     "instrument serif",
+     "jetbrains mono",
+     "plus jakarta sans",
+     "syne"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "pageH": 14379,
+    "margins": {
+     "left": 24,
+     "right": 24
+    },
+    "sections": [
+     {
+      "sel": "section#hero.relative.flex",
+      "tag": "section",
+      "top": 0,
+      "height": 1199,
+      "words": 73,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Crafting resilient web systems & creative tools.",
+       "size": 40,
+       "tag": "h1"
+      },
+      "left": 24,
+      "right": 29,
+      "textLeft": 24,
+      "textRight": 29,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "div.absolute.top-1/4",
+      "tag": "div",
+      "top": 2358,
+      "height": 384,
+      "words": 0,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": null,
+      "right": null,
+      "textLeft": null,
+      "textRight": null,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "div.absolute.bottom-1/4",
+      "tag": "div",
+      "top": 4293,
+      "height": 384,
+      "words": 0,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": null,
+      "right": null,
+      "textLeft": null,
+      "textRight": null,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "div.mx-auto.w-full",
+      "tag": "div",
+      "top": 1263,
+      "height": 4509,
+      "words": 423,
+      "media": 4,
+      "middle": 0,
+      "heading": {
+       "text": "Featured",
+       "size": 45,
+       "tag": "h2"
+      },
+      "left": 12,
+      "right": 12,
+      "textLeft": 24,
+      "textRight": 24,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#skills.relative.overflow-hidden",
+      "tag": "section",
+      "top": 5836,
+      "height": 2932,
+      "words": 258,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Technical",
+       "size": 40,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 24,
+      "textLeft": 24,
+      "textRight": 45,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#telemetry.relative.py-16",
+      "tag": "section",
+      "top": 8768,
+      "height": 1608,
+      "words": 109,
+      "media": 0,
+      "middle": 464,
+      "heading": {
+       "text": "Live",
+       "size": 40,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 0,
+      "textLeft": 24,
+      "textRight": -664,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#contact.relative.overflow-hidden",
+      "tag": "section",
+      "top": 10376,
+      "height": 1285,
+      "words": 5,
+      "media": 0,
+      "middle": 49,
+      "heading": null,
+      "left": 42,
+      "right": 57,
+      "textLeft": 42,
+      "textRight": 57,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer.relative.overflow-hidden",
+      "tag": "footer",
+      "top": 11662,
+      "height": 2678,
+      "words": 177,
+      "media": 0,
+      "middle": 4227,
+      "heading": null,
+      "left": 0,
+      "right": 0,
+      "textLeft": -1378,
+      "textRight": -4496,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [
+     {
+      "top": 10472,
+      "height": 1268
+     },
+     {
+      "top": 11832,
+      "height": 1056
+     }
+    ],
+    "h1s": [
+     {
+      "text": "Crafting resilient web systems & creative tools.",
+      "size": 40,
+      "top": 184,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 24,
+      "n": 15
+     },
+     {
+      "x": 49,
+      "n": 6
+     },
+     {
+      "x": 230,
+      "n": 2
+     },
+     {
+      "x": 102,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 24,
+    "bodySize": 12,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "FAIL",
+   "id": "headline-lines",
+   "width": 1440,
+   "message": "1 headline(s) wrap past two lines at 1440px: \"Crafting resilient web systems & creative tools.\" → 4 lines (7 words, 72px)",
+   "fix": "Cut words first (a headline is a title, not a sentence). Then give it a wider measure. Lower the size only as a last resort and never below the scale you chose. A real statement paragraph belongs in a <p> or <blockquote> at 36px or less."
+  },
+  {
+   "level": "WARN",
+   "id": "mixed-font-headline",
+   "width": 1440,
+   "message": "5 headline(s) switch typeface or to italic mid-line (the \"one italic serif word\" move).",
+   "fix": "Set the whole headline in one face. Emphasis comes from the words.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "eyebrow",
+   "width": 1440,
+   "message": "18 eyebrow/kicker label(s) above headings: \"Ayush Singh\" above \"Crafting resilient web systems & creativ\"; \"Ayush Singh Studio\" above \"&\"; \"Engineered web platforms design artifacts\" above \"FEATURED works.\"; \"Frontend Development & UI Design\" above \"AI CREATOR HUB\"; \"React\" (pill) above \"40%\"",
+   "fix": "Delete them. If the label carried real information, fold it into the headline or the supporting sentence.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "mono",
+   "width": 1440,
+   "message": "Monospace type outside code: JetBrains Mono — e.g. \"↗\", \"02 Selected Works\", \"—\", \"2025–2026 Index\"",
+   "fix": "Set it in the text face. Monospace is for literal code inside <pre>/<code> only.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "numbering",
+   "width": 1440,
+   "message": "Decorative index numbers: \"/01\", \"/02\", \"/03\", \"/04\", \"01 / Your Name\", \"02 / Email Address\"",
+   "fix": "Remove them. If order truly matters, write it into the words (\"First, …\") or use a real <ol>.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "micro-label",
+   "width": 1440,
+   "message": "138 tiny uppercase letter-spaced labels (e.g. \"02 Selected Works\", \"—\", \"2025–2026 Index\", \"/\").",
+   "fix": "Use sentence-case text at a readable size, or delete the label.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "emoji",
+   "width": 1440,
+   "message": "Emoji in the page: 🎧",
+   "fix": "Remove. Use words or real imagery.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "shadow",
+   "width": 1440,
+   "message": "42 box-shadow(s) on elements at rest: div.relative.flex → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0 | div.absolute.inset-y-1.5 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0 | div.group.relative → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+   "fix": "Remove. Separate surfaces with a tone step or space. Shadows are for things that really float (menus, dialogs, sticky bars).",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "hairline",
+   "width": 1440,
+   "message": "32 thin rule(s)/divider line(s): header.fixed.inset-x-0 1440px | div.flex.items-center 1312px | div.flex.items-center 691px | div.mt-8.pt-6 555px",
+   "fix": "Delete. Separate with space, a tone change, or scale. Lines are only for real tables and form fields.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "outlined-box",
+   "width": 1440,
+   "message": "33 boxes drawn with a 1px outline.",
+   "fix": "Define a surface by its fill (one tone step from the page) or leave the content unboxed.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "dashed",
+   "width": 1440,
+   "message": "1 dashed/dotted border(s).",
+   "fix": "Remove unless it is a real drop zone.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "glass",
+   "width": 1440,
+   "message": "13 backdrop-blur surfaces.",
+   "fix": "One blurred sticky bar at most; glass cards are a tell.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "icon-cards",
+   "width": 1440,
+   "message": "1 row(s) of identical cards each topped with a small icon (3 cards).",
+   "fix": "Replace with one composed section from the direction: a narrative split, a list set in large type, or real imagery per item.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "contrast",
+   "width": 1440,
+   "message": "Low-contrast text: \"Advanced\" 3.8:1 needs 4.5:1; \"Advanced\" 3.8:1 needs 4.5:1; \"Production\" 3.8:1 needs 4.5:1; \"Core\" 3.8:1 needs 4.5:1",
+   "fix": "Darken or lighten the text colour."
+  },
+  {
+   "level": "WARN",
+   "id": "size-count",
+   "width": 1440,
+   "message": "18 different font sizes (9, 10, 11, 12, 13, 14, 16, 17, 18, 24, 30, 48, 72, 77, 86, 88, 184, 352).",
+   "fix": "A page needs about five: display, heading, lead, body, small.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "grey-body",
+   "width": 1440,
+   "message": "The running text is a soft grey on its ground (4.5:1).",
+   "fix": "Set body copy in the full ink (7:1 or more). Keep the muted ink for secondary notes; pages read thin and unfinished when everything is grey.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "no-footage",
+   "width": 1440,
+   "message": "No video anywhere on the page.",
+   "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+  },
+  {
+   "level": "FAIL",
+   "id": "small-text",
+   "width": 1440,
+   "message": "137 text blocks under 13px.",
+   "fix": "Nothing meant to be read goes below 13px.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "font-not-dealt",
+   "width": 1440,
+   "message": "The sheet dealt Gambarino and General Sans, but the page renders JetBrains Mono, Plus Jakarta Sans.",
+   "fix": "Load the dealt face (the link on the sheet) and put it first in font-family. A build that falls back to a default face lands on the default look."
+  },
+  {
+   "level": "FAIL",
+   "id": "late-title",
+   "width": 1440,
+   "message": "The title is not readable 1.2s after the page loaded (it is at 0% opacity).",
+   "fix": "Put the headline in the HTML, painted on the first frame; the load sequence only adds arrival and is settled by 1.2s (references/motion.md, \"Load sequence in 1.2 seconds\"). No preloader, no gate, no waiting for the load event."
+  },
+  {
+   "level": "FAIL",
+   "id": "headline-lines",
+   "width": 390,
+   "message": "3 headline(s) wrap past two lines at 390px: \"Crafting resilient web systems & creative tools.\" → 3 lines (7 words, 40px); \"TADKA - INDIAN RESTAURANT EXPERIENCE\" → 3 lines (5 words, 30px); \"HAVE A PROJECT IN MIND? let's build it together.\" → 3 lines (9 words, 40px)",
+   "fix": "Cut words first (a headline is a title, not a sentence). Then give it a wider measure. Lower the size only as a last resort and never below the scale you chose. A real statement paragraph belongs in a <p> or <blockquote> at 24px or less."
+  },
+  {
+   "level": "FAIL",
+   "id": "body-size",
+   "width": 390,
+   "message": "Body text is 14px (the size most of the running text is set in).",
+   "fix": "Body copy 16–20px. Map small sizes from blueprints onto your body step."
+  },
+  {
+   "level": "FAIL",
+   "id": "blank-gap",
+   "width": 390,
+   "message": "2 stretch(es) of the page hold nothing at all: 1268px at 10472px; 1056px at 11832px (the screen is 844px tall).",
+   "fix": "Close the gap: a section gap is 120–240px on desktop and 72–112px on a phone. Look for a min-height: 100vh on a short section, an empty grid row, a hidden element still holding its space, or a reveal that never fired. A deliberate rest is a placed picture or colour field, not nothing."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "C:\\Users\\HP\\Desktop\\myportfolio\\Port-folio\\.taste-skill\\inspect\\desktop-fold.jpg",
+   "pages": [
+    "C:\\Users\\HP\\Desktop\\myportfolio\\Port-folio\\.taste-skill\\inspect\\desktop-page-01.jpg",
+    "C:\\Users\\HP\\Desktop\\myportfolio\\Port-folio\\.taste-skill\\inspect\\desktop-page-02.jpg",
+    "C:\\Users\\HP\\Desktop\\myportfolio\\Port-folio\\.taste-skill\\inspect\\desktop-page-03.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "C:\\Users\\HP\\Desktop\\myportfolio\\Port-folio\\.taste-skill\\inspect\\tablet-fold.jpg",
+   "pages": [
+    "C:\\Users\\HP\\Desktop\\myportfolio\\Port-folio\\.taste-skill\\inspect\\tablet-page-01.jpg",
+    "C:\\Users\\HP\\Desktop\\myportfolio\\Port-folio\\.taste-skill\\inspect\\tablet-page-02.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "C:\\Users\\HP\\Desktop\\myportfolio\\Port-folio\\.taste-skill\\inspect\\mobile-fold.jpg",
+   "pages": [
+    "C:\\Users\\HP\\Desktop\\myportfolio\\Port-folio\\.taste-skill\\inspect\\mobile-page-01.jpg",
+    "C:\\Users\\HP\\Desktop\\myportfolio\\Port-folio\\.taste-skill\\inspect\\mobile-page-02.jpg"
+   ],
+   "film": []
+  }
+ ]
+}

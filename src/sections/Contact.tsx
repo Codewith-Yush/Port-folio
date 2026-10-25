@@ -1,22 +1,49 @@
-import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Container } from "../components/Container";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { useMagnetic } from "../hooks/useMagnetic";
+import { GooeyTextReveal } from "../components/ui/gooey-text-reveal";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const CONTACT_EMAIL = "ayushsingh7360@gmail.com";
 const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY as string | undefined;
+const WEB3FORMS_URL = "https://api.web3forms.com/submit";
+const REQUEST_TIMEOUT_MS = 15000;
 
-type FormStatus = {
-  type: "idle" | "success" | "error";
-  message: string;
-};
+type Phase = "idle" | "sending" | "success" | "error";
+
+const PROJECT_TYPES = ["Web app", "AI / Data", "Design", "Something else"];
+
+const CSS = `
+@keyframes ct-draw { to { stroke-dashoffset: 0; } }
+.ct-check-circle { stroke-dasharray: 151; stroke-dashoffset: 151; animation: ct-draw .7s cubic-bezier(.65,0,.35,1) .05s forwards; }
+.ct-check-tick   { stroke-dasharray: 36;  stroke-dashoffset: 36;  animation: ct-draw .45s cubic-bezier(.65,0,.35,1) .6s forwards; }
+.ct-link { position: relative; display: inline-block; }
+.ct-link::after {
+  content: ""; position: absolute; left: 0; bottom: -2px; height: 1px; width: 100%;
+  background: currentColor; transform: scaleX(0); transform-origin: right;
+  transition: transform .45s cubic-bezier(.65,0,.35,1);
+}
+.ct-link:hover::after, .ct-link:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+@media (prefers-reduced-motion: reduce) {
+  .ct-check-circle, .ct-check-tick { animation: none; stroke-dashoffset: 0; }
+}
+`;
+
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]">
+      {children}
+    </span>
+  );
+}
 
 function SocialButton({ href, label }: { href: string; label: string }) {
-  const magnetic = useMagnetic<HTMLAnchorElement>(0.2);
+  const reducedMotion = usePrefersReducedMotion();
+  const magnetic = useMagnetic<HTMLAnchorElement>(0.2, reducedMotion);
 
   return (
     <a
@@ -24,389 +51,433 @@ function SocialButton({ href, label }: { href: string; label: string }) {
       onMouseMove={magnetic.onMouseMove}
       onMouseLeave={magnetic.onMouseLeave}
       href={href}
-      target={href.startsWith("http") ? "_blank" : undefined}
-      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-      className="group inline-flex h-11 items-center justify-between gap-3 border border-[var(--line)] bg-[var(--surface)] px-4 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink)] transition-colors duration-300 hover:border-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--page)]"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group inline-flex h-11 items-center justify-between gap-4 rounded-xl border border-[var(--line)] bg-white px-4 text-sm font-medium text-[var(--ink)] transition-colors hover:border-[#9baa9d] hover:bg-[#f7faf6] dark:border-[#39463c] dark:bg-[#1b241d] dark:hover:border-[#627766] dark:hover:bg-[#222e25] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#52745f] dark:focus-visible:outline-[#9ac59f]"
     >
       <span>{label}</span>
-      <span className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line)] bg-[#f2f6f1] text-[var(--ink)] dark:border-[#39463c] dark:bg-[#263329]">
+        <span className="text-xs transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+          ↗
+        </span>
+      </span>
     </a>
+  );
+}
+
+/** Filled field with a compact label and a clear, quiet focus state. */
+function FloatingField({
+  id,
+  label,
+  type = "text",
+  multiline = false,
+  autoComplete,
+}: {
+  id: string;
+  label: string;
+  type?: string;
+  multiline?: boolean;
+  autoComplete?: string;
+}) {
+  const base =
+    "peer w-full rounded-xl border border-[var(--line)] bg-[#f7f9f6] px-4 pb-3 pt-7 text-base text-[var(--ink)] placeholder-transparent transition-colors duration-200 focus:border-[#7f9b85] dark:focus:border-[#78977d] focus:bg-white focus:outline-none dark:border-[#39463c] dark:bg-[#202b23] dark:focus:border-[#78977d] dark:focus:bg-[#1b241d] sm:text-lg";
+
+  return (
+    <div className="relative">
+      {multiline ? (
+        <textarea
+          id={id}
+          name={id}
+          required
+          rows={4}
+          placeholder=" "
+          className={`${base} min-h-36 resize-y`}
+        />
+      ) : (
+        <input
+          id={id}
+          name={id}
+          type={type}
+          required
+          autoComplete={autoComplete}
+          spellCheck={type === "email" ? false : undefined}
+          placeholder=" "
+          className={base}
+        />
+      )}
+      <label
+        htmlFor={id}
+        className="pointer-events-none absolute left-4 top-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[var(--muted)] transition-colors duration-200 peer-focus:text-[#52745f] peer-[:not(:placeholder-shown)]:text-[#52745f] dark:peer-focus:text-[#a9cfad] dark:peer-[:not(:placeholder-shown)]:text-[#a9cfad]"
+      >
+        {label}
+      </label>
+      <span
+        aria-hidden="true"
+        className="hidden"
+      />
+    </div>
   );
 }
 
 export function Contact() {
   const reducedMotion = usePrefersReducedMotion();
-  const containerRef = useRef<HTMLElement>(null);
-  const formCardRef = useRef<HTMLFormElement>(null);
-  const shockwaveRef = useRef<HTMLDivElement>(null);
-  const hasSubmittedRef = useRef(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const successRef = useRef<HTMLDivElement>(null);
+  const mountedRef = useRef(true);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [status, setStatus] = useState<FormStatus>({ type: "idle", message: "" });
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [copied, setCopied] = useState(false);
 
-  // 3D Tilt state for Contact Form Card (zero-render requestAnimationFrame)
-  const glareRef = useRef<HTMLDivElement>(null);
-  const rafId = useRef(0);
-
-  // Magnetic button for submit
   const submitMagnetic = useMagnetic<HTMLButtonElement>(0.15, reducedMotion);
 
-  const triggerSubmitCelebration = () => {
-    if (reducedMotion) return;
-    if (shockwaveRef.current) {
-      gsap.fromTo(
-        shockwaveRef.current,
-        { scale: 0.96, opacity: 0.9, borderColor: "#10b981" },
-        { scale: 1.05, opacity: 0, duration: 0.85, ease: "power2.out", force3D: true }
-      );
-    }
-    if (formCardRef.current) {
-      gsap.fromTo(
-        formCardRef.current,
-        { scale: 0.985 },
-        { scale: 1, duration: 0.5, ease: "back.out(2)", force3D: true }
-      );
-    }
-  };
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
-  const handleFormMouseMove = (e: MouseEvent<HTMLFormElement>) => {
-    if (reducedMotion || !formCardRef.current || (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches)) return;
-    const clientX = e.clientX;
-    const clientY = e.clientY;
-
-    if (rafId.current) return;
-    rafId.current = requestAnimationFrame(() => {
-      rafId.current = 0;
-      const el = formCardRef.current;
-      const glareEl = glareRef.current;
-      if (!el) return;
-
-      const rect = el.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      const tiltX = (((y - centerY) / centerY) * -3).toFixed(2);
-      const tiltY = (((x - centerX) / centerX) * 3).toFixed(2);
-
-      el.style.transform = `perspective(1200px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.005)`;
-
-      if (glareEl) {
-        const glareX = ((x / rect.width) * 100).toFixed(1);
-        const glareY = ((y / rect.height) * 100).toFixed(1);
-        glareEl.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.08) 0%, transparent 65%)`;
-        glareEl.style.opacity = "1";
-      }
-    });
-  };
-
-  const handleFormMouseEnter = () => {
-    if (formCardRef.current) {
-      formCardRef.current.style.transition = "transform 0.12s ease-out";
-    }
-  };
-
-  const handleFormMouseLeave = () => {
-    if (rafId.current) {
-      cancelAnimationFrame(rafId.current);
-      rafId.current = 0;
-    }
-    const el = formCardRef.current;
-    const glareEl = glareRef.current;
-    if (el) {
-      el.style.transition = "transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)";
-      el.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
-    }
-    if (glareEl) {
-      glareEl.style.opacity = "0";
-    }
-  };
-
+  /* Scroll reveal */
   useEffect(() => {
     if (reducedMotion) return;
-
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ".contact-reveal",
-        { y: 35, opacity: 0 },
+        { y: 28, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.85,
+          duration: 0.8,
           stagger: 0.1,
           ease: "power3.out",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top 80%",
-            once: true,
-          },
-        }
+          scrollTrigger: { trigger: sectionRef.current, start: "top 80%", once: true },
+        },
       );
-    }, containerRef);
-
+    }, sectionRef);
     return () => ctx.revert();
   }, [reducedMotion]);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  /* Move focus to the confirmation so screen-reader users hear it */
+  useEffect(() => {
+    if (phase !== "success") return;
+    successRef.current?.focus();
+    if (!reducedMotion && successRef.current) {
+      gsap.fromTo(
+        successRef.current,
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+      );
+    }
+  }, [phase, reducedMotion]);
+
+  const handleCopyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(CONTACT_EMAIL);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = CONTACT_EMAIL;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    window.setTimeout(() => mountedRef.current && setCopied(false), 2200);
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (phase === "sending") return;
 
     if (!WEB3FORMS_KEY) {
-      setStatus({
-        type: "error",
-        message: "Form configuration missing. Please email ayushsingh7360@gmail.com directly.",
-      });
+      setPhase("error");
+      setErrorMessage(`The form isn't configured yet. Please email ${CONTACT_EMAIL} directly.`);
       return;
     }
 
-    setIsSubmitting(true);
-    hasSubmittedRef.current = true;
-    setStatus({ type: "idle", message: "" });
-    formCardRef.current?.submit();
+    const data = new FormData(e.currentTarget);
 
-    window.setTimeout(() => {
-      if (hasSubmittedRef.current && isSubmitting) {
-        setIsSubmitting(false);
-        setSubmitted(true);
-        triggerSubmitCelebration();
-        setStatus({
-          type: "success",
-          message: "Transmission delivered successfully! I will reply within 12 hours.",
-        });
-        formCardRef.current?.reset();
+    // Honeypot: bots tick the hidden box. Pretend it worked, send nothing.
+    if (data.get("botcheck")) {
+      setPhase("success");
+      return;
+    }
+
+    setPhase("sending");
+    setErrorMessage("");
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const res = await fetch(WEB3FORMS_URL, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: data,
+        signal: controller.signal,
+      });
+      const json = (await res.json().catch(() => null)) as
+        | { success?: boolean; message?: string }
+        | null;
+
+      if (!mountedRef.current) return;
+
+      if (res.ok && json?.success) {
+        setPhase("success");
+      } else {
+        setPhase("error");
+        setErrorMessage(
+          json?.message
+            ? `Couldn't send: ${json.message}`
+            : `Something went wrong. Please try again or email ${CONTACT_EMAIL}.`,
+        );
       }
-    }, 1800);
+    } catch (err) {
+      if (!mountedRef.current) return;
+      setPhase("error");
+      setErrorMessage(
+        err instanceof DOMException && err.name === "AbortError"
+          ? `The request timed out. Please try again or email ${CONTACT_EMAIL}.`
+          : `Network error. Please check your connection or email ${CONTACT_EMAIL}.`,
+      );
+    } finally {
+      window.clearTimeout(timeout);
+    }
   };
 
-  const handleDeliveryFrameLoad = () => {
-    if (!hasSubmittedRef.current) return;
-    setIsSubmitting(false);
-    setSubmitted(true);
-    triggerSubmitCelebration();
-    setStatus({
-      type: "success",
-      message: "Transmission delivered successfully! I will reply within 12 hours.",
-    });
-    formCardRef.current?.reset();
-    window.setTimeout(() => setSubmitted(false), 6000);
-  };
+  const sending = phase === "sending";
 
   return (
     <section
       id="contact"
-      ref={containerRef}
-      className="relative overflow-hidden border-t border-[var(--line)] bg-[var(--page)] py-16 sm:py-24 md:py-28 text-[var(--ink)] transition-colors duration-500"
+      ref={sectionRef}
+      className="relative overflow-hidden border-t border-[#e2e8e1] bg-[#f5f7f3] py-16 text-[#24332a] [--page:#f5f7f3] [--surface:#ffffff] [--ink:#24332a] [--muted:#68766d] [--line:#dce4dc] dark:border-[#29352c] dark:bg-[#121a14] dark:text-[#edf3ed] dark:[--page:#121a14] dark:[--surface:#1b241d] dark:[--ink:#edf3ed] dark:[--muted:#a4b0a6] dark:[--line:#344137] sm:py-24 md:py-28"
     >
+      <style>{CSS}</style>
+
       <Container className="relative z-10">
-        {/* Frame Top Sub-Bar */}
-        <div className="flex items-center justify-between border-b border-[var(--line)] pb-4 font-mono text-[10px] uppercase tracking-[0.18em] sm:text-[11px] mb-12 sm:mb-16">
-          <span className="flex items-center gap-3 text-[var(--muted)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" aria-hidden="true" />
-            <span>05 <span className="px-2">—</span> Transmission</span>
+        {/* Sub-bar */}
+        <div className="mb-12 flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)] sm:mb-16">
+          <span className="flex items-center gap-2.5">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+            <span>( 04 ) — Contact</span>
           </span>
-          <span className="text-[var(--muted)]">Inquiries <span className="px-2">/</span> Q1–Q2 2026</span>
+          <span>Replies within 12h</span>
         </div>
 
-        <div className="flex flex-col items-start gap-12 lg:flex-row lg:gap-20">
-          {/* Left Column: Intro & Info */}
-          <div className="flex w-full flex-col gap-8 lg:w-[45%]">
-            <div className="contact-reveal">
-              <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-7 sm:text-xs">
-                Direct inquiries <span className="px-1 text-emerald-700 dark:text-emerald-400">×</span> collaboration
-              </p>
-              <h2 className="font-sans text-[clamp(2.8rem,6vw,5.5rem)] font-bold uppercase leading-[0.85] tracking-[-0.075em] text-[var(--ink)]">
-                <span>Let's build</span><br />
-                <span className="font-serif font-normal italic lowercase tracking-[-0.07em] text-emerald-700 dark:text-emerald-400">
-                  together
-                </span>
-                <span>.</span>
-              </h2>
-              <p className="mt-6 max-w-md text-sm leading-7 text-[var(--muted)] sm:text-base font-normal">
-                Whether you have an upcoming project, freelance inquiry, or architectural challenge,
-                my inbox is always open.
+        <div className="flex flex-col items-start gap-14 lg:flex-row lg:gap-20">
+          {/* Left: intro + details */}
+          <div className="flex w-full flex-col gap-10 lg:w-[45%]">
+            <div>
+              <GooeyTextReveal
+                mode="scroll"
+                start="top 85%"
+                blurAmount={0.35}
+                duration={1.4}
+                stagger={0.08}
+                disabled={reducedMotion}
+              >
+                <h2 className="font-sans text-[clamp(2.4rem,5vw,4rem)] font-bold leading-[1.02] tracking-tight">
+                  Let&rsquo;s build something together.
+                </h2>
+              </GooeyTextReveal>
+              <p className="contact-reveal mt-5 max-w-md text-base font-normal leading-relaxed text-[var(--muted)]">
+                Whether you have an upcoming project, a freelance inquiry, or an architectural
+                challenge, my inbox is always open.
               </p>
             </div>
 
-            {/* Quick Status Card */}
-            <div className="contact-reveal border border-[var(--line)] hover:border-[var(--ink)] bg-[var(--surface)] p-6 sm:p-7 shadow-sm transition-colors">
-              <div className="mb-5 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
-                <span className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Availability</span>
-                </span>
-                <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Active</span>
-              </div>
-
-              <div className="flex flex-col gap-3.5 text-xs font-mono">
-                <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
-                  <span className="text-[var(--muted)] uppercase tracking-wider">Response Window</span>
-                  <span className="font-semibold text-[var(--ink)]">&lt; 12 Hours</span>
-                </div>
-                <div className="flex items-center justify-between pt-1">
-                  <span className="text-[var(--muted)] uppercase tracking-wider">Direct Channel</span>
-                  <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-700 dark:text-emerald-400 font-semibold hover:underline">
+            <dl className="contact-reveal divide-y divide-[var(--line)] border-y border-[var(--line)] text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-4">
+                <dt>
+                  <Label>Email</Label>
+                </dt>
+                <dd className="flex items-center gap-3">
+                  <a
+                    href={`mailto:${CONTACT_EMAIL}`}
+                    className="ct-link font-medium text-[var(--ink)]"
+                  >
                     {CONTACT_EMAIL}
                   </a>
-                </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyEmail}
+                    aria-live="polite"
+                    className="font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--muted)] transition-colors hover:text-[var(--ink)]"
+                  >
+                    {copied ? "Copied ✓" : "Copy"}
+                  </button>
+                </dd>
               </div>
-            </div>
+              <div className="flex items-center justify-between gap-4 py-4">
+                <dt>
+                  <Label>Response</Label>
+                </dt>
+                <dd className="font-medium">Under 12 hours</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-4">
+                <dt>
+                  <Label>Based in</Label>
+                </dt>
+                <dd className="font-medium">New Delhi · IST (UTC+5:30)</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-4">
+                <dt>
+                  <Label>Status</Label>
+                </dt>
+                <dd className="flex items-center gap-2.5 font-medium">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  Open to freelance &amp; full-time
+                </dd>
+              </div>
+            </dl>
 
-            {/* Social Buttons */}
             <div className="contact-reveal flex flex-wrap gap-2.5">
-              <SocialButton href={`mailto:${CONTACT_EMAIL}`} label="Direct Email" />
               <SocialButton href="https://linkedin.com/in/ayush-singh-643a4b25a" label="LinkedIn" />
               <SocialButton href="https://github.com/codewith-Yush" label="GitHub" />
             </div>
           </div>
 
-          {/* Right Column: Contact Form */}
+          {/* Right: form / confirmation */}
           <div className="contact-reveal w-full lg:w-[55%]">
-            <form
-              ref={formCardRef}
-              onSubmit={handleSubmit}
-              onMouseMove={handleFormMouseMove}
-              onMouseEnter={handleFormMouseEnter}
-              onMouseLeave={handleFormMouseLeave}
-              action="https://api.web3forms.com/submit"
-              method="POST"
-              target="contact-delivery-frame"
-              style={{
-                transform: "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)",
-                willChange: "transform",
-              }}
-              className="group/form relative overflow-hidden border border-[var(--ink)] dark:border-[var(--line)] bg-[var(--surface)] p-6 sm:p-10 shadow-lg transition-all duration-300"
-            >
-              {/* Dynamic Glare Overlay */}
+            {phase === "success" ? (
               <div
-                ref={glareRef}
-                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 z-10"
-              />
-
-              {/* Submission Celebration Shockwave Ring */}
-              <div
-                ref={shockwaveRef}
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 border-2 border-emerald-400 opacity-0 z-10"
-              />
-
-              <div className="relative z-20">
+                ref={successRef}
+                tabIndex={-1}
+                role="status"
+                className="flex min-h-[26rem] flex-col items-start justify-center rounded-2xl border border-[var(--line)] bg-white p-8 shadow-[0_12px_35px_rgba(36,51,42,0.06)] focus:outline-none dark:bg-[#1b241d] dark:shadow-none sm:p-12"
+              >
+                <svg
+                  viewBox="0 0 52 52"
+                  className="h-14 w-14 text-emerald-700"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle className="ct-check-circle" cx="26" cy="26" r="24" />
+                  <path className="ct-check-tick" d="M15 27l8 8 14-16" />
+                </svg>
+                <h3 className="mt-8 font-sans text-3xl font-bold uppercase tracking-[-0.04em] sm:text-4xl">
+                  Message sent.
+                </h3>
+                <p className="mt-3 max-w-sm text-base leading-relaxed text-[var(--muted)]">
+                  Thanks for reaching out. I&rsquo;ll reply to your email within 12 hours.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhase("idle");
+                    setErrorMessage("");
+                  }}
+                  className="mt-8 inline-flex h-11 items-center justify-center rounded-xl border border-[var(--line)] bg-white px-6 text-sm font-semibold text-[var(--ink)] transition-colors hover:bg-[#f7faf6] dark:bg-[#222e25] dark:hover:bg-[#29372c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#52745f] dark:focus-visible:outline-[#9ac59f]"
+                >
+                  Send another
+                </button>
+              </div>
+            ) : (
+              <form
+                onSubmit={handleSubmit}
+                aria-busy={sending}
+                className="rounded-2xl border border-[var(--line)] bg-white p-6 shadow-[0_12px_35px_rgba(36,51,42,0.06)] dark:bg-[#1b241d] dark:shadow-none sm:p-10"
+              >
+                {/* Web3Forms fields */}
                 <input type="hidden" name="access_key" value={WEB3FORMS_KEY ?? ""} />
-                <input type="hidden" name="subject" value="New portfolio message from Ayush Singh Portfolio" />
+                <input
+                  type="hidden"
+                  name="subject"
+                  value="New portfolio message from Ayush Singh Portfolio"
+                />
                 <input type="hidden" name="from_name" value="Portfolio Contact Form" />
-                <input type="checkbox" name="botcheck" className="hidden" tabIndex={-1} autoComplete="off" />
-                <iframe
-                  title="Contact form delivery"
-                  name="contact-delivery-frame"
+                <input
+                  type="checkbox"
+                  name="botcheck"
                   className="hidden"
-                  onLoad={handleDeliveryFrameLoad}
+                  tabIndex={-1}
+                  autoComplete="off"
                 />
 
-                <div className="grid gap-8 sm:gap-10">
-                  <div className="group relative">
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      autoComplete="name"
-                      className="peer w-full border-b border-[var(--line)] bg-transparent px-1 py-3 text-base sm:text-lg font-light text-[var(--ink)] placeholder-transparent transition-all focus:border-[var(--ink)] focus:outline-none"
-                      placeholder=" "
-                    />
-                    <label
-                      htmlFor="name"
-                      className="absolute left-1 top-3 cursor-text font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] transition-all duration-300 peer-placeholder-shown:top-3 peer-placeholder-shown:text-xs peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-[var(--ink)] peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-[10px]"
-                    >
-                      01 / Your Name
-                    </label>
-                  </div>
+                <div className="mb-8 flex items-center justify-between border-b border-[var(--line)] pb-4">
+                  <Label>New inquiry</Label>
+                  <Label>All fields required</Label>
+                </div>
 
-                  <div className="group relative">
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      required
-                      autoComplete="email"
-                      className="peer w-full border-b border-[var(--line)] bg-transparent px-1 py-3 text-base sm:text-lg font-light text-[var(--ink)] placeholder-transparent transition-all focus:border-[var(--ink)] focus:outline-none"
-                      placeholder=" "
-                    />
-                    <label
-                      htmlFor="email"
-                      className="absolute left-1 top-3 cursor-text font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] transition-all duration-300 peer-placeholder-shown:top-3 peer-placeholder-shown:text-xs peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-[var(--ink)] peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-[10px]"
-                    >
-                      02 / Email Address
-                    </label>
-                  </div>
+                <div className="grid gap-8 sm:gap-9">
+                  <FloatingField id="name" label="Your name" autoComplete="name" />
+                  <FloatingField id="email" label="Email address" type="email" autoComplete="email" />
 
-                  <div className="group relative">
-                    <textarea
-                      id="message"
-                      name="message"
-                      required
-                      rows={4}
-                      className="peer w-full resize-none border-b border-[var(--line)] bg-transparent px-1 py-3 text-base sm:text-lg font-light text-[var(--ink)] placeholder-transparent transition-all focus:border-[var(--ink)] focus:outline-none"
-                      placeholder=" "
-                    />
-                    <label
-                      htmlFor="message"
-                      className="absolute left-1 top-3 cursor-text font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] transition-all duration-300 peer-placeholder-shown:top-3 peer-placeholder-shown:text-xs peer-focus:-top-4 peer-focus:text-[10px] peer-focus:text-[var(--ink)] peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-[10px]"
-                    >
-                      03 / Project Scope &amp; Brief
-                    </label>
-                  </div>
+                  <fieldset>
+                    <legend className="mb-3">
+                      <Label>Project type (optional)</Label>
+                    </legend>
+                    <div className="flex flex-wrap gap-2">
+                      {PROJECT_TYPES.map((t) => (
+                        <label key={t} className="cursor-pointer">
+                          <input type="radio" name="project_type" value={t} className="peer sr-only" />
+                          <span className="inline-flex items-center rounded-full border border-[var(--line)] bg-[#f7f9f6] px-3.5 py-2 text-[13px] text-[var(--muted)] transition-colors duration-200 hover:border-[#9baa9d] hover:bg-white hover:text-[var(--ink)] peer-checked:border-[#b7d0bb] peer-checked:bg-[#eaf3e9] peer-checked:text-[#31553a] dark:border-[#39463c] dark:bg-[#202b23] dark:hover:border-[#627766] dark:hover:bg-[#27352a] dark:peer-checked:border-[#6b8f70] dark:peer-checked:bg-[#2c4431] dark:peer-checked:text-[#d7ead8] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#52745f] dark:focus-visible:outline-[#9ac59f]">
+                            {t}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
 
-                  <button
-                    ref={submitMagnetic.ref}
-                    onMouseMove={submitMagnetic.onMouseMove}
-                    onMouseLeave={submitMagnetic.onMouseLeave}
-                    type="submit"
-                    disabled={isSubmitting || submitted}
-                    className="group inline-flex h-12 w-full sm:w-auto items-center justify-between gap-8 border border-[var(--ink)] bg-[var(--ink)] px-6 font-mono text-[11px] font-semibold uppercase tracking-[0.13em] text-[var(--page)] transition-colors duration-300 hover:bg-transparent hover:text-[var(--ink)] disabled:opacity-50"
-                  >
-                    <span>
-                      {isSubmitting ? (
-                        <span className="flex items-center gap-2">
-                          <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                          <span>Dispatching...</span>
+                  <FloatingField id="message" label="Project scope & brief" multiline />
+
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <button
+                      ref={submitMagnetic.ref}
+                      onMouseMove={submitMagnetic.onMouseMove}
+                      onMouseLeave={submitMagnetic.onMouseLeave}
+                      type="submit"
+                      disabled={sending}
+                      className="group inline-flex h-12 w-full items-center justify-between gap-6 rounded-xl bg-[#dcebdc] pl-6 pr-2.5 text-sm font-semibold text-[#28452d] transition-colors hover:bg-[#cfe2d0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#52745f] dark:focus-visible:outline-[#9ac59f] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                    >
+                      <span>
+                        {sending ? (
+                          <span className="flex items-center gap-2">
+                            <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            <span>Sending…</span>
+                          </span>
+                        ) : phase === "error" ? (
+                          "Try again"
+                        ) : (
+                          "Send message"
+                        )}
+                      </span>
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/75 text-[#28452d] dark:bg-[#304536] dark:text-[#edf3ed]">
+                        <span className="text-sm font-bold transition-transform duration-300 group-hover:translate-x-1">
+                          →
                         </span>
-                      ) : submitted ? (
-                        "Transmission Sent ✓"
-                      ) : (
-                        "Send Message"
-                      )}
-                    </span>
-                    <span className="text-base transition-transform duration-300 group-hover:translate-x-1">→</span>
-                  </button>
+                      </span>
+                    </button>
 
-                  {status.message && (
+                    <p className="font-mono text-[11px] text-[var(--muted)]">
+                      No spam. Only replies.
+                    </p>
+                  </div>
+
+                  {phase === "error" && errorMessage && (
                     <p
-                      role={status.type === "error" ? "alert" : "status"}
-                      className={`border px-4 py-3 font-mono text-xs leading-relaxed ${
-                        status.type === "success"
-                          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                          : "border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-300"
-                      }`}
+                      role="alert"
+                      className="rounded-xl border border-[#f0c7bd] bg-[#fff3ef] px-4 py-3 text-sm leading-relaxed text-[#9a3e2d]"
                     >
-                      {status.message}
+                      {errorMessage}
                     </p>
                   )}
-
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--muted)]">
-                    Direct inquiries:{" "}
-                    <a
-                      href={`mailto:${CONTACT_EMAIL}`}
-                      className="text-emerald-700 dark:text-emerald-400 font-semibold hover:underline"
-                    >
-                      {CONTACT_EMAIL}
-                    </a>
-                  </p>
                 </div>
-              </div>
-            </form>
+              </form>
+            )}
           </div>
         </div>
       </Container>
     </section>
   );
 }
+
+

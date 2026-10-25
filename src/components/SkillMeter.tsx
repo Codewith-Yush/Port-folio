@@ -67,31 +67,31 @@ export function SkillMeter({ name, level, tier = "Advanced", tags }: SkillMeterP
   return (
     <div ref={containerRef} className="group/skill">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="text-xs sm:text-sm font-medium text-[var(--ink)] tracking-tight">
+        <span className="text-sm font-medium text-[var(--ink)] tracking-tight">
           {name}
         </span>
         <span
           ref={numberRef}
-          className="inline-flex items-center px-2 py-0.5 border border-emerald-500/20 bg-emerald-500/10 text-[9px] font-mono font-bold uppercase tracking-widest text-emerald-600 dark:text-[#C7ED70]"
+          className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-xs font-semibold text-emerald-700 dark:text-emerald-300"
         >
           {tier}
         </span>
       </div>
 
-      <div className="h-1.5 w-full overflow-hidden bg-[var(--line)]">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--line)]">
         <div
           ref={barRef}
-          className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-[#C7ED70] shadow-[0_0_8px_rgba(16,185,129,0.35)]"
+          className="h-full rounded-full bg-emerald-500"
           style={{ width: reducedMotion ? `${level}%` : "0%" }}
         />
       </div>
 
       {tags && tags.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5 opacity-80 group-hover/skill:opacity-100 transition-opacity">
+        <div className="mt-2 flex flex-wrap gap-1.5">
           {tags.map((tag) => (
             <span
               key={tag}
-              className="text-[9px] font-mono text-[var(--muted)] bg-[var(--surface)] border border-[var(--line)] px-1.5 py-0.5"
+              className="text-xs text-[var(--muted)] bg-[var(--surface-strong)] px-2.5 py-0.5 rounded-full font-medium"
             >
               {tag}
             </span>

@@ -10,6 +10,7 @@ import { Container } from "./Container";
 import { ThemeToggle } from "./ThemeToggle";
 import { SoundToggle } from "./SoundToggle";
 import { playClick } from "../utils/soundEffects";
+import { scrollToSection } from "../utils/scrollToSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -70,20 +71,28 @@ export function Header() {
       });
     }
 
+    let resizeTimer: number | null = null;
     const handleResize = () => {
-      const currentTarget =
-        location.pathname !== "/"
-          ? location.pathname
-          : (effectiveActiveHref || "");
-      const el = currentTarget ? navLinkRefs.current.get(currentTarget) : undefined;
-      if (el && indicatorEl) {
-        gsap.set(indicatorEl, { x: el.offsetLeft, width: el.offsetWidth, opacity: 1 });
-      }
+      if (resizeTimer !== null) clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        resizeTimer = null;
+        const currentTarget =
+          location.pathname !== "/"
+            ? location.pathname
+            : (effectiveActiveHref || "");
+        const el = currentTarget ? navLinkRefs.current.get(currentTarget) : undefined;
+        if (el && indicatorEl) {
+          gsap.set(indicatorEl, { x: el.offsetLeft, width: el.offsetWidth, opacity: 1 });
+        }
+      }, 100);
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
     document.fonts?.ready?.then(handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      if (resizeTimer !== null) clearTimeout(resizeTimer);
+      window.removeEventListener("resize", handleResize);
+    };
   }, [effectiveActiveHref, location.pathname, reducedMotion]);
 
   const closeMenu = () => setOpen(false);
@@ -105,45 +114,8 @@ export function Header() {
       return;
     }
 
-    const locomotiveScroll = window.__locomotiveScroll;
-
-    if (href === "#hero" || href === "#") {
-      setOptimisticHref("");
-      if (locomotiveScroll) {
-        locomotiveScroll.scrollTo(0, {
-          duration: 1.2,
-          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-      window.history.pushState(null, "", "#hero");
-      return;
-    }
-
-    setOptimisticHref(href);
-
-    const target = document.querySelector<HTMLElement>(href);
-    if (!target) return;
-
-    if (locomotiveScroll) {
-      locomotiveScroll.scrollTo(target, {
-        offset: -80,
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      });
-    } else {
-      const headerOffset = 80;
-      const elementPosition = target.getBoundingClientRect().top + window.scrollY;
-      const offsetPosition = Math.max(0, elementPosition - headerOffset);
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
-
-    window.history.pushState(null, "", href);
+    setOptimisticHref(href === "#hero" || href === "#" ? "" : href);
+    scrollToSection(href);
   };
 
   // Scroll handler with throttle
@@ -151,7 +123,7 @@ export function Header() {
     let frame = 0;
     const updateScrolled = () => {
       const scrolled = window.scrollY > 30;
-      setIsScrolled(scrolled);
+      setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
     };
 
     updateScrolled();
@@ -309,16 +281,15 @@ export function Header() {
         className="pointer-events-none absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-emerald-500 via-teal-400 to-[#C7ED70] origin-left scale-x-0 z-50 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
       />
       <Container className="flex items-center justify-between gap-4">
-        {/* Brand Logo with Electric Status Beacon */}
+        {/* Brand Logo with Status Beacon */}
         <a
           href="#hero"
           onClick={(e) => handleNavClick(e, "#hero")}
-          className="group flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-bold uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[var(--ink)] transition-all duration-300 hover:opacity-80"
+          className="group flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[var(--ink)] transition-opacity duration-300 hover:opacity-80"
           aria-label="Ayush Singh Portfolio Home"
         >
           <span className="relative flex h-2.5 w-2.5 items-center justify-center">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-[#C7ED70] shadow-[0_0_8px_#10b981]" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-[#C7ED70]" />
           </span>
           <span className="font-display font-extrabold tracking-wider">Ayush Singh</span>
         </a>
@@ -326,13 +297,13 @@ export function Header() {
         {/* Floating Island Dock Navbar (Desktop) */}
         <nav
           ref={desktopNavRef}
-          className="hidden items-center gap-1 rounded-full p-1.5 transition-all duration-300 md:flex relative bg-[var(--surface)]/90 border border-[var(--line)] backdrop-blur-2xl shadow-sm hover:shadow-md"
+          className="hidden items-center gap-1 rounded-full p-1.5 transition-colors duration-300 md:flex relative bg-[var(--surface)]/90 border border-[var(--line)] backdrop-blur-2xl"
         >
           {/* GSAP Sliding Pill Indicator */}
           <div
             ref={navIndicatorRef}
             aria-hidden="true"
-            className="absolute inset-y-1.5 left-0 rounded-full shadow-md pointer-events-none transition-colors duration-300 bg-[var(--ink)]"
+            className="absolute inset-y-1.5 left-0 rounded-full pointer-events-none transition-colors duration-300 bg-[var(--ink)]"
             style={{ opacity: 0 }}
           />
 
@@ -408,8 +379,8 @@ export function Header() {
             aria-controls="mobile-navigation"
             aria-label="Toggle navigation menu"
             className={cn(
-              "group relative flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 md:hidden active:scale-95 border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)]",
-              open && "border-[var(--ink)] bg-[var(--ink)] text-[var(--page)]"
+              "btn-neo-control group relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-300 md:hidden active:scale-95 border border-[var(--line)] bg-[var(--surface)]/80 backdrop-blur-md text-[var(--ink)]",
+              open && "border-[var(--ink)] bg-[var(--ink)] text-[var(--page)] dark:bg-[#C7ED70] dark:text-black dark:border-[#C7ED70]"
             )}
           >
             <span
@@ -446,10 +417,10 @@ export function Header() {
       >
         <div className="flex flex-col justify-between h-full px-6 py-8">
           <nav className="flex flex-col gap-3">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-[var(--muted)] mb-2">
-              Navigation Menu
+            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-2">
+              Navigation
             </span>
-            {navItems.map((item, index) => {
+            {navItems.map((item) => {
               const isRouterLink = item.href.startsWith("/");
               const isActive = isRouterLink
                 ? location.pathname === item.href
@@ -457,16 +428,11 @@ export function Header() {
 
               const content = (
                 <>
-                  <div className="flex items-center gap-4">
-                    <span className={cn("text-xs font-mono opacity-50", isActive && "opacity-90")}>
-                      0{index + 1}
-                    </span>
-                    <span>{item.label}</span>
-                  </div>
+                  <span>{item.label}</span>
                   <span
                     className={cn(
-                      "text-xl transition-transform duration-300 group-hover:translate-x-1",
-                      isActive ? "text-emerald-400 dark:text-[#C7ED70]" : "text-emerald-500 opacity-70"
+                      "flex h-7 w-7 items-center justify-center rounded-full border border-current/20 text-xs transition-transform duration-300 group-hover:translate-x-1",
+                      isActive ? "bg-emerald-400 text-black dark:bg-[#C7ED70] dark:text-black font-bold" : "text-emerald-500 opacity-80"
                     )}
                   >
                     →
@@ -475,9 +441,9 @@ export function Header() {
               );
 
               const className = cn(
-                "group flex items-center justify-between border px-5 py-4 font-mono text-sm font-bold uppercase tracking-[0.16em] transition-all duration-300",
+                "group flex items-center justify-between rounded-2xl border px-5 py-4 font-sans text-sm font-semibold uppercase tracking-wider transition-colors duration-300",
                 isActive
-                  ? "bg-[var(--ink)] text-[var(--page)] border-[var(--ink)] shadow-lg"
+                  ? "bg-[var(--ink)] text-[var(--page)] border-[var(--ink)]"
                   : "border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)]"
               );
 
@@ -515,7 +481,7 @@ export function Header() {
           </nav>
 
           {/* Bottom Mobile Quick Links */}
-          <div data-mobile-bottom="true" className="pt-6 border-t border-[var(--line)] flex flex-col gap-3 font-mono">
+          <div data-mobile-bottom="true" className="pt-6 border-t border-[var(--line)] flex flex-col gap-3">
             <div className="flex items-center justify-between text-xs text-[var(--muted)]">
               <span>Status: <strong className="text-emerald-600 dark:text-[#C7ED70]">Available for Work</strong></span>
               <a href="mailto:ayushsingh7360@gmail.com" className="text-emerald-600 dark:text-[#C7ED70] font-bold hover:underline">Email Me ↗</a>

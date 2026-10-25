@@ -6,25 +6,29 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "optimize:images": "node optimize-images.cjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@vitejs/plugin-react": "^5.0.4",
     "autoprefixer": "^10.4.21",
+    "framer-motion": "^14.6.0",
     "gsap": "^3.15.0",
-    "locomotive-scroll": "^5.0.1",
     "lucide-react": "^1.14.0",
     "postcss": "^8.5.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.15.1",
     "tailwindcss": "^3.4.17",
+    "three": "^0.186.1",
     "typescript": "^5.9.3",
     "vite": "^7.1.9"
   },
   "devDependencies": {
     "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3"
+    "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.186.0",
+    "sharp": "^0.35.5"
   }
 }

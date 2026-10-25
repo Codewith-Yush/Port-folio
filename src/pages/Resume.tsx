@@ -53,7 +53,7 @@ export default function Resume() {
       <div className="no-print max-w-4xl mx-auto mb-8 flex items-center justify-between gap-4">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-4 py-2 border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] font-mono text-[11px] font-semibold uppercase tracking-wider hover:border-[var(--ink)] transition-colors shadow-sm"
+          className="btn-neo-base btn-neo-secondary inline-flex items-center gap-2.5 px-4 py-2 rounded-full font-mono text-[11px] font-semibold uppercase tracking-wider transition-all shadow-sm"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Portfolio</span>
@@ -64,7 +64,7 @@ export default function Resume() {
           <button
             type="button"
             onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-5 py-2 border border-[var(--ink)] bg-[var(--ink)] text-[var(--page)] font-mono text-[11px] font-semibold uppercase tracking-wider hover:bg-transparent hover:text-[var(--ink)] transition-all shadow-md active:scale-95"
+            className="btn-neo-base btn-neo-primary inline-flex items-center gap-2 px-5 py-2 rounded-full font-mono text-[11px] font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95"
           >
             <Printer className="h-4 w-4" />
             <span>Print / Save PDF</span>
@@ -73,7 +73,7 @@ export default function Resume() {
       </div>
 
       {/* Main Resume Sheet */}
-      <main className="resume-container max-w-4xl mx-auto border border-[var(--ink)] dark:border-[var(--line)] bg-[var(--surface)] p-8 sm:p-12 md:p-16 shadow-2xl backdrop-blur-xl">
+      <main className="resume-container max-w-4xl mx-auto rounded-3xl border border-[var(--ink)]/30 dark:border-[var(--line)] bg-[var(--surface)] p-8 sm:p-12 md:p-16 shadow-2xl backdrop-blur-xl">
         {/* Header Block */}
         <header className="border-b border-[var(--line)] pb-8 mb-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">

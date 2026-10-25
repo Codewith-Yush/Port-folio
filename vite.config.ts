@@ -11,12 +11,12 @@ export default defineConfig({
   build: {
     target: "esnext",
     cssCodeSplit: true,
+    minify: "esbuild",
     rollupOptions: {
       output: {
         manualChunks: {
           "vendor-react": ["react", "react-dom", "react-router-dom"],
           "vendor-gsap": ["gsap", "gsap/ScrollTrigger"],
-          "vendor-scroll": ["locomotive-scroll"],
           "vendor-icons": ["lucide-react"],
         },
       },

@@ -60,7 +60,7 @@ export type DesignItem = {
 const DESIGNS: DesignItem[] = [
   {
     n: "01",
-    src: "/images/projects/design1.jpeg",
+    src: "/images/projects/design1.webp",
     label: "Neon Drop",
     cat: "brand",
     subtitle: "High-voltage kinetic streetwear brand launch campaign",
@@ -72,7 +72,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "02",
-    src: "/images/projects/design2.jpeg",
+    src: "/images/projects/design2.webp",
     label: "Cyber Social",
     cat: "social",
     subtitle: "High-contrast editorial social post with brutalist accents",
@@ -84,7 +84,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "03",
-    src: "/images/projects/design3.png",
+    src: "/images/projects/design3.webp",
     label: "Rave Print",
     cat: "print",
     subtitle: "Underground electronic music festival promotional poster",
@@ -96,7 +96,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "04",
-    src: "/images/projects/design4.png",
+    src: "/images/projects/design4.webp",
     label: "Acid Brand",
     cat: "brand",
     subtitle: "Acid graphic language featuring bold typography & iconography",
@@ -108,7 +108,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "05",
-    src: "/images/projects/design5.png",
+    src: "/images/projects/design5.webp",
     label: "Fluid Motion",
     cat: "motion",
     subtitle: "Dynamic fluid organic gradients for digital product teaser",
@@ -120,7 +120,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "06",
-    src: "/images/projects/design6.png",
+    src: "/images/projects/design6.webp",
     label: "Glitch Post",
     cat: "social",
     subtitle: "Digital distortion aesthetic with neon cyan & magenta overlays",
@@ -132,7 +132,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "07",
-    src: "/images/projects/design7.png",
+    src: "/images/projects/design7.webp",
     label: "Y2K Print",
     cat: "print",
     subtitle: "Retro-futuristic chrome editorial layout with cyber starbursts",
@@ -144,7 +144,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "08",
-    src: "/images/projects/design8.png",
+    src: "/images/projects/design8.webp",
     label: "Brutal ID",
     cat: "brand",
     subtitle: "Raw Swiss modernist identity with monumental sans-serif typography",
@@ -156,7 +156,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "09",
-    src: "/images/projects/design9.png",
+    src: "/images/projects/design9.webp",
     label: "Kinetic",
     cat: "motion",
     subtitle: "Motion graphic keyframe design with directional velocity arrows",
@@ -168,7 +168,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "10",
-    src: "/images/projects/design10.png",
+    src: "/images/projects/design10.webp",
     label: "Grid Lock",
     cat: "social",
     subtitle: "Structured modular layout with high-contrast emerald highlights",
@@ -180,7 +180,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "11",
-    src: "/images/projects/design11.png",
+    src: "/images/projects/design11.webp",
     label: "Chrome Core",
     cat: "brand",
     subtitle: "Metallic iridescent logo identity & album art visualizer",
@@ -192,7 +192,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "12",
-    src: "/images/projects/design12.png",
+    src: "/images/projects/design12.webp",
     label: "Max Print",
     cat: "print",
     subtitle: "Maximalist monochrome poster celebrating experimental typography",
@@ -204,7 +204,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "13",
-    src: "/images/projects/design13.png",
+    src: "/images/projects/design13.webp",
     label: "Vapor Social",
     cat: "social",
     subtitle: "Dreamy peach and lilac gradients with subtle atmospheric dust",
@@ -216,7 +216,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "14",
-    src: "/images/projects/design14.png",
+    src: "/images/projects/design14.webp",
     label: "Liquid Move",
     cat: "motion",
     subtitle: "Organic fluid wave shapes creating a kinetic illusion of movement",
@@ -228,7 +228,7 @@ const DESIGNS: DesignItem[] = [
   },
   {
     n: "15",
-    src: "/images/projects/design17.png",
+    src: "/images/projects/design17.webp",
     label: "Neo Brand",
     cat: "brand",
     subtitle: "Futuristic dark mode interface concept and branding showcase",
@@ -678,6 +678,7 @@ function GalleryCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const glareRef = useRef<HTMLDivElement>(null);
   const rafId = useRef(0);
+  const rectRef = useRef<DOMRect | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
@@ -690,7 +691,10 @@ function GalleryCard({
       const el = cardRef.current;
       const glare = glareRef.current;
       if (!el) return;
-      const rect = el.getBoundingClientRect();
+      if (!rectRef.current) {
+        rectRef.current = el.getBoundingClientRect();
+      }
+      const rect = rectRef.current;
       const x = clientX - rect.left;
       const y = clientY - rect.top;
       const centerX = rect.width / 2;
@@ -713,11 +717,13 @@ function GalleryCard({
   const handleMouseEnter = () => {
     soundManager.tick();
     if (cardRef.current) {
+      rectRef.current = cardRef.current.getBoundingClientRect();
       cardRef.current.style.transition = "transform 0.12s ease-out";
     }
   };
 
   const handleMouseLeave = () => {
+    rectRef.current = null;
     if (rafId.current) {
       cancelAnimationFrame(rafId.current);
       rafId.current = 0;
@@ -1131,6 +1137,11 @@ export default function CanvaGallery() {
     const timer = setTimeout(() => {
       const cards = document.querySelectorAll<HTMLElement>(".gallery-card");
       if (!cards.length) return;
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduced) {
+        gsap.set(cards, { opacity: 1, y: 0, scale: 1, clearProps: "transform" });
+        return;
+      }
       gsap.fromTo(
         cards,
         { opacity: 0, y: 30, scale: 0.98 },
@@ -1265,7 +1276,6 @@ export default function CanvaGallery() {
               {[
                 ["Work", "/#work"],
                 ["Skills", "/#skills"],
-                ["Activity", "/#telemetry"],
                 ["Contact", "/#contact"],
               ].map(([label, href]) => (
                 <Link
@@ -1286,10 +1296,10 @@ export default function CanvaGallery() {
                 data-sound-toggle="true"
                 onClick={handleToggleSound}
                 title={`Sound effects: ${soundEnabled ? "Enabled" : "Muted"}`}
-                className={`flex h-8 px-2.5 items-center justify-center gap-1.5 rounded-full border text-[11px] font-mono font-bold transition-all ${
+                className={`flex h-9 px-3 items-center justify-center gap-1.5 rounded-full border text-[11px] font-mono font-bold backdrop-blur-md transition-all active:scale-95 ${
                   soundEnabled
-                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                    : "border-black/10 dark:border-white/10 bg-transparent text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white"
+                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-[#C7ED70]"
+                    : "border-black/10 dark:border-white/10 bg-transparent text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
                 }`}
               >
                 <span>{soundEnabled ? "🔊" : "🔇"}</span>
@@ -1301,7 +1311,7 @@ export default function CanvaGallery() {
               <Link
                 to="/"
                 onClick={() => soundManager.pop()}
-                className="text-[0.7rem] font-bold uppercase tracking-[0.2em] bg-[#111] text-white dark:bg-white dark:text-black px-4 sm:px-5 py-2 rounded-full no-underline transition-all duration-300 hover:bg-[#10B981] hover:text-white dark:hover:bg-[#10B981] dark:hover:text-black hover:scale-105 shadow-sm"
+                className="btn-neo-base btn-neo-primary inline-flex h-9 items-center justify-center px-4 rounded-full text-[10px] tracking-wider transition-all duration-300 hover:scale-105 shadow-sm"
               >
                 ← Home
               </Link>

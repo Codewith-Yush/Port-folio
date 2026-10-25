@@ -63,7 +63,7 @@
   position: absolute;
   inset: 0;
   display: flex;
-  items-center: center;
+  align-items: center;
   justify-content: center;
   z-index: 10;
 }
@@ -75,6 +75,23 @@
   margin-left: -50px;
   animation: speeder 0.4s linear infinite;
   will-change: transform;
+}
+
+.speeder-wrapper.hyperdrive-launch .loader {
+  animation: hyperdriveSlingshot 0.45s cubic-bezier(0.7, 0, 1, 1) forwards !important;
+}
+
+@keyframes hyperdriveSlingshot {
+  0% {
+    transform: translate(-50px, 0) scale(1);
+  }
+  30% {
+    transform: translate(-110px, 0) scale(0.92);
+  }
+  100% {
+    transform: translate(130vw, 0) scale(1.6);
+    opacity: 0;
+  }
 }
 
 .dark .speeder-wrapper .loader {

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crosshair HUD Cursor - Vanilla JS + CSS</title>
+  <style>
+    /* ─────────────────────────────────────────────────────────────
+       Host & Demo Surface Styles
+       Supports both Dark & Light themes with high contrast
+    ───────────────────────────────────────────────────────────── */
+    :root {
+      --bg: #0d0d0d;
+      --text: #ffffff;
+      --muted: #888888;
+      --border: rgba(255, 255, 255, 0.12);
+      --card-bg: #141416;
+    }
+
+    .light-theme {
+      --bg: #F7F8FA;
+      --text: #111827;
+      --muted: #6B7280;
+      --border: rgba(0, 0, 0, 0.12);
+      --card-bg: #FFFFFF;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Accessibility: Native cursor is NEVER hidden anywhere. */
+    body {
+      background-color: var(--bg);
+      background-image: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, #f5f5f5 5%, var(--bg)), var(--bg) 70%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-tag {
+      font-size: 11px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .controls-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .theme-btn {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .theme-btn:hover {
+      border-color: var(--text);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       Reference Frame
+       Preview Box: 788×666 CSS px baseline (Responsive)
+    ───────────────────────────────────────────────────────────── */
+    .preview-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 788 / 666;
+      max-height: 666px;
+      background: var(--bg);
+      background-image: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, #f5f5f5 5%, var(--bg)), var(--bg) 70%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 32px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.35);
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    /* HUD overlay canvas */
+    .crosshair-hud-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .hud-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    .hud-system-status {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hud-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .hud-center-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 20px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .hud-headline {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .hud-description {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .hud-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Interactive Targets: a, button, input */
+    .btn {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      border-color: var(--text);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+
+    .text-input {
+      font-family: inherit;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      outline: none;
+      width: 180px;
+      transition: border-color 0.2s;
+    }
+
+    .text-input:focus {
+      border-color: var(--text);
+    }
+
+    .hud-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    .scope-toggle-bar {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      font-size: 12px;
+      font-family: ui-monospace, monospace;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="title">
+        <span>Crosshair HUD</span>
+        <span class="title-tag">POINTER-CLASS</span>
+      </div>
+      <div class="controls-top">
+        <button type="button" class="theme-btn" id="toggleThemeBtn">
+          <span>🌓</span>
+          <span id="themeLabel">Light Mode</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Reference Frame: 788×666 CSS px baseline (Responsive) -->
+    <div class="preview-frame" id="demoSurface">
+      <div class="hud-meta-bar">
+        <div class="hud-system-status">
+          <span class="hud-status-dot"></span>
+          <span>TAC_GUIDE // ONLINE</span>
+        </div>
+        <div class="hud-system-status">
+          <span style="opacity: 0.6;">DPR:</span>
+          <span id="dprValue">1.0</span>
+          <span style="margin-left: 10px; opacity: 0.6;">RES:</span>
+          <span id="resValue">788×666</span>
+        </div>
+      </div>
+
+      <div class="hud-center-content">
+        <h1 class="hud-headline">Precision Reticle & Full-Bleed Guides</h1>
+        <p class="hud-description">
+          Tracks pointer on a single rAF loop with zero lag. Perfectly visible in both Dark and Light modes.
+        </p>
+        <div class="hud-controls">
+          <button type="button" class="btn btn-primary" id="btnEngage">Acquire Target</button>
+          <a href="#specs" class="btn" id="linkSpecs">Documentation</a>
+          <input type="text" class="text-input" placeholder="Coordinate override..." aria-label="Coordinate override" />
+        </div>
+      </div>
+
+      <div class="hud-footer">
+        <div>ACCESSIBILITY: NATIVE CURSOR PRESERVED</div>
+        <div>INPUT: POINTER_FINE ONLY</div>
+        <div>THEME: AUTO-ADAPTIVE CONTRAST</div>
+      </div>
+    </div>
+
+    <div class="scope-toggle-bar">
+      <span>High-contrast lines: Deep ink on light mode • White on dark mode • Native system cursor remains active</span>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const container = document.getElementById("demoSurface");
+      const toggleThemeBtn = document.getElementById("toggleThemeBtn");
+      const themeLabel = document.getElementById("themeLabel");
+      const dprDisplay = document.getElementById("dprValue");
+      const resDisplay = document.getElementById("resValue");
+
+      let isLightMode = false;
+
+      toggleThemeBtn.addEventListener("click", () => {
+        isLightMode = !isLightMode;
+        document.body.classList.toggle("light-theme", isLightMode);
+        container.classList.toggle("light-theme", isLightMode);
+        themeLabel.textContent = isLightMode ? "Dark Mode" : "Light Mode";
+        needsDraw = true;
+      });
+
+      const finePointerMedia = window.matchMedia("(hover: hover) and (pointer: fine)");
+      const reducedMotionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      let isEnabled = finePointerMedia.matches && !reducedMotionMedia.matches;
+
+      const BOX_SIZE = 16;
+      const HALF_BOX = 8;
+      const LINE_OPACITY = 0.35;
+
+      let canvas = null;
+      let ctx = null;
+      let rafId = null;
+      let width = 0;
+      let height = 0;
+      let dpr = 1;
+
+      // Pointer telemetry (Exact coordinates - NO LERP)
+      let pointerX = -9999;
+      let pointerY = -9999;
+      let isInside = false;
+      let isInteractive = false;
+      let needsDraw = false;
+
+      function createOverlay() {
+        if (canvas) return;
+
+        canvas = document.createElement("canvas");
+        canvas.className = "crosshair-hud-canvas";
+        canvas.setAttribute("aria-hidden", "true");
+        container.appendChild(canvas);
+
+        ctx = canvas.getContext("2d", { alpha: true });
+        updateDimensions();
+      }
+
+      function updateDimensions() {
+        if (!canvas || !ctx) return;
+
+        const rect = container.getBoundingClientRect();
+        width = Math.max(1, Math.round(rect.width));
+        height = Math.max(1, Math.round(rect.height));
+
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        if (dprDisplay) dprDisplay.textContent = dpr.toFixed(2);
+        if (resDisplay) resDisplay.textContent = `${width}×${height}`;
+
+        needsDraw = true;
+      }
+
+      function draw() {
+        if (!ctx || !canvas) return;
+
+        ctx.clearRect(0, 0, width, height);
+
+        if (!isInside || pointerX < -50 || pointerY < -50 || pointerX > width + 50 || pointerY > height + 50) {
+          return;
+        }
+
+        const px = Math.round(pointerX);
+        const py = Math.round(pointerY);
+
+        const lx = px + 0.5;
+        const ly = py + 0.5;
+
+        const isDark = !isLightMode;
+
+        ctx.save();
+
+        /* ── Full-Bleed Guide Lines ── */
+        const lineAlpha = isInteractive
+          ? (isDark ? 0.65 : 0.75)
+          : (isDark ? LINE_OPACITY : 0.38);
+
+        const lineStroke = isDark
+          ? `rgba(255, 255, 255, ${lineAlpha})`
+          : `rgba(17, 24, 39, ${lineAlpha})`;
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = lineStroke;
+
+        ctx.beginPath();
+        ctx.moveTo(0, ly);
+        ctx.lineTo(width, ly);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(lx, 0);
+        ctx.lineTo(lx, height);
+        ctx.stroke();
+
+        /* ── Centre Box (16px) ── */
+        const bx = px - HALF_BOX + 0.5;
+        const by = py - HALF_BOX + 0.5;
+
+        ctx.strokeStyle = isInteractive
+          ? (isDark ? "rgba(255, 255, 255, 0.98)" : "rgba(17, 24, 39, 1.0)")
+          : (isDark ? "rgba(255, 255, 255, 0.75)" : "rgba(17, 24, 39, 0.85)");
+        ctx.strokeRect(bx, by, BOX_SIZE, BOX_SIZE);
+
+        // Center dot
+        ctx.fillStyle = isDark ? "#FFFFFF" : "#111827";
+        ctx.fillRect(px - 1, py - 1, 2, 2);
+
+        // Corner tick marks when hovering interactive target
+        if (isInteractive) {
+          const tick = 3;
+          ctx.beginPath();
+          // TL
+          ctx.moveTo(bx - 2, by + tick);
+          ctx.lineTo(bx - 2, by - 2);
+          ctx.lineTo(bx + tick, by - 2);
+          // TR
+          ctx.moveTo(bx + BOX_SIZE - tick, by - 2);
+          ctx.lineTo(bx + BOX_SIZE + 2, by - 2);
+          ctx.lineTo(bx + BOX_SIZE + 2, by + tick);
+          // BL
+          ctx.moveTo(bx - 2, by + BOX_SIZE - tick);
+          ctx.lineTo(bx - 2, by + BOX_SIZE + 2);
+          ctx.lineTo(bx + tick, by + BOX_SIZE + 2);
+          // BR
+          ctx.moveTo(bx + BOX_SIZE - tick, by + BOX_SIZE + 2);
+          ctx.lineTo(bx + BOX_SIZE + 2, by + BOX_SIZE + 2);
+          ctx.lineTo(bx + BOX_SIZE + 2, by + BOX_SIZE - tick);
+          ctx.strokeStyle = isDark ? "rgba(255, 255, 255, 0.95)" : "rgba(17, 24, 39, 1.0)";
+          ctx.stroke();
+        }
+
+        /* ── Live Coordinates Readout ── */
+        const coordText = `X: ${px.toString().padStart(4, "0")}  Y: ${py.toString().padStart(4, "0")}${isInteractive ? " [LOCK]" : ""}`;
+        ctx.font = "600 9px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+        ctx.textBaseline = "middle";
+
+        const textWidth = Math.ceil(ctx.measureText(coordText).width);
+        const badgeW = textWidth + 12;
+        const badgeH = 16;
+
+        let badgeX = px + HALF_BOX + 6;
+        let badgeY = py + HALF_BOX + 6;
+
+        if (badgeX + badgeW > width - 6) {
+          badgeX = px - HALF_BOX - 6 - badgeW;
+        }
+        if (badgeY + badgeH > height - 6) {
+          badgeY = py - HALF_BOX - 6 - badgeH;
+        }
+
+        // Tag backdrop: solid high contrast dark pill
+        ctx.fillStyle = isDark
+          ? (isInteractive ? "rgba(10, 10, 14, 0.88)" : "rgba(10, 10, 14, 0.75)")
+          : (isInteractive ? "rgba(17, 24, 39, 0.96)" : "rgba(17, 24, 39, 0.88)");
+        ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
+
+        // Tag border
+        ctx.strokeStyle = isDark
+          ? (isInteractive ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.3)")
+          : (isInteractive ? "rgba(17, 24, 39, 1.0)" : "rgba(17, 24, 39, 0.25)");
+        ctx.strokeRect(badgeX + 0.5, badgeY + 0.5, badgeW, badgeH);
+
+        // Text: white text on dark tag ensures 100% clarity in both modes
+        ctx.fillStyle = isInteractive
+          ? "#FFFFFF"
+          : (isDark ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.92)");
+        ctx.fillText(coordText, badgeX + 6, badgeY + badgeH / 2);
+
+        ctx.restore();
+      }
+
+      function loop() {
+        if (isEnabled && needsDraw) {
+          draw();
+          needsDraw = false;
+        }
+        if (isEnabled) {
+          rafId = requestAnimationFrame(loop);
+        }
+      }
+
+      function onPointerMove(e) {
+        if (!isEnabled) return;
+        const rect = container.getBoundingClientRect();
+        pointerX = e.clientX - rect.left;
+        pointerY = e.clientY - rect.top;
+        isInside = pointerX >= 0 && pointerX <= rect.width && pointerY >= 0 && pointerY <= rect.height;
+
+        const target = e.target;
+        isInteractive = Boolean(target && target.closest && target.closest("a, button, input, [role='button']"));
+
+        needsDraw = true;
+      }
+
+      function onPointerLeave() {
+        isInside = false;
+        needsDraw = true;
+      }
+
+      function onPointerEnter() {
+        isInside = true;
+        needsDraw = true;
+      }
+
+      if (isEnabled) {
+        createOverlay();
+        container.addEventListener("pointermove", onPointerMove, { passive: true });
+        container.addEventListener("pointerleave", onPointerLeave, { passive: true });
+        container.addEventListener("pointerenter", onPointerEnter, { passive: true });
+        rafId = requestAnimationFrame(loop);
+      }
+
+      const resizeObserver = new ResizeObserver(() => updateDimensions());
+      resizeObserver.observe(container);
+    })();
+  </script>
+</body>
+</html>

@@ -1,132 +1,40 @@
-import { useEffect, useRef } from "react";
-import LocomotiveScroll from "locomotive-scroll";
-import "locomotive-scroll/locomotive-scroll.css";
-import { gsap } from "gsap";
+import { useEffect } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
-
-import { handleScrollMovement } from "../utils/soundEffects";
+import { gsap } from "gsap";
 
 gsap.registerPlugin(ScrollTrigger);
 
-declare global {
-  interface Window {
-    __locomotiveScroll?: LocomotiveScroll;
-  }
-}
-
 /**
- * Enterprise-grade smooth scroll hook powered by Locomotive Scroll v5.
- * - Perfectly synchronized with GSAP's RAF ticker to eliminate frame stutter
- * - Notifies ScrollTrigger on every tick
- * - Handles anchor link interception with smooth easing & header offset
- * - Respects prefers-reduced-motion accessibility preferences
+ * Clean, accessible smooth scroll implementation.
+ * Uses native browser scroll behavior without hijacking window.scrollTo or wheel events.
+ * Debounces resize events to prevent reflow layout thrashing.
  */
 export function useSmoothScroll() {
-  const reducedMotion = usePrefersReducedMotion();
-  const scrollRef = useRef<LocomotiveScroll | null>(null);
-
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Accessibility check: do not hijack scroll if user prefers reduced motion
-    if (reducedMotion) {
+    // Respect reduced motion settings for scrolling
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!prefersReducedMotion) {
       document.documentElement.style.scrollBehavior = "smooth";
-      return () => {
-        document.documentElement.style.scrollBehavior = "";
-      };
     }
 
-    // Initialize Locomotive Scroll v5
-    const locomotiveScroll = new LocomotiveScroll({
-      lenisOptions: {
-        duration: 1.2,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        orientation: "vertical",
-        gestureOrientation: "vertical",
-        smoothWheel: true,
-        touchMultiplier: 1.5,
-        wheelMultiplier: 1,
-        infinite: false,
-      },
-      scrollCallback: (data?: { scroll?: number; velocity?: number; direction?: number }) => {
-        ScrollTrigger.update();
-        handleScrollMovement(
-          data?.scroll ?? window.scrollY,
-          data?.velocity,
-          data?.direction
-        );
-      },
-      initCustomTicker: (render) => {
-        gsap.ticker.add(render);
-      },
-      destroyCustomTicker: (render) => {
-        gsap.ticker.remove(render);
-      },
-    });
-
-    scrollRef.current = locomotiveScroll;
-    window.__locomotiveScroll = locomotiveScroll;
-
-    // Refresh ScrollTrigger once Locomotive Scroll is initialized
-    const refreshTimer = window.setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 150);
-
-    // Global anchor link handler with Locomotive Scroll
-    const handleAnchorClick = (event: MouseEvent) => {
-      if (event.defaultPrevented) return;
-      const anchor = (event.target as Element | null)?.closest("a");
-      if (!anchor) return;
-
-      const rawHref = anchor.getAttribute("href");
-      if (!rawHref) return;
-
-      // Normalize "/#section" to "#section" for smooth scrolling
-      const href = rawHref.startsWith("/#") ? rawHref.slice(1) : rawHref;
-      if (!href.startsWith("#") || href === "#") return;
-
-      const target = href === "#hero" ? 0 : document.querySelector<HTMLElement>(href);
-      if (!target && href !== "#hero") return;
-
-      event.preventDefault();
-
-      locomotiveScroll.scrollTo(target as HTMLElement | number, {
-        offset: -80,
-        duration: 1.2,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      });
-
-      window.history.pushState(null, "", href);
+    // Debounce ScrollTrigger refresh on window resize to prevent layout thrashing
+    let resizeTimer: number | null = null;
+    const handleRefresh = () => {
+      if (resizeTimer !== null) clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        resizeTimer = null;
+        ScrollTrigger.refresh();
+      }, 200);
     };
 
-    document.addEventListener("click", handleAnchorClick);
-
-    // Initial hash scrolling is now orchestrated gracefully by ScrollManager,
-    // but Locomotive Scroll can also do an immediate alignment if hash exists
-    if (window.location.hash) {
-      const hash = window.location.hash;
-      const target = hash === "#hero" ? 0 : document.querySelector<HTMLElement>(hash);
-      if (target || hash === "#hero") {
-        window.setTimeout(() => {
-          locomotiveScroll.scrollTo(target as HTMLElement | number, {
-            offset: -80,
-            duration: 1,
-          });
-        }, 150);
-      }
-    }
+    window.addEventListener("resize", handleRefresh, { passive: true });
 
     return () => {
-      clearTimeout(refreshTimer);
-      document.removeEventListener("click", handleAnchorClick);
-      locomotiveScroll.destroy();
-      window.__locomotiveScroll = undefined;
-      scrollRef.current = null;
-      document.documentElement.classList.remove("lenis", "lenis-smooth", "lenis-scrolling", "lenis-stopped");
+      if (resizeTimer !== null) clearTimeout(resizeTimer);
+      window.removeEventListener("resize", handleRefresh);
       document.documentElement.style.scrollBehavior = "";
     };
-  }, [reducedMotion]);
-
-  return scrollRef;
+  }, []);
 }

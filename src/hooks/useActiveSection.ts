@@ -10,14 +10,31 @@ export function useActiveSection(hrefs: string[]) {
       .filter(Boolean);
 
     let rafId = 0;
+    let resizeTimer: number | null = null;
 
-    // Cache elements to prevent getElementById lookup thrashing during fast scroll
-    const getCachedElements = () =>
-      ids
-        .map((id) => ({ id, el: document.getElementById(id) }))
-        .filter((item): item is { id: string; el: HTMLElement } => Boolean(item.el));
+    interface SectionMetrics {
+      id: string;
+      top: number;
+      height: number;
+    }
 
-    let cached = getCachedElements();
+    let metrics: SectionMetrics[] = [];
+
+    const measureSections = () => {
+      const scrollY = window.scrollY;
+      metrics = ids
+        .map((id) => {
+          const el = document.getElementById(id);
+          if (!el) return null;
+          const rect = el.getBoundingClientRect();
+          return {
+            id: `#${id}`,
+            top: rect.top + scrollY,
+            height: rect.height,
+          };
+        })
+        .filter((item): item is SectionMetrics => item !== null);
+    };
 
     const calculateActiveSection = () => {
       const scrollY = window.scrollY;
@@ -28,29 +45,28 @@ export function useActiveSection(hrefs: string[]) {
         return;
       }
 
-      // Refresh cache if elements weren't found on initial mount
-      if (cached.length === 0) {
-        cached = getCachedElements();
+      if (metrics.length === 0) {
+        measureSections();
       }
 
-      const headerOffset = 140;
+      const headerOffset = 160;
+      const targetScroll = scrollY + headerOffset;
       let currentActive = "";
 
-      for (const { id, el } of cached) {
-        const rect = el.getBoundingClientRect();
-        if (rect.top <= headerOffset && rect.bottom > headerOffset) {
-          currentActive = `#${id}`;
+      for (const section of metrics) {
+        if (targetScroll >= section.top && targetScroll < section.top + section.height) {
+          currentActive = section.id;
           break;
         }
       }
 
       // If near bottom of page, activate the last section
       if (
-        window.innerHeight + window.scrollY >=
+        window.innerHeight + scrollY >=
         document.documentElement.scrollHeight - 60
       ) {
-        const last = cached[cached.length - 1];
-        if (last) currentActive = `#${last.id}`;
+        const last = metrics[metrics.length - 1];
+        if (last) currentActive = last.id;
       }
 
       setActiveHref((prev) => (prev === currentActive ? prev : currentActive));
@@ -64,14 +80,35 @@ export function useActiveSection(hrefs: string[]) {
       });
     };
 
+    const handleResize = () => {
+      if (resizeTimer !== null) clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        resizeTimer = null;
+        measureSections();
+        calculateActiveSection();
+      }, 150);
+    };
+
+    // Initial measurement
+    measureSections();
     calculateActiveSection();
+
+    // Settle after late-loading web fonts
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        measureSections();
+        calculateActiveSection();
+      });
+    }
+
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize, { passive: true });
 
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
+      if (resizeTimer !== null) clearTimeout(resizeTimer);
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hrefsKey]);

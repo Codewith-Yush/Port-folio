@@ -93,48 +93,68 @@ if (typeof window !== "undefined") {
  * Cinematic High-Tech Entry Preloader Overlay with Telemetry HUD,
  * Live Speedometer, and Hyperdrive Warp Slingshot Transition.
  */
-export function Preloader({ onComplete, minDuration = 1400 }: PreloaderProps) {
+export function Preloader({ onComplete, minDuration = 1200 }: PreloaderProps) {
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
   const [launching, setLaunching] = useState(false);
   const [speed, setSpeed] = useState(0);
   const [progress, setProgress] = useState(0);
 
+  // Lock body scroll while Preloader is active
+  useEffect(() => {
+    if (visible && !fading) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [visible, fading]);
+
   // Live Speedometer & Progress Tick
   useEffect(() => {
-    const startTime = performance.now();
+    let isMounted = true;
     let frameId = 0;
+    let exitTimer = 0;
+    let unmountTimer = 0;
+    const startTime = performance.now();
+
+    const finishPreloader = () => {
+      if (!isMounted) return;
+      setLaunching(true);
+      try {
+        playSuccess();
+      } catch {
+        // Audio safe catch
+      }
+
+      exitTimer = window.setTimeout(() => {
+        if (!isMounted) return;
+        setFading(true);
+        unmountTimer = window.setTimeout(() => {
+          if (!isMounted) return;
+          setVisible(false);
+          document.body.style.overflow = "";
+          onComplete?.();
+        }, 450);
+      }, 350);
+    };
 
     const tick = (now: number) => {
+      if (!isMounted) return;
       const elapsed = now - startTime;
       const rawProgress = Math.min(1, elapsed / minDuration);
-      
+
       // Easing curve for rapid acceleration
-      const easedProgress = Math.pow(rawProgress, 1.25);
+      const easedProgress = Math.pow(rawProgress, 1.2);
       setProgress(Math.round(easedProgress * 100));
       setSpeed(Math.round(easedProgress * 999));
 
       if (rawProgress < 1) {
         frameId = requestAnimationFrame(tick);
       } else {
-        // Trigger Hyperdrive Slingshot
-        setLaunching(true);
-        try {
-          playSuccess();
-        } catch {
-          // Audio safe catch
-        }
-
-        const exitDelay = window.setTimeout(() => {
-          setFading(true);
-          const unmountDelay = window.setTimeout(() => {
-            setVisible(false);
-            onComplete?.();
-          }, 450);
-          return () => clearTimeout(unmountDelay);
-        }, 320);
-
-        return () => clearTimeout(exitDelay);
+        finishPreloader();
       }
     };
 
@@ -146,7 +166,9 @@ export function Preloader({ onComplete, minDuration = 1400 }: PreloaderProps) {
         setLaunching(true);
         setFading(true);
         setTimeout(() => {
+          if (!isMounted) return;
           setVisible(false);
+          document.body.style.overflow = "";
           onComplete?.();
         }, 200);
       }
@@ -154,7 +176,10 @@ export function Preloader({ onComplete, minDuration = 1400 }: PreloaderProps) {
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      isMounted = false;
       cancelAnimationFrame(frameId);
+      window.clearTimeout(exitTimer);
+      window.clearTimeout(unmountTimer);
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [minDuration, onComplete]);
