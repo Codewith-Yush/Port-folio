@@ -4,63 +4,86 @@
 
 :root {
   color-scheme: light;
-  --flame: #0A0A0C;
-  /* Pitch Stark Black Accent in light */
-  --ember: #27272A;
-  /* Charcoal Neutral */
-  --blush: #0284C7;
-  /* Clean Signal Blue */
-  --page: #F6F7F9;
-  /* Crisp Drafting Paper Canvas */
+  --page: #F7F5F5;
+  /* Soft Off-White Studio Canvas */
   --surface: #FFFFFF;
   /* Clean White Card Surface */
-  --surface-strong: #ECEEF2;
-  /* Solid Surface Step */
-  --ink: #0A0A0C;
-  /* Deep High-Contrast Ink */
-  --muted: #525866;
-  /* Legible Slate Caption */
-  --line: #E2E4E9;
+  --surface-strong: #EFECEB;
+  /* Subtle Neutral Tinted Step */
+  --surface-elevated: #E5E2E0;
+  /* High Depth Card Step */
+  --ink: #2C2C2C;
+  /* Dark Charcoal Primary Typography */
+  --muted: #666666;
+  /* Legible Secondary Typography */
+  --line: rgba(0, 0, 0, 0.08);
   /* Hairline Architectural Divider */
-  --coral: #D14836;
-  --coral-hover: #DF6C4F;
-  --coral-soft: rgba(209, 72, 54, 0.12);
-  --coral-glow: rgba(209, 72, 54, 0.22);
-  --accent: #C7ED70;
-  /* Acid Chartreuse */
-  --inverse: white;
-  --shadow-rgb: 10 10 12;
-  --cursor-ring: rgba(10, 10, 12, 0.55);
+
+  /* Final Master Color Palette */
+  --lavender: #B39CFF;
+  /* Main Accent: Electric Lavender */
+  --electric-blue: #1E90FF;
+  /* Secondary Accent: Electric Blue */
+  --vivid-pink: #FF0099;
+  /* Hover Accent: Vivid Pink */
+
+  /* Semantic Aliases */
+  --flame: #B39CFF;
+  --ember: #1E90FF;
+  --blush: #FF0099;
+  --accent: #B39CFF;
+  --accent-secondary: #1E90FF;
+  --accent-hover: #FF0099;
+
+  --coral: #1E90FF;
+  --coral-hover: #FF0099;
+  --coral-soft: rgba(179, 156, 255, 0.12);
+  --coral-glow: rgba(179, 156, 255, 0.2);
+  --inverse: #0D0D0D;
+  --shadow-rgb: 0 0 0;
+  --cursor-ring: rgba(44, 44, 44, 0.45);
 }
 
 .dark {
   color-scheme: dark;
-  --flame: #C7ED70;
-  /* Signature Acid Chartreuse */
-  --ember: #818CF8;
-  /* Cyber Indigo */
-  --blush: #00F5D4;
-  /* Electric Signal Cyan */
-  --page: #08080A;
-  /* Deep Obsidian Architectural Black */
-  --surface: #101015;
-  /* Architectural Charcoal Card */
-  --surface-strong: #171720;
-  /* Elevated Dark Surface */
-  --ink: #F4F4F6;
-  /* Crisp Zinc 50 Typography */
-  --muted: #8E8E9E;
-  /* Legible Technical Slate */
-  --line: rgba(255, 255, 255, 0.12);
+  --page: #0D0D0D;
+  /* Dominant Almost-Black Background */
+  --surface: #141416;
+  /* Deep Architectural Matte Charcoal Card */
+  --surface-strong: #1C1C20;
+  /* Elevated Dark Card Surface */
+  --surface-elevated: #24242A;
+  /* Raised Floating Panel Surface */
+  --ink: #FFFFFF;
+  /* Crisp White Primary Typography */
+  --muted: #9E9EA8;
+  /* High-Contrast Technical Slate */
+  --line: rgba(255, 255, 255, 0.10);
   /* Razor-sharp architectural hairlines */
-  --coral: #FF6B55;
-  --coral-hover: #FF9398;
-  --coral-soft: rgba(255, 107, 85, 0.14);
-  --coral-glow: rgba(255, 147, 152, 0.22);
-  --accent: #C7ED70;
-  --inverse: #08080A;
+
+  /* Final Master Color Palette */
+  --lavender: #B39CFF;
+  /* Main Accent: Electric Lavender */
+  --electric-blue: #1E90FF;
+  /* Secondary Accent: Electric Blue */
+  --vivid-pink: #FF0099;
+  /* Hover Accent: Vivid Pink */
+
+  /* Semantic Aliases */
+  --flame: #B39CFF;
+  --ember: #1E90FF;
+  --blush: #FF0099;
+  --accent: #B39CFF;
+  --accent-secondary: #1E90FF;
+  --accent-hover: #FF0099;
+
+  --coral: #1E90FF;
+  --coral-hover: #FF0099;
+  --coral-soft: rgba(179, 156, 255, 0.16);
+  --coral-glow: rgba(179, 156, 255, 0.28);
+  --inverse: #FFFFFF;
   --shadow-rgb: 0 0 0;
-  --cursor-ring: rgba(199, 237, 112, 0.7);
+  --cursor-ring: rgba(179, 156, 255, 0.65);
 }
 
 * {
@@ -134,19 +157,20 @@ textarea {
 
 /* High-contrast Text Selection */
 ::selection {
-  background: var(--ink);
-  color: var(--page);
+  background: #B39CFF;
+  color: #0D0D0D;
 }
 
 .dark ::selection {
-  background: #C7ED70;
-  color: #000000;
+  background: #B39CFF;
+  color: #0D0D0D;
 }
 
 @keyframes marqueeScroll {
   0% {
     transform: translate3d(0, 0, 0);
   }
+
   100% {
     transform: translate3d(-50%, 0, 0);
   }
@@ -250,27 +274,29 @@ footer {
 }
 
 .btn-neo-primary {
-  background: var(--ink);
-  color: var(--page);
-  border: 1px solid var(--ink);
+  background: #0D0D0D;
+  color: #FFFFFF;
+  border: 1px solid #0D0D0D;
 }
 
 .btn-neo-primary:hover {
-  background: var(--flame);
-  color: var(--page);
-  border-color: var(--flame);
+  background: #B39CFF;
+  color: #0D0D0D;
+  border-color: #B39CFF;
 }
 
 .dark .btn-neo-primary {
-  background: #F4F4F6;
-  color: #08080A;
-  border: 1px solid #F4F4F6;
+  background: #B39CFF;
+  color: #0D0D0D;
+  border: 1px solid #B39CFF;
+  font-weight: 700;
 }
 
 .dark .btn-neo-primary:hover {
-  background: #C7ED70;
-  color: #08080A;
-  border-color: #C7ED70;
+  background: #FFFFFF;
+  color: #0D0D0D;
+  border-color: #FFFFFF;
+  box-shadow: 0 0 24px rgba(179, 156, 255, 0.35);
 }
 
 .btn-neo-secondary {
@@ -280,19 +306,21 @@ footer {
 }
 
 .btn-neo-secondary:hover {
-  border-color: var(--ink);
+  border-color: #1E90FF;
   background: var(--surface-strong);
   color: var(--ink);
 }
 
 .dark .btn-neo-secondary {
   background: var(--surface);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
 }
 
 .dark .btn-neo-secondary:hover {
   background: var(--surface-strong);
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: #B39CFF;
+  color: #FFFFFF;
 }
 
 /* Icon Pod inside buttons */
@@ -409,6 +437,7 @@ footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -422,4 +451,3 @@ footer {
     animation: none !important;
   }
 }
-

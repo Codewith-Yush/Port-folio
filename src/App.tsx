@@ -4,6 +4,7 @@ import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { Hero } from "./sections/Hero";
 import { Projects } from "./sections/Projects";
 import { Skills } from "./sections/Skills";
+import { Services } from "./sections/Services";
 import { Contact } from "./sections/Contact";
 import { Footer } from "./sections/Footer";
 
@@ -17,6 +18,7 @@ export default function App() {
         <Hero />
         <Projects />
         <Skills />
+        <Services />
         <Contact />
       </main>
       <Footer />

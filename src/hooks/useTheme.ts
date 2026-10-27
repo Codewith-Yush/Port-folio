@@ -6,7 +6,7 @@ const storageKey = "portfolio-theme";
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") {
-    return "light";
+    return "dark";
   }
 
   const stored = window.localStorage.getItem(storageKey);
@@ -14,9 +14,8 @@ function getInitialTheme(): Theme {
     return stored;
   }
 
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  // Dark mode is default as per design specification
+  return "dark";
 }
 
 export function useTheme() {

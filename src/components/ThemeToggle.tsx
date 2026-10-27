@@ -20,7 +20,7 @@ export function ThemeToggle() {
       onClick={handleToggle}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="btn-neo-control group relative flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] transition-colors duration-200 hover:border-[var(--ink)]"
+      className="btn-neo-control group relative flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] transition-colors duration-200 hover:border-[#B39CFF]"
     >
       <div className="relative h-4 w-4 flex items-center justify-center overflow-hidden">
         <AnimatePresence mode="wait" initial={false}>
@@ -33,7 +33,7 @@ export function ThemeToggle() {
             className="flex items-center justify-center"
           >
             {isDark ? (
-              <Sun className="h-4 w-4 text-[#C7ED70]" />
+              <Sun className="h-4 w-4 text-[#B39CFF]" />
             ) : (
               <Moon className="h-4 w-4 text-[var(--ink)]" />
             )}

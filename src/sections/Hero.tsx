@@ -8,6 +8,7 @@ import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { playClick } from "../utils/soundEffects";
 import { scrollToSection } from "../utils/scrollToSection";
 import { FlipFadeText } from "../components/ui/flip-fade-text";
+import { HeroVisual } from "../components/ui/HeroVisual";
 
 gsap.registerPlugin(useGSAP);
 
@@ -30,11 +31,10 @@ export function Hero() {
 
       if (reducedMotion) {
         gsap.set(
-          ".hero-fade, .hero-word, .hero-chip, .poster-main, .poster-card, .poster-tag",
+          ".hero-fade, .hero-word, .hero-chip, .hero-visual-card",
           { opacity: 1, y: 0, yPercent: 0, x: 0, scale: 1 },
         );
         gsap.set(".hero-underline, .hero-line", { scaleX: 1 });
-        gsap.set(".poster-main", { rotate: -2 });
         return;
       }
 
@@ -68,22 +68,10 @@ export function Hero() {
         )
         .fromTo(".hero-line", { scaleX: 0 }, { scaleX: 1, duration: 1, ease: "power3.inOut" }, "-=0.8")
         .fromTo(
-          ".poster-main",
-          { y: 44, opacity: 0, rotate: -7 },
-          { y: 0, opacity: 1, rotate: -2, duration: 1.1, ease: "expo.out" },
-          0.25,
-        )
-        .fromTo(
-          ".poster-card",
-          { x: 40, y: 16, opacity: 0 },
-          { x: 0, y: 0, opacity: 1, duration: 0.9, ease: "expo.out" },
-          0.6,
-        )
-        .fromTo(
-          ".poster-tag",
-          { scale: 0.6, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 0.6, stagger: 0.08, ease: "back.out(1.8)" },
-          0.95,
+          ".hero-visual-card",
+          { y: 36, opacity: 0, scale: 0.96 },
+          { y: 0, opacity: 1, scale: 1, duration: 1.05, ease: "expo.out" },
+          0.3,
         );
 
       /* ---------- Role text cycler ---------- */
@@ -104,53 +92,6 @@ export function Hero() {
           );
         cleanups.push(() => {
           roleEl.textContent = ROLES[0];
-        });
-      }
-
-      /* ---------- Ambient (gentle) ---------- */
-      gsap.to(".poster-amp", {
-        y: -8,
-        rotate: 1.5,
-        duration: 4.5,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-      });
-
-      /* ---------- Poster parallax (fine pointers only) ---------- */
-      const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-      const poster = root.querySelector<HTMLElement>("[data-ui='poster']");
-      if (fine && poster) {
-        const setters = Array.from(poster.querySelectorAll<HTMLElement>("[data-depth]")).map((el) => ({
-          depth: Number(el.dataset.depth),
-          x: gsap.quickTo(el, "x", { duration: 0.9, ease: "power3.out" }),
-          y: gsap.quickTo(el, "y", { duration: 0.9, ease: "power3.out" }),
-        }));
-        let cachedRect: DOMRect | null = null;
-        const updateRect = () => {
-          cachedRect = poster.getBoundingClientRect();
-        };
-        const onMove = (e: PointerEvent) => {
-          if (!cachedRect) updateRect();
-          const r = cachedRect!;
-          const nx = (e.clientX - r.left) / r.width - 0.5;
-          const ny = (e.clientY - r.top) / r.height - 0.5;
-          setters.forEach((s) => {
-            s.x(nx * s.depth);
-            s.y(ny * s.depth);
-          });
-        };
-        const onLeave = () => {
-          cachedRect = null;
-          setters.forEach((s) => (s.x(0), s.y(0)));
-        };
-        poster.addEventListener("pointerenter", updateRect, { passive: true });
-        poster.addEventListener("pointermove", onMove, { passive: true });
-        poster.addEventListener("pointerleave", onLeave);
-        cleanups.push(() => {
-          poster.removeEventListener("pointerenter", updateRect);
-          poster.removeEventListener("pointermove", onMove);
-          poster.removeEventListener("pointerleave", onLeave);
         });
       }
 
@@ -186,10 +127,10 @@ export function Hero() {
         }
       `}</style>
 
-      {/* Single soft glow behind the poster */}
+      {/* Single soft lavender glow behind the poster */}
       <div
         aria-hidden="true"
-        className="hero-glow pointer-events-none absolute right-[-5%] top-1/4 h-[320px] w-[320px] rounded-full bg-[#C7ED70] opacity-20 blur-[80px] sm:h-[440px] sm:w-[440px] sm:blur-[100px]"
+        className="hero-glow pointer-events-none absolute right-[-5%] top-1/4 h-[320px] w-[320px] rounded-full bg-[#B39CFF] opacity-15 blur-[90px] sm:h-[440px] sm:w-[440px] sm:blur-[120px]"
       />
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col justify-between px-6 pb-6 pt-20 sm:px-10 sm:pb-8 sm:pt-24 lg:px-16 lg:pt-24">
@@ -200,8 +141,8 @@ export function Hero() {
         >
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2 w-2" aria-hidden="true">
-              <span className="hero-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="hero-ping absolute inline-flex h-full w-full rounded-full bg-[#B39CFF]" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B39CFF]" />
             </span>
             <span className="font-semibold text-[var(--ink)]">AYUSH SINGH</span>
             <span aria-hidden="true" className="opacity-40">/</span>
@@ -213,14 +154,14 @@ export function Hero() {
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline">[28.6139° N, 77.2090° E]</span>
-            <span className="border border-[var(--line)] px-2 py-0.5 rounded-sm text-[var(--ink)] font-semibold">
+            <span className="border border-[var(--line)] px-2 py-0.5 rounded-sm text-[#B39CFF] font-semibold">
               AVAILABLE Q2/Q3
             </span>
           </div>
         </div>
 
         {/* Main grid */}
-        <div className="grid flex-1 items-center gap-10 py-6 sm:py-8 lg:grid-cols-[1.18fr_0.82fr] lg:gap-12 xl:gap-16">
+        <div className="grid flex-1 items-center gap-10 py-6 sm:py-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-10 xl:gap-14">
           <div className="relative z-10 flex max-w-2xl flex-col items-start">
             <h1
               aria-label="Crafting resilient web systems & tools."
@@ -237,7 +178,7 @@ export function Hero() {
                       >
                         {word}
                         {accent && (
-                          <span className="hero-underline absolute -bottom-[0.02em] left-0 h-[0.1em] w-full origin-left rounded-full bg-[#C7ED70]" />
+                          <span className="hero-underline absolute -bottom-[0.02em] left-0 h-[0.1em] w-full origin-left rounded-full bg-[#B39CFF]" />
                         )}
                       </span>
                     </span>{" "}
@@ -264,7 +205,7 @@ export function Hero() {
                 className="btn-neo-base btn-neo-primary group inline-flex h-12 items-center justify-between gap-5 px-6 sm:min-w-[200px]"
               >
                 <span>Explore Selected Work</span>
-                <span className="btn-icon-pod h-7 w-7 rounded-full bg-[var(--page)] text-[var(--ink)] dark:bg-black dark:text-[#C7ED70]">
+                <span className="btn-icon-pod h-7 w-7 rounded-full bg-[var(--page)] text-[var(--ink)] dark:bg-black dark:text-[#B39CFF]">
                   <ArrowDown className="btn-icon-pod-down h-3.5 w-3.5" />
                 </span>
               </motion.a>
@@ -275,7 +216,7 @@ export function Hero() {
                 >
                   <span>View Résumé</span>
                   <span className="btn-icon-pod h-7 w-7 rounded-full bg-[var(--surface-strong)] text-[var(--ink)]">
-                    <ArrowUpRight className="btn-icon-pod-arrow h-3.5 w-3.5 text-emerald-600 dark:text-[#C7ED70]" />
+                    <ArrowUpRight className="btn-icon-pod-arrow h-3.5 w-3.5 text-[#1E90FF] dark:text-[#B39CFF]" />
                   </span>
                 </Link>
               </motion.div>
@@ -330,72 +271,9 @@ export function Hero() {
             </nav>
           </div>
 
-          {/* Architectural Poster Plate */}
-          <div
-            data-ui="poster"
-            className="relative mx-auto aspect-[0.94] w-full max-w-[420px] select-none sm:max-w-[440px] lg:max-w-[460px] xl:max-w-[480px]"
-            aria-hidden="true"
-          >
-            <div data-depth="12" className="absolute inset-0">
-              <div className="poster-main absolute left-[6%] top-[5%] h-[84%] w-[84%] overflow-hidden rounded-2xl border-2 border-[var(--ink)] bg-[#C7ED70] shadow-[0_24px_50px_-25px_rgba(0,0,0,0.45)]">
-                {/* Architectural Hairline Grid & Corner Stamps */}
-                <div className="absolute inset-3 rounded-xl border border-black/20" />
-                <span className="brutal-corner-cross left-4 top-3 text-black font-mono font-bold">+</span>
-                <span className="brutal-corner-cross right-4 top-3 text-black font-mono font-bold">+</span>
-                <span className="brutal-corner-cross left-4 bottom-3 text-black font-mono font-bold">+</span>
-                <span className="brutal-corner-cross right-4 bottom-3 text-black font-mono font-bold">+</span>
-
-                <span className="absolute left-[8%] top-[6%] font-mono text-[11px] font-bold tracking-[0.14em] uppercase text-black">
-                  Ayush Singh Studio
-                </span>
-                <span className="absolute right-[8%] top-[6%] font-mono text-[11px] font-bold tracking-[0.14em] text-black">
-                  [N° 01]
-                </span>
-                <span className="poster-amp absolute -left-[4%] top-[12%] font-serif text-[clamp(13rem,30vw,20rem)] leading-[0.88] tracking-[-0.12em] text-black select-none pointer-events-none">
-                  &amp;
-                </span>
-                <span className="absolute bottom-[8%] left-[8%] font-mono text-[11px] font-semibold leading-relaxed tracking-[0.08em] text-black uppercase">
-                  Web Architecture
-                  <br />
-                  &amp; Intelligence
-                </span>
-              </div>
-            </div>
-
-            <div data-depth="26" className="absolute inset-0">
-              <div className="poster-card absolute bottom-[6%] right-[2%] flex min-h-[30%] w-[62%] sm:w-[58%] flex-col justify-between rounded-xl border-2 border-[var(--ink)] bg-[var(--ink)] p-4 sm:p-5 text-[var(--page)] shadow-[0_20px_45px_-20px_rgba(0,0,0,0.6)]">
-                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--page)] opacity-80">
-                  [EXHIBITION // 2026]
-                </span>
-                <span className="font-sans text-lg sm:text-xl font-extrabold leading-tight tracking-tight text-[var(--page)]">
-                  Engineering Ideas Into Reality.
-                </span>
-              </div>
-            </div>
-
-            <div data-depth="40" className="absolute inset-0">
-              <motion.span
-                animate={reducedMotion ? undefined : { y: [0, -6, 0] }}
-                transition={{ repeat: Infinity, duration: 4.2, ease: "easeInOut" }}
-                className="poster-tag absolute right-[3%] top-[12%] rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] font-semibold text-[var(--ink)] shadow-sm"
-              >
-                React &amp; Next.js
-              </motion.span>
-              <motion.span
-                animate={reducedMotion ? undefined : { y: [0, 6, 0] }}
-                transition={{ repeat: Infinity, duration: 4.8, ease: "easeInOut", delay: 0.6 }}
-                className="poster-tag absolute right-[8%] top-[23%] rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] font-semibold text-[var(--ink)] shadow-sm"
-              >
-                Power BI &amp; ML
-              </motion.span>
-              <motion.span
-                animate={reducedMotion ? undefined : { y: [0, -7, 0] }}
-                transition={{ repeat: Infinity, duration: 5.4, ease: "easeInOut", delay: 1.2 }}
-                className="poster-tag absolute left-[2%] top-[40%] rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] font-semibold text-[var(--ink)] shadow-sm"
-              >
-                Creative Systems
-              </motion.span>
-            </div>
+          {/* Architectural Kinetic Core & Intelligence Visualizer */}
+          <div className="hero-visual-card relative mx-auto w-full flex items-center justify-center">
+            <HeroVisual />
           </div>
         </div>
 
@@ -403,8 +281,8 @@ export function Hero() {
         <div className="hero-fade my-4 sm:my-6 flex flex-col items-center justify-between gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-5 py-3.5 shadow-sm sm:flex-row sm:gap-6 sm:px-6">
           <div className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--muted)]">
             <span className="relative flex h-2 w-2" aria-hidden="true">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#B39CFF] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B39CFF]" />
             </span>
             <span className="font-semibold text-[var(--ink)]">[SPECIALIZATION]</span>
           </div>
@@ -417,7 +295,7 @@ export function Hero() {
           />
 
           <div className="hidden font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--muted)] sm:block">
-            <span>2026 // PRODUCTION</span>
+            <span className="text-[#1E90FF] font-semibold">2026 // PRODUCTION</span>
           </div>
         </div>
 

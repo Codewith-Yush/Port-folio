@@ -14,20 +14,20 @@
   min-height: 280px;
   overflow: hidden;
   --speeder-color: #1a1a24;
-  --speeder-glow: rgba(16, 185, 129, 0.4);
-  --visor-color: #06B6D4;
-  --plasma-from: #10B981;
-  --plasma-to: #06B6D4;
+  --speeder-glow: rgba(179, 156, 255, 0.4);
+  --visor-color: #1E90FF;
+  --plasma-from: #B39CFF;
+  --plasma-to: #1E90FF;
 }
 
 .dark .speeder-wrapper,
 .speeder-wrapper.dark,
 [data-theme="dark"] .speeder-wrapper {
   --speeder-color: #F9FAFB;
-  --speeder-glow: rgba(16, 185, 129, 0.7);
-  --visor-color: #00F5D4;
-  --plasma-from: #00F5D4;
-  --plasma-to: #818CF8;
+  --speeder-glow: rgba(179, 156, 255, 0.7);
+  --visor-color: #B39CFF;
+  --plasma-from: #B39CFF;
+  --plasma-to: #1E90FF;
 }
 
 /* ── 3D Perspective Cyber Highway Runway ── */
@@ -39,8 +39,8 @@
   height: 60%;
   transform: perspective(300px) rotateX(72deg);
   background-image:
-    linear-gradient(90deg, rgba(16, 185, 129, 0.18) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(16, 185, 129, 0.18) 1px, transparent 1px);
+    linear-gradient(90deg, rgba(179, 156, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(179, 156, 255, 0.16) 1px, transparent 1px);
   background-size: 40px 40px;
   animation: gridHighway 0.45s linear infinite;
   mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, transparent 85%);
@@ -155,7 +155,7 @@
   top: 0;
   width: 80px;
   height: 12px;
-  background: radial-gradient(ellipse at right, rgba(0, 245, 212, 0.7), rgba(16, 185, 129, 0.3) 40%, transparent 80%);
+  background: radial-gradient(ellipse at right, rgba(179, 156, 255, 0.7), rgba(30, 144, 255, 0.35) 40%, transparent 80%);
   filter: blur(4px);
   animation: flarePulse 0.25s ease-in-out infinite;
 }
@@ -437,8 +437,8 @@
 }
 
 .dark .speeder-wrapper .longfazers span {
-  background: linear-gradient(90deg, transparent 0%, rgba(16, 185, 129, 0.4) 30%, #00F5D4 80%, #ffffff 100%);
-  box-shadow: 0 0 8px rgba(0, 245, 212, 0.6);
+  background: linear-gradient(90deg, transparent 0%, rgba(30, 144, 255, 0.4) 30%, #B39CFF 80%, #ffffff 100%);
+  box-shadow: 0 0 8px rgba(179, 156, 255, 0.6);
   opacity: 0.75;
 }
 
@@ -525,7 +525,7 @@
 .hyperdrive-flash {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.45), rgba(6, 182, 212, 0.25) 50%, transparent 80%);
+  background: radial-gradient(circle at center, rgba(179, 156, 255, 0.45), rgba(30, 144, 255, 0.25) 50%, transparent 80%);
   animation: flashBurst 0.4s ease-out forwards;
   pointer-events: none;
   z-index: 50;

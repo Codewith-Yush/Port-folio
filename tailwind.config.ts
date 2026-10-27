@@ -11,6 +11,16 @@ export default {
         blush: "var(--blush)",
         coral: "var(--coral)",
         "coral-hover": "var(--coral-hover)",
+        lavender: "#B39CFF",
+        "electric-blue": "#1E90FF",
+        "vivid-pink": "#FF0099",
+        page: "var(--page)",
+        surface: "var(--surface)",
+        "surface-strong": "var(--surface-strong)",
+        ink: "var(--ink)",
+        muted: "var(--muted)",
+        line: "var(--line)",
+        accent: "var(--accent)",
       },
       fontFamily: {
         sans: [

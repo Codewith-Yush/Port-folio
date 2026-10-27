@@ -134,7 +134,7 @@ export function Header() {
           aria-label="Ayush Singh Portfolio Home"
         >
           <span className="relative flex h-2 w-2 items-center justify-center">
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-[#C7ED70]" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]" />
           </span>
           <span className="font-sans font-extrabold tracking-tight text-sm sm:text-base">
             Ayush Singh
@@ -159,7 +159,7 @@ export function Header() {
                 {isActive && (
                   <motion.div
                     layoutId="navPillIndicator"
-                    className="absolute inset-0 rounded-full bg-[var(--ink)]"
+                    className="absolute inset-0 rounded-full bg-[var(--ink)] dark:bg-[#B39CFF]"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
@@ -170,8 +170,8 @@ export function Header() {
             const linkClass = cn(
               "relative z-10 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors duration-150 select-none",
               isActive
-                ? "text-[var(--page)] font-bold"
-                : "text-[var(--muted)] hover:text-[var(--ink)]"
+                ? "text-[var(--page)] dark:text-[#0D0D0D] font-bold"
+                : "text-[var(--muted)] hover:text-[#B39CFF]"
             );
 
             if (isRouterLink) {
@@ -225,7 +225,7 @@ export function Header() {
             aria-label="Toggle navigation menu"
             className={cn(
               "btn-neo-control group relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 md:hidden border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)]",
-              open && "border-[var(--ink)] bg-[var(--ink)] text-[var(--page)] dark:bg-[#C7ED70] dark:text-black dark:border-[#C7ED70]"
+              open && "border-[#B39CFF] bg-[#B39CFF] text-[#0D0D0D] dark:bg-[#B39CFF] dark:text-[#0D0D0D] dark:border-[#B39CFF]"
             )}
           >
             <span
@@ -297,7 +297,7 @@ export function Header() {
                       <span
                         className={cn(
                           "flex h-7 w-7 items-center justify-center rounded-full border border-current/25 text-xs transition-transform duration-200 group-hover:translate-x-1",
-                          isActive ? "bg-[var(--flame)] text-[var(--page)] dark:bg-[#C7ED70] dark:text-black font-bold" : "text-[var(--ink)] opacity-70"
+                          isActive ? "bg-[var(--flame)] text-[var(--page)] dark:bg-[#B39CFF] dark:text-[#0D0D0D] font-bold" : "text-[var(--ink)] opacity-70"
                         )}
                       >
                         ↗
@@ -308,8 +308,8 @@ export function Header() {
                   const className = cn(
                     "group flex items-center justify-between rounded-xl border px-4 py-3.5 font-sans text-sm font-bold uppercase tracking-[0.14em] transition-colors duration-200",
                     isActive
-                      ? "bg-[var(--ink)] text-[var(--page)] border-[var(--ink)]"
-                      : "border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)]"
+                      ? "bg-[var(--ink)] text-[var(--page)] dark:bg-[#1C1C20] dark:text-[#B39CFF] dark:border-[#B39CFF] border-[var(--ink)]"
+                      : "border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:border-[#B39CFF]"
                   );
 
                   return (
@@ -352,8 +352,8 @@ export function Header() {
               {/* Bottom Mobile Quick Links */}
               <div data-mobile-bottom="true" className="pt-6 border-t border-[var(--line)] flex flex-col gap-3">
                 <div className="flex items-center justify-between text-xs text-[var(--muted)]">
-                  <span>Status: <strong className="text-emerald-600 dark:text-[#C7ED70]">Available for Work</strong></span>
-                  <a href="mailto:ayushsingh7360@gmail.com" className="text-emerald-600 dark:text-[#C7ED70] font-bold hover:underline">Email Me ↗</a>
+                  <span>Status: <strong className="text-[#1E90FF] dark:text-[#B39CFF]">Available for Work</strong></span>
+                  <a href="mailto:ayushsingh7360@gmail.com" className="text-[#1E90FF] dark:text-[#B39CFF] font-bold hover:underline">Email Me ↗</a>
                 </div>
               </div>
             </div>

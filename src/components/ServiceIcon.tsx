@@ -22,13 +22,13 @@ export function ServiceIcon({ icon, className = "h-6 w-6" }: ServiceIconProps) {
         {/* Central Generative 4-point Spark */}
         <path
           d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z"
-          className="fill-emerald-500/15 dark:fill-[#C7ED70]/20 stroke-emerald-600 dark:stroke-[#C7ED70]"
+          className="fill-[#B39CFF]/15 stroke-[#B39CFF]"
         />
         {/* Orbital Satellite Points */}
-        <circle cx="19" cy="5" r="1.5" className="fill-emerald-500 dark:fill-[#C7ED70] stroke-none" />
-        <circle cx="5" cy="19" r="1.5" className="fill-teal-400 stroke-none" />
+        <circle cx="19" cy="5" r="1.5" className="fill-[#1E90FF] stroke-none" />
+        <circle cx="5" cy="19" r="1.5" className="fill-[#FF0099] stroke-none" />
         {/* Micro Glow Cross */}
-        <path d="M19 2V8M16 5H22" strokeWidth="1.2" className="stroke-emerald-600/60 dark:stroke-[#C7ED70]/70" />
+        <path d="M19 2V8M16 5H22" strokeWidth="1.2" className="stroke-[#B39CFF]/80" />
       </svg>
     );
   }
@@ -55,7 +55,7 @@ export function ServiceIcon({ icon, className = "h-6 w-6" }: ServiceIconProps) {
           width="2.5"
           height="5"
           rx="1"
-          className="fill-emerald-500/20 dark:fill-[#C7ED70]/25 stroke-emerald-600 dark:stroke-[#C7ED70]"
+          className="fill-[#1E90FF]/30 stroke-[#1E90FF]"
         />
         <rect
           x="10.75"
@@ -63,7 +63,7 @@ export function ServiceIcon({ icon, className = "h-6 w-6" }: ServiceIconProps) {
           width="2.5"
           height="9"
           rx="1"
-          className="fill-emerald-500/40 dark:fill-[#C7ED70]/40 stroke-emerald-600 dark:stroke-[#C7ED70]"
+          className="fill-[#B39CFF]/40 stroke-[#B39CFF]"
         />
         <rect
           x="15.5"
@@ -71,16 +71,16 @@ export function ServiceIcon({ icon, className = "h-6 w-6" }: ServiceIconProps) {
           width="2.5"
           height="12"
           rx="1"
-          className="fill-emerald-500 dark:fill-[#C7ED70] stroke-emerald-600 dark:stroke-[#C7ED70]"
+          className="fill-[#B39CFF] stroke-[#B39CFF]"
         />
         {/* Ascending Trend Line */}
         <path
           d="M6 11L11 7L16 4"
           strokeWidth="1.5"
           strokeDasharray="2 2"
-          className="stroke-teal-500 dark:stroke-cyan-400"
+          className="stroke-[#1E90FF]"
         />
-        <circle cx="16" cy="4" r="1.5" className="fill-teal-400 stroke-none" />
+        <circle cx="16" cy="4" r="1.5" className="fill-[#FF0099] stroke-none" />
       </svg>
     );
   }
@@ -107,12 +107,12 @@ export function ServiceIcon({ icon, className = "h-6 w-6" }: ServiceIconProps) {
       {/* Minimalist Code Construct < / > */}
       <path
         d="M8.5 12L6.5 14L8.5 16"
-        className="stroke-emerald-600 dark:stroke-[#C7ED70]"
+        className="stroke-[#B39CFF]"
         strokeWidth="1.6"
       />
       <path
         d="M15.5 12L17.5 14L15.5 16"
-        className="stroke-emerald-600 dark:stroke-[#C7ED70]"
+        className="stroke-[#B39CFF]"
         strokeWidth="1.6"
       />
       <line
@@ -120,7 +120,7 @@ export function ServiceIcon({ icon, className = "h-6 w-6" }: ServiceIconProps) {
         y1="11.5"
         x2="10.5"
         y2="16.5"
-        className="stroke-teal-500 dark:stroke-cyan-400"
+        className="stroke-[#1E90FF]"
         strokeWidth="1.6"
       />
     </svg>

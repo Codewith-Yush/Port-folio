@@ -57,6 +57,7 @@ export const personalInfo = {
 export const navItems = [
   { label: "Work", href: "#work" },
   { label: "Skills", href: "#skills" },
+  { label: "Services", href: "#services" },
   { label: "Gallery", href: "/canva-gallery" },
   { label: "Resume", href: "/resume" },
   { label: "Contact", href: "#contact" },

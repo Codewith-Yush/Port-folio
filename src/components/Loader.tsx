@@ -209,14 +209,14 @@ export function Preloader({ onComplete, minDuration = 1200 }: PreloaderProps) {
       <div className="relative z-30 w-full max-w-7xl mx-auto px-6 sm:px-10 pt-6 sm:pt-8 flex items-center justify-between text-[10px] sm:text-xs font-mono font-bold tracking-widest text-[var(--ink)]/60">
         <div className="flex items-center gap-2.5">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#B39CFF] opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B39CFF]" />
           </span>
           <span className="uppercase text-[var(--ink)]">AYUSH_OS // QUANTUM_SYS</span>
         </div>
 
         <div className="hidden sm:flex items-center gap-4">
-          <span className="text-emerald-500 font-extrabold uppercase">WARP VELOCITY</span>
+          <span className="text-[#B39CFF] font-extrabold uppercase">WARP VELOCITY</span>
           <span className="px-2 py-0.5 rounded border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-[9px]">
             ESC to skip
           </span>
@@ -232,7 +232,7 @@ export function Preloader({ onComplete, minDuration = 1200 }: PreloaderProps) {
       <div className="relative z-30 w-full max-w-xl mx-auto px-6 pb-8 sm:pb-12 flex flex-col items-center gap-3.5 text-center">
         {/* Digital Speedometer & Status */}
         <div className="w-full flex items-center justify-between text-xs sm:text-sm font-mono font-bold text-[var(--ink)]">
-          <span className="text-[10px] sm:text-xs uppercase tracking-widest text-emerald-500 dark:text-emerald-400">
+          <span className="text-[10px] sm:text-xs uppercase tracking-widest text-[#B39CFF] dark:text-[#B39CFF]">
             {getStatusText(progress)}
           </span>
           <span className="text-sm sm:text-base font-extrabold tracking-wider">
@@ -243,7 +243,7 @@ export function Preloader({ onComplete, minDuration = 1200 }: PreloaderProps) {
         {/* High-Tech Segmented Progress Bar */}
         <div className="w-full h-1.5 sm:h-2 overflow-hidden rounded-full bg-black/10 dark:bg-white/10 p-[1px]">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 shadow-[0_0_12px_rgba(16,185,129,0.7)] transition-all duration-75"
+            className="h-full rounded-full bg-gradient-to-r from-[#1E90FF] via-[#B39CFF] to-[#FF0099] shadow-[0_0_12px_rgba(179,156,255,0.7)] transition-all duration-75"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -254,7 +254,7 @@ export function Preloader({ onComplete, minDuration = 1200 }: PreloaderProps) {
           <span>•</span>
           <span>Portfolio 2026</span>
           <span>•</span>
-          <span className="text-emerald-500 font-bold">{progress}%</span>
+          <span className="text-[#B39CFF] font-bold">{progress}%</span>
         </div>
       </div>
     </div>

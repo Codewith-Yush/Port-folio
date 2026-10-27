@@ -34,9 +34,9 @@ export function SkillMeter({ name, level, tier = "Advanced", tags, index = 0 }: 
         </div>
       </div>
 
-      <div className="h-1 w-full overflow-hidden rounded-none bg-[var(--line)]">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--line)]">
         <motion.div
-          className="h-full bg-[var(--flame)] dark:bg-[#C7ED70]"
+          className="h-full rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]"
           initial={reducedMotion ? { width: `${level}%` } : { width: "0%" }}
           whileInView={{ width: `${level}%` }}
           viewport={{ once: true, margin: "-40px" }}
@@ -49,11 +49,11 @@ export function SkillMeter({ name, level, tier = "Advanced", tags, index = 0 }: 
       </div>
 
       {tags && tags.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1">
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
           {tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-sm border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--muted)]"
+              className="rounded-md border border-[var(--line)] bg-[var(--surface-strong)] px-2 py-0.5 font-mono text-[10px] text-[var(--muted)] transition-colors duration-200 hover:border-[#B39CFF]/40 hover:text-[#B39CFF]"
             >
               #{tag}
             </span>

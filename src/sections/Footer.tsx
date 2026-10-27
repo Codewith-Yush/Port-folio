@@ -63,7 +63,7 @@ const MARQUEE_ITEMS = [
 const TECH_SPEC = [
   { label: "Core Engine", value: "React 19 · Vite · TypeScript" },
   { label: "Motion Layer", value: "GSAP 3 · Framer Motion 14" },
-  { label: "Design System", value: "Architectural Obsidian · #C7ED70" },
+  { label: "Design System", value: "Electric Lavender · #0D0D0D" },
   { label: "Audio Engine", value: "Synthesized Web Audio API" },
 ];
 
@@ -93,7 +93,7 @@ const CSS = `
   bottom: -2px;
   height: 1px;
   width: 100%;
-  background: var(--flame, #C7ED70);
+  background: var(--flame, #B39CFF);
   transform: scaleX(0);
   transform-origin: right;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -112,11 +112,11 @@ const CSS = `
   transition: color 0.35s cubic-bezier(0.16, 1, 0.3, 1), -webkit-text-stroke-color 0.35s ease;
 }
 .group:hover .ft-signature-first {
-  color: var(--flame, #C7ED70);
+  color: var(--flame, #B39CFF);
 }
 .group:hover .ft-signature-last {
-  color: var(--flame, #C7ED70);
-  -webkit-text-stroke-color: var(--flame, #C7ED70);
+  color: var(--flame, #B39CFF);
+  -webkit-text-stroke-color: var(--flame, #B39CFF);
 }
 @media (prefers-reduced-motion: reduce) {
   .ft-marquee-track {
@@ -170,8 +170,8 @@ function FooterClock() {
   return (
     <div className="flex items-center gap-2.5 font-mono text-xs tabular-nums text-[var(--ink)]">
       <span className="relative flex h-2 w-2 shrink-0">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1E90FF] opacity-60" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-[#1E90FF]" />
       </span>
       <span className="font-semibold">{time || "12:00:00 PM"}</span>
       <span className="rounded bg-[var(--surface-strong)] px-1.5 py-0.5 text-[10px] uppercase font-bold tracking-wider text-[var(--muted)]">
@@ -184,7 +184,7 @@ function FooterClock() {
 function SectionTag({ index, label }: { index: string; label: string }) {
   return (
     <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--muted)]">
-      <span className="text-[var(--flame, #C7ED70)] font-bold">[{index}]</span>
+      <span className="text-[#B39CFF] font-bold">[{index}]</span>
       <span>{label}</span>
     </div>
   );
@@ -309,10 +309,10 @@ export function Footer() {
               {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, idx) => (
                 <span
                   key={idx}
-                  className="flex items-center gap-12 whitespace-nowrap font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
+                  className="flex items-center gap-12 whitespace-nowrap font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted)] hover:text-[#B39CFF] transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--flame, #C7ED70)] opacity-75" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF] opacity-80" />
                     {item}
                   </span>
                   <span className="h-px w-6 bg-[var(--line)]" />
@@ -361,7 +361,7 @@ export function Footer() {
                 <a
                   href={`mailto:${EMAIL}`}
                   onClick={() => playClick("interactive")}
-                  className="ft-link font-mono text-xs sm:text-sm font-semibold text-[var(--ink)] hover:text-[var(--flame, #C7ED70)] transition-colors"
+                  className="ft-link font-mono text-xs sm:text-sm font-semibold text-[var(--ink)] hover:text-[#B39CFF] transition-colors"
                 >
                   {EMAIL}
                 </a>
@@ -370,14 +370,14 @@ export function Footer() {
                   onClick={handleCopyEmail}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="group relative inline-flex items-center gap-1 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1 text-[11px] font-mono text-[var(--muted)] transition-colors hover:border-[var(--flame, #C7ED70)] hover:text-[var(--ink)]"
+                  className="group relative inline-flex items-center gap-1 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1 text-[11px] font-mono text-[var(--muted)] transition-colors hover:border-[#B39CFF] hover:text-[var(--ink)]"
                   title="Copy email to clipboard"
                   aria-label="Copy email address"
                 >
                   {copied ? (
                     <>
-                      <Check className="h-3 w-3 text-emerald-400" />
-                      <span className="text-emerald-400 font-semibold">Copied!</span>
+                      <Check className="h-3 w-3 text-[#B39CFF]" />
+                      <span className="text-[#B39CFF] font-semibold">Copied!</span>
                     </>
                   ) : (
                     <>
@@ -408,12 +408,12 @@ export function Footer() {
                           className="group flex items-center justify-between text-[var(--muted)] transition-colors hover:text-[var(--ink)]"
                         >
                           <span className="flex items-center gap-2.5">
-                            <span className="font-mono text-[10px] text-[var(--line)] group-hover:text-[var(--flame, #C7ED70)] transition-colors">
+                            <span className="font-mono text-[10px] text-[var(--line)] group-hover:text-[#B39CFF] transition-colors">
                               {labelIndex}
                             </span>
                             <span className="ft-link font-medium">{item.label}</span>
                           </span>
-                          <span className="font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100 text-[var(--flame, #C7ED70)]">
+                          <span className="font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100 text-[#B39CFF]">
                             →
                           </span>
                         </Link>
@@ -428,12 +428,12 @@ export function Footer() {
                           className="group flex items-center justify-between text-[var(--muted)] transition-colors hover:text-[var(--ink)]"
                         >
                           <span className="flex items-center gap-2.5">
-                            <span className="font-mono text-[10px] text-[var(--line)] group-hover:text-[var(--flame, #C7ED70)] transition-colors">
+                            <span className="font-mono text-[10px] text-[var(--line)] group-hover:text-[#B39CFF] transition-colors">
                               {labelIndex}
                             </span>
                             <span className="ft-link font-medium">{item.label}</span>
                           </span>
-                          <span className="font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100 text-[var(--flame, #C7ED70)]">
+                          <span className="font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100 text-[#B39CFF]">
                             →
                           </span>
                         </a>
@@ -460,10 +460,10 @@ export function Footer() {
                     aria-label={`${soc.name}: ${soc.handle}`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="ft-link font-semibold text-[var(--ink)] group-hover:text-[var(--flame, #C7ED70)] transition-colors">
+                      <span className="ft-link font-semibold text-[var(--ink)] group-hover:text-[#B39CFF] transition-colors">
                         {soc.name}
                       </span>
-                      <ArrowUpRight className="h-3.5 w-3.5 text-[var(--muted)] transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--ink)]" />
+                      <ArrowUpRight className="h-3.5 w-3.5 text-[var(--muted)] transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#FF0099]" />
                     </div>
                     <div className="flex items-center justify-between font-mono text-[11px] text-[var(--muted)]">
                       <span>{soc.handle}</span>
@@ -484,8 +484,8 @@ export function Footer() {
 
               {/* Live Engagement Badge */}
               <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3.5 shadow-sm">
-                <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-emerald-400">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-[#1E90FF]">
+                  <span className="h-2 w-2 rounded-full bg-[#1E90FF] animate-pulse" />
                   AVAILABLE
                 </div>
                 <p className="mt-1 text-xs text-[var(--muted)] leading-relaxed">
@@ -507,7 +507,7 @@ export function Footer() {
 
         {/* ── 2. THE MONUMENTAL SIGNATURE EXPERIENCE ── */}
         <section
-          className="ft-reveal group relative isolate mt-12 overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:mt-16 sm:p-12 md:p-16 transition-all duration-500 hover:border-[var(--flame, #C7ED70)]/40 shadow-sm"
+          className="ft-reveal group relative isolate mt-12 overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:mt-16 sm:p-12 md:p-16 transition-all duration-500 hover:border-[#B39CFF]/40 shadow-sm"
           onMouseEnter={handleScrambleStart}
           onTouchStart={handleScrambleStart}
           aria-label="Ayush Singh Monumental Signature"
@@ -515,24 +515,24 @@ export function Footer() {
           {/* Ambient luminous glow behind the signature */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -right-20 -top-20 -z-10 h-72 w-72 rounded-full bg-[var(--flame, #C7ED70)]/10 blur-[100px] transition-opacity duration-700 group-hover:opacity-100 opacity-40"
+            className="pointer-events-none absolute -right-20 -top-20 -z-10 h-72 w-72 rounded-full bg-[#B39CFF]/15 blur-[100px] transition-opacity duration-700 group-hover:opacity-100 opacity-40"
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -left-20 -bottom-20 -z-10 h-72 w-72 rounded-full bg-[#818CF8]/10 blur-[100px] transition-opacity duration-700 group-hover:opacity-100 opacity-40"
+            className="pointer-events-none absolute -left-20 -bottom-20 -z-10 h-72 w-72 rounded-full bg-[#1E90FF]/15 blur-[100px] transition-opacity duration-700 group-hover:opacity-100 opacity-40"
           />
 
           {/* Top header bar within card */}
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--line)] pb-6 font-mono text-[11px] text-[var(--muted)]">
             <div className="flex items-center gap-2 uppercase tracking-[0.2em]">
-              <Terminal className="h-3.5 w-3.5 text-[var(--flame, #C7ED70)]" />
+              <Terminal className="h-3.5 w-3.5 text-[#B39CFF]" />
               <span>COLOPHON SPECIFICATION // REPO ID: AYUSH-SINGH</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="hidden sm:inline-block uppercase tracking-[0.18em]">
                 {isDecoding ? "DECODING TRANSMISSION..." : "HOVER TO DECRYPT SIGNATURE"}
               </span>
-              <Sparkles className="h-3.5 w-3.5 text-[var(--flame, #C7ED70)] transition-transform duration-500 group-hover:rotate-45" />
+              <Sparkles className="h-3.5 w-3.5 text-[#B39CFF] transition-transform duration-500 group-hover:rotate-45" />
             </div>
           </div>
 
@@ -590,11 +590,11 @@ export function Footer() {
               onClick={scrollToTop}
               whileHover={reducedMotion ? {} : { y: -2, scale: 1.02 }}
               whileTap={reducedMotion ? {} : { scale: 0.96 }}
-              className="group inline-flex items-center gap-2.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--ink)] shadow-sm transition-all duration-300 hover:border-[var(--flame, #C7ED70)] hover:bg-[var(--surface-strong)]"
+              className="group inline-flex items-center gap-2.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--ink)] shadow-sm transition-all duration-300 hover:border-[#B39CFF] hover:bg-[var(--surface-strong)]"
               aria-label="Scroll back to top of page"
             >
               <span>TOP</span>
-              <ArrowUp className="h-3.5 w-3.5 text-[var(--flame, #C7ED70)] transition-transform duration-300 group-hover:-translate-y-0.5" />
+              <ArrowUp className="h-3.5 w-3.5 text-[#B39CFF] transition-transform duration-300 group-hover:-translate-y-0.5" />
             </motion.button>
           </div>
         </div>

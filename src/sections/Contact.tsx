@@ -57,11 +57,11 @@ function SocialButton({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="group inline-flex h-11 items-center justify-between gap-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 text-sm font-medium text-[var(--ink)] transition-colors hover:border-[var(--flame)] hover:bg-[var(--surface-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--flame)]"
+      className="group inline-flex h-11 items-center justify-between gap-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 text-sm font-medium text-[var(--ink)] transition-colors hover:border-[#B39CFF] hover:bg-[var(--surface-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B39CFF]"
     >
       <span>{label}</span>
       <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] text-[var(--ink)]">
-        <span className="text-xs transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+        <span className="text-xs transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#FF0099]">
           ↗
         </span>
       </span>
@@ -272,10 +272,10 @@ export function Contact() {
         {/* Architectural Sub-bar */}
         <div className="mb-10 flex items-center justify-between border-b border-[var(--line)] pb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-14">
           <span className="flex items-center gap-2.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
-            <span className="font-semibold text-[var(--ink)]">[04 // INITIATE TRANSMISSION]</span>
+            <span className="h-2 w-2 rounded-full bg-[#B39CFF]" aria-hidden="true" />
+            <span className="font-semibold text-[var(--ink)]">[05 // INITIATE TRANSMISSION]</span>
           </span>
-          <span className="hidden sm:inline">[SLA // RESPONSE WITHIN 12H]</span>
+          <span className="hidden sm:inline text-[#1E90FF] font-medium">[SLA // RESPONSE WITHIN 12H]</span>
         </div>
 
         <div className="flex flex-col items-start gap-12 lg:flex-row lg:gap-16">
@@ -339,7 +339,7 @@ export function Contact() {
                   [ENGAGEMENT]
                 </dt>
                 <dd className="flex items-center gap-2 font-sans font-bold text-[var(--ink)]">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  <span className="h-2 w-2 rounded-full bg-[#1E90FF]" />
                   Open for Q2/Q3 Roles
                 </dd>
               </div>
@@ -368,7 +368,7 @@ export function Contact() {
                 >
                   <svg
                     viewBox="0 0 52 52"
-                    className="h-14 w-14 text-emerald-500 dark:text-[#C7ED70]"
+                    className="h-14 w-14 text-[#1E90FF] dark:text-[#B39CFF]"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2.5"
@@ -479,7 +479,7 @@ export function Contact() {
                             "Send message"
                           )}
                         </span>
-                        <span className="btn-icon-pod h-8 w-8 rounded-full bg-[var(--page)] text-[var(--ink)] dark:bg-black dark:text-[#C7ED70]">
+                        <span className="btn-icon-pod h-8 w-8 rounded-full bg-[var(--page)] text-[var(--ink)] dark:bg-black dark:text-[#B39CFF]">
                           <span className="text-sm font-bold transition-transform duration-300 group-hover:translate-x-0.5">
                             →
                           </span>

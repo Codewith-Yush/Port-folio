@@ -1,5 +1,4 @@
 import {
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -7,7 +6,6 @@ import {
   startTransition,
   type RefObject,
 } from "react";
-import { createPortal, flushSync } from "react-dom";
 import { useNavigate, Link } from "react-router-dom";
 import {
   motion,
@@ -18,9 +16,17 @@ import {
   useSpring,
   useTransform,
   useMotionValue,
-  useVelocity,
 } from "framer-motion";
-import { ArrowUpRight, ChevronLeft, ChevronRight, ArrowLeft, Layers } from "lucide-react";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  ArrowLeft,
+  Layers,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
 import { cn } from "../utils/cn";
 import { projects, type Project } from "../data/portfolio";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
@@ -28,35 +34,59 @@ import { Container } from "../components/Container";
 import { playTab, playClick } from "../utils/soundEffects";
 
 /* ========================================================================== */
-/*  Concept                                                                   */
-/*  — Typographic index: oversized rows, rolling-letter hover, siblings dim   */
-/*  — Cursor-bound preview with velocity-driven tilt (springs, no layout)     */
-/*  — View Transitions API: the preview image MORPHS into the case-study hero */
-/*  — CSS scroll-driven animations (animation-timeline: view()) for reveals   */
-/*  — @property conic ring, parallax hero via useScroll({ container })        */
+/*  Design System Configuration (Aligned with DESIGN.md)                      */
 /* ========================================================================== */
 
 type FilterCategory = "all" | "web" | "data" | "design";
 type Category = Exclude<FilterCategory, "all">;
-type VTDoc = Document & {
-  startViewTransition?: (cb: () => void | Promise<void>) => unknown;
-};
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
-const VT_NAME = "project-hero";
 
 const FILTERS: { key: FilterCategory; label: string }[] = [
-  { key: "all", label: "All" },
+  { key: "all", label: "All Projects" },
   { key: "web", label: "Web Systems" },
   { key: "data", label: "Data & ML" },
   { key: "design", label: "Visual Direction" },
 ];
 
-const CATEGORY_META: Record<Category, { label: string; badge: string }> = {
-  web: { label: "Web Architecture", badge: "Web System" },
-  data: { label: "Data Intelligence", badge: "Data & ML" },
-  design: { label: "Visual Direction", badge: "Brand Identity" },
+const CATEGORY_META: Record<
+  Category,
+  {
+    label: string;
+    badge: string;
+    accentColor: string;
+    badgeClass: string;
+    dotColor: string;
+  }
+> = {
+  web: {
+    label: "Web Architecture",
+    badge: "Web System",
+    accentColor: "#1E90FF",
+    badgeClass: "text-[#1E90FF] bg-[#1E90FF]/10 border-[#1E90FF]/30",
+    dotColor: "bg-[#1E90FF]",
+  },
+  data: {
+    label: "Data Intelligence",
+    badge: "Data & ML",
+    accentColor: "#B39CFF",
+    badgeClass: "text-[#B39CFF] bg-[#B39CFF]/10 border-[#B39CFF]/30",
+    dotColor: "bg-[#B39CFF]",
+  },
+  design: {
+    label: "Visual Direction",
+    badge: "Brand Identity",
+    accentColor: "#B39CFF",
+    badgeClass: "text-[#B39CFF] bg-[#B39CFF]/10 border-[#B39CFF]/30",
+    dotColor: "bg-[#B39CFF]",
+  },
 };
+
+const GithubIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={cn("fill-current", className)} aria-hidden="true">
+    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.933.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+  </svg>
+);
 
 const isDesignProject = (p: Project) =>
   p.category === "design" ||
@@ -87,44 +117,19 @@ const matches = (p: Project, key: FilterCategory) =>
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/* ------------------------------ Global CSS -------------------------------- */
-const CSS = `
-@property --pj-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
-@keyframes pj-spin { to { --pj-angle: 360deg; } }
-@keyframes pj-rise {
-  from { opacity: 0; transform: translateY(56px); }
-  to   { opacity: 1; transform: none; }
-}
-.pj-ring {
-  background: conic-gradient(from var(--pj-angle), transparent 0 50%, var(--coral) 82%, transparent 100%);
-  animation: pj-spin 3.2s linear infinite;
-}
-@supports (animation-timeline: view()) {
-  .pj-reveal {
-    animation: pj-rise linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 60%;
+const getDomainUrl = (p: Project) => {
+  if (p.link) {
+    try {
+      const url = new URL(p.link);
+      return url.hostname.replace(/^www\./, "");
+    } catch {
+      return p.link;
+    }
   }
-}
-::view-transition-group(root) { animation-duration: .5s; }
-::view-transition-group(${VT_NAME}) {
-  animation-duration: .85s;
-  animation-timing-function: cubic-bezier(.16, 1, .3, 1);
-  border-radius: 1rem;
-  overflow: clip;
-}
-::view-transition-image-pair(${VT_NAME}) { isolation: auto; }
-::view-transition-old(${VT_NAME}),
-::view-transition-new(${VT_NAME}) {
-  mix-blend-mode: normal;
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-}
-@media (prefers-reduced-motion: reduce) {
-  .pj-reveal, .pj-ring { animation: none !important; }
-}
-`;
+  if (p.galleryLink) return "canva.com/gallery";
+  if (p.github) return "github.com/repository";
+  return "system.internal";
+};
 
 /* ------------------------------ Metric parsing ---------------------------- */
 function parseMetric(value: string) {
@@ -145,9 +150,9 @@ type Parsed = NonNullable<ReturnType<typeof parseMetric>>;
 const fmt = (p: Parsed, v: number) =>
   p.hasComma
     ? v.toLocaleString("en-US", {
-        minimumFractionDigits: p.decimals,
-        maximumFractionDigits: p.decimals,
-      })
+      minimumFractionDigits: p.decimals,
+      maximumFractionDigits: p.decimals,
+    })
     : v.toFixed(p.decimals);
 
 /** Counts the leading number up once it scrolls into view. */
@@ -161,13 +166,13 @@ function CountUp({
   rootRef?: RefObject<Element | null>;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { root: rootRef, once: true, amount: 0.6 });
+  const inView = useInView(ref, { root: rootRef, once: true, amount: 0.5 });
   const parsed = useMemo(() => parseMetric(value), [value]);
 
   useEffect(() => {
     if (disabled || !inView || !parsed) return;
     const controls = animate(0, parsed.target, {
-      duration: 1.6,
+      duration: 1.4,
       ease: EASE,
       onUpdate: (v) => {
         if (ref.current)
@@ -184,95 +189,312 @@ function CountUp({
   return <span ref={ref}>{initial}</span>;
 }
 
-/* ------------------------------ Text primitives --------------------------- */
-/** Letters roll up and are replaced by a coral copy (pure CSS transforms). */
-function RollText({ text, hot, reduced }: { text: string; hot: boolean; reduced: boolean }) {
-  const words = text.split(" ");
-  let n = 0;
-  const on = hot && !reduced;
-  const t = "transition-transform duration-[650ms] ease-[cubic-bezier(.16,1,.3,1)]";
-
-  return (
-    <span className="block" aria-label={text}>
-      {words.map((word, wi) => (
-        <span
-          key={wi}
-          aria-hidden="true"
-          className="inline-block overflow-hidden whitespace-nowrap align-top pb-[0.12em] -mb-[0.12em]"
-        >
-          {Array.from(word).map((ch, ci) => {
-            const delay = `${n++ * 14}ms`;
-            return (
-              <span key={ci} className="relative inline-block">
-                <span
-                  className={cn("block", t)}
-                  style={{ transform: on ? "translateY(-110%)" : "none", transitionDelay: delay }}
-                >
-                  {ch}
-                </span>
-                <span
-                  className={cn("absolute left-0 top-[110%] block text-[var(--coral)]", t)}
-                  style={{ transform: on ? "translateY(-110%)" : "none", transitionDelay: delay }}
-                >
-                  {ch}
-                </span>
-              </span>
-            );
-          })}
-          {wi < words.length - 1 ? "\u00A0" : null}
-        </span>
-      ))}
-    </span>
-  );
-}
-
-/** Words slide up from behind a mask. */
-function MaskWords({
-  text,
-  delay = 0,
-  inView = false,
-  reduced,
+/* -------------------------------------------------------------------------- */
+/*  Scroll-Animated Parallax Project Card Component                           */
+/* -------------------------------------------------------------------------- */
+function ScrollProjectCard({
+  project,
+  index,
+  total,
+  onOpenCase,
 }: {
-  text: string;
-  delay?: number;
-  inView?: boolean;
-  reduced: boolean;
+  project: Project;
+  index: number;
+  total: number;
+  onOpenCase: () => void;
 }) {
-  const words = text.split(" ");
+  const cardRef = useRef<HTMLDivElement>(null);
+  const reduced = usePrefersReducedMotion();
+
+  // Scroll tracking specifically for this card
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"],
+  });
+
+  // Soft cursor spotlight tracking
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse" || !cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
+  };
+
+  // Multi-plane optical parallax scroll transforms
+  const imageY = useTransform(scrollYProgress, [0, 1], reduced ? ["0%", "0%"] : ["-8%", "8%"]);
+  const badgeY = useTransform(scrollYProgress, [0, 1], reduced ? ["0px", "0px"] : ["12px", "-12px"]);
+  const cardScale = useTransform(
+    scrollYProgress,
+    [0, 0.25, 0.85, 1],
+    reduced ? [1, 1, 1, 1] : [0.96, 1, 1, 0.98],
+  );
+  const cardOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.2, 0.85, 1],
+    reduced ? [1, 1, 1, 1] : [0.55, 1, 1, 0.75],
+  );
+
+  const meta = CATEGORY_META[getCategory(project)];
+  const domainUrl = getDomainUrl(project);
+
+  // Alternating layout on desktop for an engaging editorial rhythm
+  const isEven = index % 2 === 1;
+
   return (
-    <span aria-label={text} className="block">
-      {words.map((w, i) => (
-        <span
-          key={i}
+    <motion.div
+      ref={cardRef}
+      onPointerMove={handlePointerMove}
+      style={{
+        scale: cardScale,
+        opacity: cardOpacity,
+      }}
+      className="relative mb-16 sm:mb-24 last:mb-0"
+    >
+      <article className="group relative overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8 md:p-10 lg:p-12 transition-all duration-300 hover:border-[#B39CFF]/40 shadow-xl dark:bg-[#141416]">
+        {/* Soft cursor-following ambient spotlight */}
+        <motion.div
           aria-hidden="true"
-          className="inline-block overflow-hidden align-top pb-[0.14em] -mb-[0.14em]"
-        >
-          <motion.span
-            className="inline-block"
-            initial={reduced ? false : { y: "118%", rotate: 3 }}
-            {...(inView
-              ? { whileInView: { y: 0, rotate: 0 }, viewport: { once: true, amount: 0.6 } }
-              : { animate: { y: 0, rotate: 0 } })}
-            transition={{ duration: 0.95, ease: EASE, delay: delay + i * 0.07 }}
+          className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background: useTransform(
+              [mouseX, mouseY],
+              ([x, y]) =>
+                `radial-gradient(650px circle at ${x}px ${y}px, rgba(179, 156, 255, 0.08), transparent 70%)`,
+            ),
+          }}
+        />
+
+        {/* Subtle accent hairline at the top */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#B39CFF]/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-14">
+          {/* Text Column (Alternates on desktop) */}
+          <div
+            className={cn(
+              "flex flex-col justify-between space-y-6 lg:col-span-6",
+              isEven ? "lg:order-2" : "lg:order-1",
+            )}
           >
-            {w}
-            {i < words.length - 1 ? "\u00A0" : null}
-          </motion.span>
-        </span>
-      ))}
-    </span>
+            <div>
+              {/* Category & Index Header */}
+              <div className="mb-4 flex flex-wrap items-center gap-3">
+                <span className="font-mono text-xs font-bold text-[#B39CFF]">
+                  {pad(index + 1)} / {pad(total)}
+                </span>
+
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-xs font-semibold uppercase tracking-wider",
+                    meta.badgeClass,
+                  )}
+                >
+                  <span className={cn("h-1.5 w-1.5 rounded-full", meta.dotColor)} />
+                  {meta.label}
+                </span>
+
+                {index === 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#B39CFF]/40 bg-[#B39CFF]/10 px-2.5 py-0.5 font-mono text-[11px] font-bold text-[#B39CFF] uppercase tracking-wider">
+                    <Sparkles className="h-3 w-3" />
+                    Featured
+                  </span>
+                )}
+
+                <span className="font-mono text-xs text-[var(--muted)]">
+                  {project.year} • {project.role}
+                </span>
+              </div>
+
+              {/* Title with Arrow Link */}
+              <h3
+                onClick={onOpenCase}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onOpenCase();
+                  }
+                }}
+                className="group/title inline-flex items-center gap-2.5 font-sans text-3xl font-bold tracking-tight text-[var(--ink)] cursor-pointer sm:text-4xl md:text-5xl transition-colors duration-200 hover:text-[#B39CFF]"
+              >
+                <span>{project.title}</span>
+                <ArrowUpRight className="h-6 w-6 text-[var(--muted)] transition-transform duration-300 group-hover/title:translate-x-1 group-hover/title:-translate-y-1 group-hover/title:text-[#B39CFF]" />
+              </h3>
+
+              {/* Description */}
+              <p className="mt-4 text-base leading-relaxed text-[var(--muted)]">
+                {project.description}
+              </p>
+
+              {/* Scroll-Animated Quantitative KPI Badges */}
+              {project.metrics.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-2.5">
+                  {project.metrics.map((m) => (
+                    <div
+                      key={m.label}
+                      className="inline-flex items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface-strong)] px-3.5 py-1.5 font-mono text-xs text-[var(--ink)]"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-[#B39CFF]" />
+                      <span className="font-bold text-[#B39CFF]">
+                        <CountUp value={m.value} disabled={reduced} />
+                      </span>
+                      <span className="text-[var(--muted)]">{m.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Tech Stack Chips */}
+              <div className="mt-5 flex flex-wrap gap-1.5">
+                {project.stack.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-1 font-mono text-xs text-[var(--muted)] transition-colors duration-200 hover:text-[var(--ink)] hover:border-[#1E90FF]/40"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons Bar */}
+            <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-[var(--line)]">
+              {project.galleryLink ? (
+                <Link
+                  to={project.galleryLink}
+                  onClick={() => playClick()}
+                  className="btn-neo-base btn-neo-primary inline-flex h-11 items-center gap-2 px-5 text-xs font-bold"
+                >
+                  <span>Exhibition Showcase</span>
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              ) : project.link ? (
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => playClick()}
+                  className="btn-neo-base btn-neo-primary inline-flex h-11 items-center gap-2 px-5 text-xs font-bold"
+                >
+                  <span>Launch Live Demo</span>
+                  <ArrowUpRight className="h-4 w-4" />
+                </a>
+              ) : null}
+
+              {project.github && (
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => playClick()}
+                  className="btn-neo-base btn-neo-secondary inline-flex h-11 items-center gap-2 px-4 text-xs font-semibold"
+                >
+                  <GithubIcon className="h-4 w-4 text-[var(--muted)]" />
+                  <span>Source Code</span>
+                </a>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  playClick();
+                  onOpenCase();
+                }}
+                className="btn-neo-base btn-neo-secondary inline-flex h-11 items-center gap-2 px-4 text-xs font-semibold"
+              >
+                <span>Case Study</span>
+                <ArrowRight className="h-4 w-4 text-[var(--muted)]" />
+              </button>
+            </div>
+          </div>
+
+          {/* Image Column (Alternates on desktop) */}
+          <div className={cn("lg:col-span-6", isEven ? "lg:order-1" : "lg:order-2")}>
+            <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] shadow-lg transition-all duration-300 group-hover:border-[#B39CFF]/40">
+              {/* Minimal Clean System Top Bar */}
+              <div className="flex h-10 items-center justify-between border-b border-[var(--line)] bg-[var(--surface-strong)] px-4">
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
+                </div>
+
+                <div className="flex items-center gap-1.5 rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 py-0.5 font-mono text-[11px] text-[var(--muted)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#1E90FF]" />
+                  <span>{domainUrl}</span>
+                </div>
+
+                <span className="font-mono text-[10px] text-[var(--muted)] uppercase tracking-wider hidden sm:inline">
+                  Verified Production
+                </span>
+              </div>
+
+              {/* Image Frame with Multi-Layer Scroll Parallax Shift */}
+              <div
+                onClick={() => {
+                  playClick();
+                  onOpenCase();
+                }}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onOpenCase();
+                  }
+                }}
+                className="group/image relative aspect-[16/10] w-full cursor-pointer overflow-hidden bg-neutral-950 outline-none"
+              >
+                <motion.img
+                  src={project.image}
+                  alt={project.title}
+                  width={1200}
+                  height={750}
+                  loading="lazy"
+                  decoding="async"
+                  style={{ y: imageY, scale: 1.05 }}
+                  className="h-full w-full object-cover object-top transition-transform duration-500 group-hover/image:scale-[1.09]"
+                />
+
+                {/* Floating Optical Parallax Badge */}
+                {project.metrics.length > 0 && (
+                  <motion.div
+                    style={{ y: badgeY }}
+                    className="absolute top-4 right-4 z-10 hidden sm:flex items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3.5 py-1.5 font-mono text-xs text-[#F4F4F6] backdrop-blur-md shadow-lg"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF]" />
+                    <span>{project.metrics[0].value} {project.metrics[0].label}</span>
+                  </motion.div>
+                )}
+
+                {/* Subtle soft gradient at bottom */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover/image:opacity-100" />
+
+                {/* Floating "View Case Study" badge on hover */}
+                <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full border border-white/20 bg-black/80 px-4 py-2 font-mono text-xs font-semibold text-white backdrop-blur-md transition-all duration-300 group-hover/image:translate-y-0 group-hover/image:opacity-100 hover:border-[#FF0099] sm:translate-y-2 sm:opacity-0">
+                  <span>View Case Study</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-[#B39CFF] group-hover:text-[#FF0099]" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </motion.div>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Case study — full-screen, hero image is the View-Transition target         */
+/*  Case Study Modal Overlay                                                  */
 /* -------------------------------------------------------------------------- */
 function CaseStudy({
   project,
   index,
   total,
   nextTitle,
-  supportsVT,
   reduced,
   onClose,
   onGo,
@@ -281,7 +503,6 @@ function CaseStudy({
   index: number;
   total: number;
   nextTitle: string;
-  supportsVT: boolean;
   reduced: boolean;
   onClose: () => void;
   onGo: (i: number) => void;
@@ -290,9 +511,9 @@ function CaseStudy({
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const [nextHot, setNextHot] = useState(false);
 
   const meta = CATEGORY_META[getCategory(project)];
+  const domainUrl = getDomainUrl(project);
 
   const latest = useRef({ index, onClose, onGo });
   latest.current = { index, onClose, onGo };
@@ -337,60 +558,63 @@ function CaseStudy({
   }, []);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [project.title]);
 
   const { scrollY, scrollYProgress } = useScroll({ container: scrollRef });
-  const heroY = useTransform(scrollY, [0, 700], ["0%", "12%"]);
-  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 26, mass: 0.4 });
-
-  const rise = (delay = 0) => ({
-    initial: reduced ? false : ({ opacity: 0, y: 28 } as const),
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.8, ease: EASE, delay },
-  });
+  const heroY = useTransform(scrollY, [0, 600], ["0%", "10%"]);
+  const progress = useSpring(scrollYProgress, { stiffness: 180, damping: 28 });
 
   return (
-    <div
+    <motion.div
       ref={rootRef}
       role="dialog"
       aria-modal="true"
       aria-label={project.title}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.28, ease: EASE }}
       className="fixed inset-0 z-[100] bg-[var(--page)] text-[var(--ink)]"
     >
+      {/* Top progress indicator */}
       <motion.div
         aria-hidden="true"
         style={{ scaleX: progress }}
-        className="absolute inset-x-0 top-0 z-30 h-[2px] origin-left bg-[var(--coral)]"
+        className="absolute inset-x-0 top-0 z-40 h-[3px] origin-left bg-[#B39CFF]"
       />
 
       <div ref={scrollRef} className="h-full overflow-y-auto overscroll-contain">
-        {/* Top bar */}
-        <div className="sticky top-0 z-20 border-b border-[var(--line)] bg-[var(--page)]/80 backdrop-blur-xl">
+        {/* Sticky Top Navigation Bar */}
+        <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--page)]/85 backdrop-blur-xl">
           <Container>
             <div className="flex h-16 items-center justify-between">
               <button
                 ref={closeRef}
                 type="button"
                 onClick={onClose}
-                className="group flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-[var(--muted)] transition-colors hover:text-[var(--ink)]"
+                className="group flex items-center gap-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--muted)] transition-colors duration-200 hover:text-[var(--ink)] focus-visible:outline-none"
               >
-                <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
-                Index
+                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition-transform duration-300 group-hover:-translate-x-1">
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                </span>
+                <span>Back to Projects</span>
               </button>
 
-              <span className="font-mono text-xs tabular-nums tracking-[0.2em] text-[var(--muted)]">
-                <span className="text-[var(--ink)]">{pad(index + 1)}</span> / {pad(total)}
-              </span>
+              <div className="hidden sm:flex items-center gap-2 font-mono text-xs tabular-nums tracking-widest text-[var(--muted)]">
+                <span className="font-bold text-[var(--ink)]">{pad(index + 1)}</span>
+                <span className="text-[var(--line)]">/</span>
+                <span>{pad(total)}</span>
+              </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 {total > 1 && (
-                  <>
+                  <div className="flex items-center gap-1.5 border-r border-[var(--line)] pr-3 mr-1">
                     <button
                       type="button"
                       onClick={() => onGo(index - 1)}
                       aria-label="Previous project"
-                      className="grid h-9 w-9 place-items-center rounded-full border border-[var(--line)] transition-all duration-300 hover:border-[var(--ink)] active:scale-90"
+                      className="grid h-8 w-8 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-all duration-200 hover:border-[var(--ink)] hover:text-[var(--ink)] active:scale-90"
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </button>
@@ -398,108 +622,156 @@ function CaseStudy({
                       type="button"
                       onClick={() => onGo(index + 1)}
                       aria-label="Next project"
-                      className="grid h-9 w-9 place-items-center rounded-full border border-[var(--line)] transition-all duration-300 hover:border-[var(--ink)] active:scale-90"
+                      className="grid h-8 w-8 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-all duration-200 hover:border-[var(--ink)] hover:text-[var(--ink)] active:scale-90"
                     >
                       <ChevronRight className="h-4 w-4" />
                     </button>
-                  </>
+                  </div>
                 )}
+
+                {project.link ? (
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-neo-base btn-neo-primary inline-flex h-9 items-center gap-2 px-4 text-xs font-bold"
+                  >
+                    <span>Launch Live</span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </a>
+                ) : project.galleryLink ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      navigate(project.galleryLink!);
+                    }}
+                    className="btn-neo-base btn-neo-primary inline-flex h-9 items-center gap-2 px-4 text-xs font-bold"
+                  >
+                    <span>Exhibition</span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
               </div>
             </div>
           </Container>
-        </div>
+        </header>
 
+        {/* Modal Main Content */}
         <Container>
-          <div key={project.title}>
-            {/* Title block */}
-            <div className="pb-10 pt-10 sm:pt-16">
-              <motion.p
-                {...rise(0.2)}
-                className="mb-5 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.24em] text-[var(--muted)]"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--coral)]" />
-                {meta.label}
-                <span className="h-px w-8 bg-[var(--line)]" />
-                {project.year}
-              </motion.p>
+          <div key={project.title} className="py-10 sm:py-14">
+            <div className="pb-8">
+              <div className="mb-4 flex flex-wrap items-center gap-3 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-semibold",
+                    meta.badgeClass,
+                  )}
+                >
+                  <span className={cn("h-1.5 w-1.5 rounded-full", meta.dotColor)} />
+                  {meta.label}
+                </span>
+                <span className="text-[var(--line)]">•</span>
+                <span>{project.year}</span>
+                <span className="text-[var(--line)]">•</span>
+                <span>{domainUrl}</span>
+              </div>
 
-              <h2
-                className="font-sans font-bold leading-[0.95] tracking-[-0.045em]"
-                style={{ fontSize: "clamp(2.75rem, 9vw, 8.5rem)" }}
-              >
-                <MaskWords text={project.title} delay={supportsVT ? 0.35 : 0.1} reduced={reduced} />
-              </h2>
+              <h1 className="font-sans text-4xl font-bold tracking-tight text-[var(--ink)] sm:text-5xl md:text-6xl">
+                {project.title}
+              </h1>
             </div>
 
-            {/* Hero — named for the View Transition */}
-            <div
-              className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-neutral-950 sm:aspect-[21/9]"
-              style={supportsVT ? ({ viewTransitionName: VT_NAME } as React.CSSProperties) : undefined}
-            >
-              <motion.img
-                src={project.image}
-                alt={project.title}
-                width={1600}
-                height={900}
-                loading="lazy"
-                decoding="async"
-                style={{ y: reduced ? 0 : heroY, scale: reduced ? 1 : 1.3 }}
-                className="h-full w-full object-cover object-top"
-              />
+            {/* High-Res Hero Image Frame */}
+            <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-2xl">
+              <div className="flex h-11 items-center justify-between border-b border-[var(--line)] bg-[var(--surface-strong)] px-4">
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-red-500/80" />
+                  <span className="h-3 w-3 rounded-full bg-amber-500/80" />
+                  <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
+                </div>
+                <div className="flex items-center gap-1.5 rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 py-1 font-mono text-xs text-[var(--muted)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#1E90FF]" />
+                  <span>https://{domainUrl}</span>
+                </div>
+                <div className="hidden font-mono text-xs text-[var(--muted)] sm:block">
+                  Verified Case Study
+                </div>
+              </div>
+
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-950 sm:aspect-[21/9]">
+                <motion.img
+                  src={project.image}
+                  alt={project.title}
+                  width={1600}
+                  height={900}
+                  style={{ y: reduced ? 0 : heroY, scale: reduced ? 1 : 1.15 }}
+                  className="h-full w-full object-cover object-top"
+                />
+              </div>
             </div>
 
-            {/* Editorial grid */}
-            <div className="grid gap-12 py-16 sm:py-24 lg:grid-cols-12 lg:gap-16">
-              {/* Sticky meta */}
+            {/* Narrative Breakdown */}
+            <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16">
+              {/* Sticky Sidebar Meta */}
               <aside className="lg:col-span-4">
-                <div className="lg:sticky lg:top-28">
+                <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 lg:sticky lg:top-24">
+                  <h3 className="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+                    Project Overview
+                  </h3>
+
                   <dl className="divide-y divide-[var(--line)] border-y border-[var(--line)] font-mono text-xs">
                     {[
                       ["Role", project.role],
                       ["Timeline", project.year],
                       ["Domain", meta.badge],
+                      ["Status", "Production"],
                     ].map(([k, v]) => (
-                      <div key={k} className="flex items-baseline justify-between gap-6 py-4">
-                        <dt className="uppercase tracking-[0.2em] text-[var(--muted)]">{k}</dt>
-                        <dd className="text-right font-semibold">{v}</dd>
+                      <div key={k} className="flex items-baseline justify-between gap-4 py-3.5">
+                        <dt className="uppercase tracking-wider text-[var(--muted)]">{k}</dt>
+                        <dd className="text-right font-semibold text-[var(--ink)]">{v}</dd>
                       </div>
                     ))}
                   </dl>
 
-                  <div className="mt-6 flex flex-wrap gap-1.5">
-                    {project.stack.map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-full border border-[var(--line)] px-3 py-1 font-mono text-[11px] text-[var(--muted)]"
-                      >
-                        {t}
-                      </span>
-                    ))}
+                  <div className="mt-6">
+                    <span className="mb-2 block font-mono text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
+                      Technologies
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {project.stack.map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-md border border-[var(--line)] bg-[var(--surface-strong)] px-2.5 py-1 font-mono text-xs font-medium text-[var(--ink)]"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="mt-8 flex flex-wrap gap-3">
+                  <div className="mt-8 flex flex-col gap-2.5">
                     {project.galleryLink ? (
                       <button
                         type="button"
-                        onClick={() => navigate(project.galleryLink!)}
-                        className="btn-neo-base btn-neo-primary group inline-flex h-11 items-center justify-between gap-4 pl-6 pr-2 text-xs"
+                        onClick={() => {
+                          onClose();
+                          navigate(project.galleryLink!);
+                        }}
+                        className="btn-neo-base btn-neo-primary flex h-11 w-full items-center justify-between px-5 text-xs font-bold"
                       >
                         <span>Open Canva Showcase</span>
-                        <span className="btn-icon-pod h-7 w-7 bg-[var(--page)] text-[var(--ink)] dark:bg-black dark:text-[var(--coral)]">
-                          <ArrowUpRight className="btn-icon-pod-arrow h-3.5 w-3.5" />
-                        </span>
+                        <ArrowUpRight className="h-4 w-4" />
                       </button>
                     ) : project.link ? (
                       <a
                         href={project.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn-neo-base btn-neo-primary group inline-flex h-11 items-center justify-between gap-4 pl-6 pr-2 text-xs"
+                        className="btn-neo-base btn-neo-primary flex h-11 w-full items-center justify-between px-5 text-xs font-bold"
                       >
                         <span>Launch Live Demo</span>
-                        <span className="btn-icon-pod h-7 w-7 bg-[var(--page)] text-[var(--ink)] dark:bg-black dark:text-[var(--coral)]">
-                          <ArrowUpRight className="btn-icon-pod-arrow h-3.5 w-3.5" />
-                        </span>
+                        <ArrowUpRight className="h-4 w-4" />
                       </a>
                     ) : null}
 
@@ -508,138 +780,129 @@ function CaseStudy({
                         href={project.github}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn-neo-base btn-neo-secondary group inline-flex h-11 items-center justify-between gap-3 pl-5 pr-2 text-xs"
+                        className="btn-neo-base btn-neo-secondary flex h-11 w-full items-center justify-between px-5 text-xs font-semibold"
                       >
-                        <span>Source Code</span>
-                        <span className="btn-icon-pod h-7 w-7 border border-[var(--line)] bg-[var(--page)]/60 text-[var(--ink)]">
-                          <ArrowUpRight className="btn-icon-pod-arrow h-3.5 w-3.5 text-[var(--coral)]" />
+                        <span className="flex items-center gap-2">
+                          <GithubIcon className="h-4 w-4" />
+                          <span>View Source Code</span>
                         </span>
+                        <ArrowUpRight className="h-3.5 w-3.5 text-[var(--muted)]" />
                       </a>
                     )}
                   </div>
                 </div>
               </aside>
 
-              {/* Narrative */}
-              <div className="space-y-16 lg:col-span-8">
-                <motion.p
-                  {...rise(supportsVT ? 0.55 : 0.3)}
-                  className="text-xl font-medium leading-snug tracking-tight text-[var(--ink)] sm:text-2xl lg:text-[1.9rem]"
-                >
-                  {project.description}
-                </motion.p>
-
-                {/* Metrics */}
-                <div className="grid grid-cols-2 gap-x-8 gap-y-10 border-y border-[var(--line)] py-10">
-                  {project.metrics.map((m) => (
-                    <div key={m.label}>
-                      <div
-                        className="font-sans font-bold leading-none tracking-[-0.05em] tabular-nums text-[var(--coral)]"
-                        style={{ fontSize: "clamp(3rem, 7.5vw, 6.5rem)" }}
-                      >
-                        <CountUp value={m.value} disabled={reduced} rootRef={scrollRef} />
-                      </div>
-                      <div className="mt-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--muted)]">
-                        {m.label}
-                      </div>
-                    </div>
-                  ))}
+              {/* Main Narrative Column */}
+              <div className="space-y-12 lg:col-span-8">
+                <div>
+                  <h2 className="mb-3 font-mono text-xs font-bold uppercase tracking-wider text-[#B39CFF]">
+                    Mission & Impact
+                  </h2>
+                  <p className="text-xl font-medium leading-relaxed tracking-tight text-[var(--ink)] sm:text-2xl">
+                    {project.description}
+                  </p>
                 </div>
 
-                {/* Impact */}
-                <div>
-                  <h3 className="mb-4 font-mono text-xs uppercase tracking-[0.24em] text-[var(--coral)]">
-                    Impact &amp; Architecture
+                {/* Quantitative Impact Metrics */}
+                <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
+                  <h3 className="mb-6 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+                    <TrendingUp className="h-4 w-4 text-[#B39CFF]" />
+                    <span>Key Performance Indicators</span>
                   </h3>
-                  <p className="max-w-2xl text-lg leading-relaxed text-[var(--muted)]">
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
+                    {project.metrics.map((m) => (
+                      <div key={m.label} className="border-l-2 border-[#B39CFF] pl-4">
+                        <div className="font-sans text-4xl font-bold tracking-tight text-[var(--ink)] tabular-nums sm:text-5xl">
+                          <CountUp value={m.value} disabled={reduced} rootRef={scrollRef} />
+                        </div>
+                        <div className="mt-1.5 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
+                          {m.label}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Architecture & Engineering */}
+                <div>
+                  <h3 className="mb-3 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+                    Engineering Architecture
+                  </h3>
+                  <p className="text-base leading-relaxed text-[var(--muted)] sm:text-lg">
                     {project.impact}
                   </p>
                 </div>
 
-                {/* Deliverables */}
+                {/* Core Deliverables */}
                 <div>
-                  <h3 className="mb-2 font-mono text-xs uppercase tracking-[0.24em] text-[var(--muted)]">
+                  <h3 className="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
                     Core Deliverables
                   </h3>
-                  <ol>
+                  <div className="space-y-3">
                     {project.features.map((f, i) => (
-                      <motion.li
+                      <div
                         key={f}
-                        initial={reduced ? false : { opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ root: scrollRef, once: true, amount: 0.7 }}
-                        transition={{ duration: 0.7, ease: EASE, delay: (i % 4) * 0.05 }}
-                        className="relative flex items-baseline gap-5 py-5"
+                        className="flex items-start gap-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 transition-colors duration-200 hover:border-[#B39CFF]/40"
                       >
-                        <motion.span
-                          aria-hidden="true"
-                          initial={reduced ? false : { scaleX: 0 }}
-                          whileInView={{ scaleX: 1 }}
-                          viewport={{ root: scrollRef, once: true, amount: 0.7 }}
-                          transition={{ duration: 1, ease: EASE }}
-                          className="absolute inset-x-0 top-0 h-px origin-left bg-[var(--line)]"
-                        />
-                        <span className="font-mono text-xs tabular-nums text-[var(--coral)]">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--surface-strong)] font-mono text-xs font-bold text-[#B39CFF]">
                           {pad(i + 1)}
                         </span>
-                        <span className="text-base text-[var(--ink)]/90 sm:text-lg">{f}</span>
-                      </motion.li>
+                        <p className="text-sm font-medium leading-relaxed text-[var(--ink)] sm:text-base">
+                          {f}
+                        </p>
+                      </div>
                     ))}
-                  </ol>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </Container>
 
-        {/* Next project */}
+        {/* Next Project Footer Switcher */}
         {total > 1 && (
-          <button
-            type="button"
-            onClick={() => onGo(index + 1)}
-            onPointerEnter={() => setNextHot(true)}
-            onPointerLeave={() => setNextHot(false)}
-            onFocus={() => setNextHot(true)}
-            onBlur={() => setNextHot(false)}
-            className="group block w-full border-t border-[var(--line)] py-16 text-left outline-none sm:py-24"
-          >
+          <div className="border-t border-[var(--line)] bg-[var(--surface)] py-12 transition-colors duration-200 sm:py-16">
             <Container>
-              <span className="mb-6 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.24em] text-[var(--muted)]">
-                Next project
-                <ArrowUpRight className="h-4 w-4 text-[var(--coral)] transition-transform duration-500 group-hover:rotate-45" />
-              </span>
-              <span
-                role="heading"
-                aria-level={2}
-                className="block font-sans font-bold leading-[1.02] tracking-[-0.045em]"
-                style={{ fontSize: "clamp(2.5rem, 8vw, 7.5rem)" }}
+              <button
+                type="button"
+                onClick={() => onGo(index + 1)}
+                className="group flex w-full flex-col items-start justify-between gap-4 text-left sm:flex-row sm:items-center"
               >
-                <RollText text={nextTitle} hot={nextHot} reduced={reduced} />
-              </span>
+                <div>
+                  <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
+                    <span>Next Project</span>
+                    <ArrowUpRight className="h-3.5 w-3.5 text-[#B39CFF] transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
+                  </span>
+                  <span className="mt-2 block font-sans text-3xl font-bold tracking-tight text-[var(--ink)] transition-colors duration-200 group-hover:text-[#B39CFF] sm:text-4xl md:text-5xl">
+                    {nextTitle}
+                  </span>
+                </div>
+                <div className="btn-neo-base btn-neo-secondary inline-flex h-11 items-center gap-3 px-6 text-xs font-bold">
+                  <span>Explore Case Study</span>
+                  <ArrowRight className="h-4 w-4" />
+                </div>
+              </button>
             </Container>
-          </button>
+          </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Section                                                                    */
+/*  Main Projects Section Component                                           */
 /* -------------------------------------------------------------------------- */
 export function Projects() {
   const reduced = usePrefersReducedMotion();
-  const previewImgRef = useRef<HTMLImageElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const [filter, setFilter] = useState<FilterCategory>("all");
-  const [hovered, setHovered] = useState<number | null>(null);
-  const [focused, setFocused] = useState<number | null>(null);
-  const [lastShown, setLastShown] = useState(0);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const [isTouch, setIsTouch] = useState(false);
-  const [supportsVT, setSupportsVT] = useState(false);
 
   const list = useMemo(() => projects.filter((p) => matches(p, filter)), [filter]);
+
   const counts = useMemo(
     () =>
       Object.fromEntries(
@@ -648,425 +911,197 @@ export function Projects() {
     [],
   );
 
-  useEffect(() => {
-    setSupportsVT(typeof document !== "undefined" && "startViewTransition" in document);
-    const mq = window.matchMedia("(hover: none), (pointer: coarse)");
-    const sync = () => setIsTouch(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  /* --------- Cursor-bound preview: springs + velocity-driven tilt ---------- */
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const px = useSpring(mx, { stiffness: 260, damping: 30, mass: 0.6 });
-  const py = useSpring(my, { stiffness: 260, damping: 30, mass: 0.6 });
-  const vx = useVelocity(px);
-  const rotate = useSpring(useTransform(vx, [-2200, 0, 2200], [-9, 0, 9]), {
-    stiffness: 180,
-    damping: 18,
+  // Section-wide scroll progress line
+  const { scrollYProgress: sectionScroll } = useScroll({
+    target: sectionRef,
+    offset: ["start 20%", "end 80%"],
   });
-  const skewX = useSpring(useTransform(vx, [-2200, 0, 2200], [5, 0, -5]), {
-    stiffness: 180,
-    damping: 18,
-  });
+  const progressSpring = useSpring(sectionScroll, { stiffness: 220, damping: 28 });
 
-  const onListMove = (e: React.PointerEvent) => {
-    if (e.pointerType !== "mouse") return;
-    mx.set(e.clientX);
-    my.set(e.clientY);
-  };
-
-  const onRowEnter = (e: React.PointerEvent, idx: number) => {
-    if (e.pointerType !== "mouse") return;
-    if (hovered === null) {
-      mx.set(e.clientX);
-      my.set(e.clientY);
-      px.jump(e.clientX);
-      py.jump(e.clientY);
-    }
-    setHovered(idx);
-    setLastShown(idx);
-  };
-
-  /* ------------------------ View Transition helpers ------------------------ */
-  const transition = useCallback(
-    (update: () => void, before?: () => void, inside?: () => void) => {
-      const doc = document as VTDoc;
-      if (!doc.startViewTransition || reduced) {
-        update();
-        return;
-      }
-      before?.();
-      doc.startViewTransition(() => {
-        inside?.();
-        flushSync(update);
-      });
-    },
-    [reduced],
-  );
-
-  const openCase = (idx: number, e: React.MouseEvent<HTMLElement>) => {
+  const openCase = (idx: number) => {
     playClick();
-    const fine = !isTouch;
-    const el: HTMLElement | null = fine
-      ? previewImgRef.current
-      : e.currentTarget.querySelector<HTMLElement>("[data-thumb]");
-
-    transition(
-      () => {
-        setHovered(null);
-        setOpenIndex(idx);
-      },
-      () => el?.style.setProperty("view-transition-name", VT_NAME),
-      () => el?.style.removeProperty("view-transition-name"),
-    );
+    setOpenIndex(idx);
   };
 
   const goTo = (i: number) => {
     const n = list.length;
     const target = ((i % n) + n) % n;
     playTab();
-    transition(() => setOpenIndex(target));
+    setOpenIndex(target);
   };
 
   const closeCase = () => {
     playTab();
-    transition(() => setOpenIndex(null));
+    setOpenIndex(null);
   };
 
   const changeFilter = (key: FilterCategory) => {
     if (key === filter) return;
     playTab();
-    setHovered(null);
-    setFocused(null);
     startTransition(() => {
       setFilter(key);
     });
   };
 
-  const onListKey = (e: React.KeyboardEvent) => {
-    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
-    const buttons = Array.from(
-      e.currentTarget.querySelectorAll<HTMLButtonElement>("button[data-row]"),
-    );
-    const i = buttons.findIndex((b) => b === document.activeElement);
-    if (i < 0) return;
-    e.preventDefault();
-    const next = buttons[(i + (e.key === "ArrowDown" ? 1 : -1) + buttons.length) % buttons.length];
-    next.focus();
-  };
-
-  const active = hovered ?? focused;
-  const showPreview = !isTouch && hovered !== null && openIndex === null;
-  const previewProject = list[Math.min(lastShown, Math.max(list.length - 1, 0))];
   const openProject = openIndex !== null ? list[openIndex] : undefined;
 
-  /* --------------------------------- Render -------------------------------- */
   return (
     <section
+      ref={sectionRef}
       id="work"
-      className="relative scroll-mt-20 bg-[var(--page)] pt-14 pb-12 transition-colors duration-500 sm:scroll-mt-24 sm:pt-16 sm:pb-14 md:scroll-mt-28 md:pt-18 md:pb-16"
+      className="relative scroll-mt-20 bg-[var(--page)] pt-16 pb-20 transition-colors duration-500 sm:scroll-mt-24 sm:pt-20 sm:pb-28 md:scroll-mt-28 md:pt-24 md:pb-36"
     >
-      <style>{CSS}</style>
-
       <Container>
-        {/* Architectural Section Header */}
-        <div className="flex flex-col justify-between gap-4 border-b border-[var(--line)] pb-5 sm:flex-row sm:items-end">
+        {/* Section Architectural Header */}
+        <div className="flex flex-col justify-between gap-5 border-b border-[var(--line)] pb-6 sm:flex-row sm:items-end">
           <div>
-            <div className="mb-2 flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]">
+            <div className="mb-2.5 flex items-center gap-2.5 font-mono text-xs uppercase tracking-widest text-[var(--muted)]">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--coral)] opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--coral)]" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#B39CFF] opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B39CFF]" />
               </span>
-              <span className="font-semibold text-[var(--ink)]">[02 // INDEX 2024–2026]</span>
+              <span className="font-bold text-[var(--ink)]">[02 // SELECTED WORK & SYSTEMS]</span>
             </div>
 
-            <h2 className="font-sans text-3xl font-extrabold tracking-tight text-[var(--ink)] sm:text-4xl md:text-5xl">
-              Selected Work
+            <h2 className="font-sans text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl md:text-5xl">
+              Featured Projects
             </h2>
           </div>
 
-          <div className="flex flex-col gap-1 sm:items-end sm:text-right">
-            <span className="hidden font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--muted)] sm:inline">
-              [INDEX ARCHIVE // 06 ENTRIES]
+          <div className="flex flex-col gap-2 sm:items-end sm:text-right">
+            <span className="font-mono text-xs uppercase tracking-wider text-[#B39CFF] font-bold">
+              [INDEX ARCHIVE // 04 PRODUCTION CASE STUDIES]
             </span>
-            <p className="max-w-sm text-xs leading-relaxed text-[var(--muted)] sm:text-sm">
-              Web systems, predictive intelligence platforms and brand direction — built end to end.
+            <p className="max-w-md text-xs leading-relaxed text-[var(--muted)] sm:text-sm">
+              Scalable web architectures, predictive business intelligence pipelines, and bespoke brand design systems built with precision.
             </p>
           </div>
         </div>
 
-        {/* Minimal Brutalist Filter Tabs */}
-        <div
-          role="group"
-          aria-label="Filter project categories"
-          className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-[var(--line)] sm:gap-x-8"
-        >
-          {FILTERS.map(({ key, label }) => {
-            const on = filter === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                aria-pressed={on}
-                onClick={() => changeFilter(key)}
-                className={cn(
-                  "relative pb-3 font-mono text-xs uppercase tracking-[0.14em] font-semibold transition-colors duration-200 sm:pb-3.5",
-                  on ? "text-[var(--ink)] font-bold" : "text-[var(--muted)] hover:text-[var(--ink)]",
-                )}
-              >
-                {label}
-                <span className="ml-1.5 font-mono text-[10px] tabular-nums text-[var(--coral)] font-bold">
-                  [{pad(counts[key])}]
-                </span>
-                {on && (
-                  <motion.span
-                    layoutId="pjFilterLine"
-                    aria-hidden="true"
-                    className="absolute inset-x-0 -bottom-px h-[2px] bg-[var(--flame)]"
-                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                  />
-                )}
-              </button>
-            );
-          })}
+        {/* Filter Navigation Bar & Scroll Indicator */}
+        <div className="mt-6 flex flex-col justify-between gap-4 border-b border-[var(--line)] pb-3.5 sm:flex-row sm:items-center">
+          <div
+            role="group"
+            aria-label="Filter project categories"
+            className="flex flex-wrap items-center gap-x-6 gap-y-2 sm:gap-x-8"
+          >
+            {FILTERS.map(({ key, label }) => {
+              const on = filter === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => changeFilter(key)}
+                  className={cn(
+                    "relative pb-2 font-mono text-xs font-semibold uppercase tracking-wider transition-colors duration-200",
+                    on ? "font-bold text-[var(--ink)]" : "text-[var(--muted)] hover:text-[#B39CFF]",
+                  )}
+                >
+                  <span>{label}</span>
+                  <span className="ml-1.5 font-mono text-xs font-bold tabular-nums text-[#B39CFF]">
+                    [{pad(counts[key])}]
+                  </span>
+
+                  {on && (
+                    <motion.span
+                      layoutId="activeFilterPill"
+                      aria-hidden="true"
+                      className="absolute inset-x-0 -bottom-2 h-[2px] bg-[#B39CFF]"
+                      transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Section Scroll Progress Bar */}
+          <div className="hidden sm:flex items-center gap-3 font-mono text-xs text-[var(--muted)]">
+            <span className="text-[11px] uppercase tracking-wider">Scroll Track</span>
+            <div className="h-1.5 w-24 overflow-hidden rounded-full bg-[var(--surface-strong)] border border-[var(--line)]">
+              <motion.div
+                style={{ scaleX: progressSpring }}
+                className="h-full w-full origin-left bg-[#B39CFF]"
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Index */}
+        {/* Scroll-Animated Project Cards Showcase */}
         {list.length === 0 ? (
-          <div className="my-8 rounded-2xl border border-dashed border-[var(--line)] p-8 py-20 text-center sm:my-12 sm:py-24">
+          <div className="my-10 rounded-2xl border border-dashed border-[var(--line)] p-8 py-20 text-center sm:my-16 sm:py-24">
             <Layers className="mx-auto mb-3 h-8 w-8 text-[var(--muted)] opacity-60" />
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
-              No projects in this category yet
+            <p className="font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
+              No projects found in this domain
             </p>
             <button
               type="button"
               onClick={() => changeFilter("all")}
-              className="btn-neo-base btn-neo-secondary mt-6 inline-flex h-10 items-center justify-center px-6 text-xs"
+              className="btn-neo-base btn-neo-secondary mt-5 inline-flex h-10 items-center justify-center px-6 text-xs font-bold"
             >
               Reset to All Projects
             </button>
           </div>
         ) : (
-          <ul
-            className="mt-0"
-            onPointerMove={onListMove}
-            onPointerLeave={() => setHovered(null)}
-            onKeyDown={onListKey}
-          >
-            <AnimatePresence initial={false} mode="popLayout">
-              {list.map((project, idx) => {
-                const meta = CATEGORY_META[getCategory(project)];
-                const hot = active === idx;
-                const dim = active !== null && !hot;
-
-                return (
-                  <motion.li
-                    key={project.title}
-                    layout={reduced ? false : "position"}
-                    initial={reduced ? false : { opacity: 0, y: 36 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      transition: { duration: 0.7, ease: EASE, delay: reduced ? 0 : idx * 0.06 },
-                    }}
-                    exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
-                    className="relative border-b border-[var(--line)]"
-                  >
-                    {/* Sweeping coral hairline */}
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-x-0 bottom-[-1px] z-10 h-px origin-left bg-[var(--coral)] transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)]"
-                      style={{ transform: hot ? "scaleX(1)" : "scaleX(0)" }}
-                    />
-
-                    <button
-                      type="button"
-                      data-row
-                      aria-label={`Open case study: ${project.title}`}
-                      onClick={(e) => openCase(idx, e)}
-                      onPointerEnter={(e) => onRowEnter(e, idx)}
-                      onFocus={() => setFocused(idx)}
-                      onBlur={() => setFocused(null)}
-                      className={cn(
-                        "group/row block w-full text-left outline-none transition-opacity duration-500 focus-visible:bg-[var(--surface)]/50",
-                        dim ? "opacity-[0.22]" : "opacity-100",
-                      )}
-                    >
-                      <span className="pj-reveal grid grid-cols-[2rem_minmax(0,1fr)] items-start gap-x-4 py-6 sm:grid-cols-[2.5rem_minmax(0,1fr)] sm:gap-x-6 sm:py-8 md:grid-cols-[3.5rem_minmax(0,1fr)_auto] md:gap-x-8 md:py-9 lg:grid-cols-[4rem_minmax(0,1fr)_auto] lg:py-10">
-                        <span
-                          className={cn(
-                            "pt-[0.55em] font-mono text-xs tabular-nums tracking-[0.2em] transition-colors duration-300 sm:pt-[0.7em] md:pt-[1.1em]",
-                            hot ? "text-[var(--coral)]" : "text-[var(--muted)]",
-                          )}
-                        >
-                          {pad(idx + 1)}
-                        </span>
-
-                        <span className="block min-w-0">
-                          <span
-                            role="heading"
-                            aria-level={3}
-                            className="block font-sans font-bold leading-[1.02] tracking-[-0.045em] text-[var(--ink)]"
-                            style={{ fontSize: "clamp(2.25rem, 6.6vw, 7rem)" }}
-                          >
-                            <RollText text={project.title} hot={hot} reduced={reduced} />
-                          </span>
-
-                          {/* mobile meta */}
-                          <span className="mt-2.5 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--muted)] md:hidden">
-                            <span>{meta.label}</span>
-                            <span className="h-px w-5 bg-[var(--line)]" />
-                            <span>{project.year}</span>
-                          </span>
-
-                          {/* touch: inline thumbnail (morph source for the View Transition) */}
-                          {isTouch && (
-                            <span className="mt-4 block aspect-[16/9] overflow-hidden rounded-xl bg-neutral-950 sm:mt-5">
-                              <img
-                                data-thumb
-                                src={project.image}
-                                alt={project.title}
-                                width={1200}
-                                height={675}
-                                loading="lazy"
-                                decoding="async"
-                                className="h-full w-full object-cover object-top"
-                              />
-                            </span>
-                          )}
-                        </span>
-
-                        {/* desktop meta */}
-                        <span className="hidden flex-col items-end gap-2 pt-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--muted)] md:flex">
-                          <div className="flex items-center gap-2">
-                            <span>{meta.label}</span>
-                            <span className="text-[var(--line)]">/</span>
-                            <span className="text-[var(--ink)] font-bold">{project.year}</span>
-                          </div>
-                          <div className="flex flex-wrap justify-end gap-1.5 max-w-[280px]">
-                            {project.stack.slice(0, 3).map((stk) => (
-                              <span
-                                key={stk}
-                                className="brutal-tag rounded-sm text-[10px] py-0.5 px-2 bg-[var(--surface-strong)] text-[var(--muted)]"
-                              >
-                                {stk}
-                              </span>
-                            ))}
-                          </div>
-                          <span
-                            aria-hidden="true"
-                            className={cn(
-                              "mt-1 grid h-10 w-10 place-items-center rounded-full border transition-all duration-300 ease-[cubic-bezier(.16,1,.3,1)] lg:h-11 lg:w-11",
-                              hot
-                                ? "rotate-0 border-[var(--flame)] bg-[var(--flame)] text-[var(--page)] dark:bg-[#C7ED70] dark:text-black dark:border-[#C7ED70]"
-                                : "-rotate-45 border-[var(--line)] text-[var(--muted)]",
-                            )}
-                          >
-                            <ArrowUpRight className="h-4 w-4" />
-                          </span>
-                        </span>
-                      </span>
-                    </button>
-                  </motion.li>
-                );
-              })}
+          <div className="mt-12 sm:mt-16">
+            <AnimatePresence mode="popLayout">
+              {list.map((project, idx) => (
+                <ScrollProjectCard
+                  key={project.title}
+                  project={project}
+                  index={idx}
+                  total={list.length}
+                  onOpenCase={() => openCase(idx)}
+                />
+              ))}
             </AnimatePresence>
-          </ul>
+          </div>
         )}
 
-        {/* Footer */}
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-[var(--muted)] sm:mt-14">
+        {/* Section Bottom Footer */}
+        <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--line)] pt-6 font-mono text-xs text-[var(--muted)] sm:mt-24">
           <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--coral)]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF]" />
             <span>Ayush Singh — Portfolio Edition 2026</span>
           </div>
+
           <div className="flex items-center gap-4">
             <Link
               to="/canva-gallery"
               onClick={() => playClick()}
-              className="underline-offset-4 transition-colors hover:text-[var(--coral)] hover:underline"
+              className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors duration-200 hover:text-[#B39CFF] hover:underline"
             >
-              Canva Exhibition Gallery →
+              <span>Canva Exhibition Gallery</span>
+              <ArrowUpRight className="h-3.5 w-3.5 text-[#B39CFF]" />
             </Link>
             <span className="text-[var(--line)]">|</span>
             <Link
               to="/resume"
               onClick={() => playClick()}
-              className="underline-offset-4 transition-colors hover:text-[var(--coral)] hover:underline"
+              className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors duration-200 hover:text-[#B39CFF] hover:underline"
             >
-              Verified Résumé →
+              <span>Verified Résumé</span>
+              <ArrowUpRight className="h-3.5 w-3.5 text-[#B39CFF]" />
             </Link>
           </div>
         </div>
       </Container>
 
-      {/* Cursor-bound preview — portaled so no transformed ancestor can break `fixed` */}
-      {typeof document !== "undefined" &&
-        !isTouch &&
-        previewProject &&
-        createPortal(
-          <motion.div
-            aria-hidden="true"
-            style={{ x: px, y: py }}
-            className="pointer-events-none fixed left-0 top-0 z-[60]"
-          >
-            <div className="-translate-x-1/2 -translate-y-1/2">
-              <motion.div
-                style={{ rotate: reduced ? 0 : rotate, skewX: reduced ? 0 : skewX }}
-                animate={{ opacity: showPreview ? 1 : 0, scale: showPreview ? 1 : 0.7 }}
-                transition={{ type: "spring", stiffness: 320, damping: 26 }}
-                className="relative aspect-[4/3] w-[clamp(260px,28vw,420px)] rounded-xl border-2 border-[var(--ink)] bg-[var(--surface)] shadow-[10px_10px_0px_rgba(0,0,0,0.6)] overflow-hidden"
-              >
-                <span className="brutal-corner-cross left-2.5 top-1.5 text-white font-mono z-30 font-bold">+</span>
-                <span className="brutal-corner-cross right-2.5 top-1.5 text-white font-mono z-30 font-bold">+</span>
-                <div className="absolute inset-0 overflow-hidden bg-neutral-950">
-                  <AnimatePresence initial={false} mode="popLayout">
-                    <motion.img
-                      key={previewProject.title}
-                      ref={previewImgRef}
-                      src={previewProject.image}
-                      alt={previewProject.title}
-                      width={800}
-                      height={600}
-                      loading="lazy"
-                      decoding="async"
-                      initial={{ opacity: 0, scale: 1.15 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.55, ease: EASE }}
-                      className="absolute inset-0 h-full w-full object-cover object-top"
-                    />
-                  </AnimatePresence>
-                  <span className="absolute bottom-3 left-3 rounded-md bg-black/80 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white border border-white/20">
-                    [CASE STUDY // OPEN ↗]
-                  </span>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>,
-          document.body,
-        )}
-
-      {/* Case study overlay — unmounts synchronously so the View Transition can morph */}
-      {openProject &&
-        openIndex !== null &&
-        typeof document !== "undefined" &&
-        createPortal(
+      {/* Case Study Fullscreen Modal */}
+      <AnimatePresence>
+        {openProject && openIndex !== null && typeof document !== "undefined" && (
           <CaseStudy
             project={openProject}
             index={openIndex}
             total={list.length}
             nextTitle={list[(openIndex + 1) % list.length].title}
-            supportsVT={supportsVT && !reduced}
             reduced={reduced}
             onClose={closeCase}
             onGo={goTo}
-          />,
-          document.body,
+          />
         )}
+      </AnimatePresence>
     </section>
   );
 }

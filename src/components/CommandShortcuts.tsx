@@ -141,7 +141,7 @@ export function CommandShortcuts() {
             className="fixed bottom-6 left-1/2 z-50 pointer-events-none"
           >
             <div className="border border-[var(--ink)] bg-[var(--ink)] text-[var(--page)] px-4 py-2 text-xs font-medium flex items-center gap-2 rounded-xl shadow-2xl">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 dark:bg-[#C7ED70]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]" />
               <span>{toastMessage}</span>
             </div>
           </motion.div>
@@ -232,7 +232,7 @@ export function CommandShortcuts() {
                     className="flex items-center justify-between rounded-xl border border-transparent hover:border-[var(--line)] hover:bg-[var(--surface-strong)]/80 px-3 py-2 text-xs transition-colors"
                   >
                     <span className="flex items-center gap-2.5 text-[var(--muted)] hover:text-[var(--ink)]">
-                      <span className="text-emerald-600 dark:text-[#C7ED70]">{item.icon}</span>
+                      <span className="text-[#1E90FF] dark:text-[#B39CFF]">{item.icon}</span>
                       <span className="text-[11px] uppercase tracking-wider">{item.label}</span>
                     </span>
                     <kbd className="min-w-[24px] text-center rounded-md border border-[var(--line)] bg-[var(--page)] px-2 py-0.5 text-[10px] font-bold text-[var(--ink)] shadow-xs">
@@ -244,8 +244,8 @@ export function CommandShortcuts() {
 
               <div className="mt-5 pt-3 border-t border-[var(--line)] flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-[var(--muted)]">
                 <span>Press [ Esc ] to close</span>
-                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-[#C7ED70]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="flex items-center gap-1.5 text-[#1E90FF] dark:text-[#B39CFF]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF] animate-pulse" />
                   Audio feedback active
                 </span>
               </div>

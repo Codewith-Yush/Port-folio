@@ -2,16 +2,15 @@
 name: Ayush Singh Portfolio Design System
 description: Modern architectural dark-mode portfolio bridging creative technology, full-stack engineering, and data science.
 colors:
-  primary: "#C7ED70"
-  secondary: "#818CF8"
-  tertiary: "#00F5D4"
-  emerald: "#10B981"
-  neutral-bg: "#08080A"
-  surface: "#101015"
-  surface-strong: "#171720"
-  ink: "#F4F4F6"
-  muted: "#8E8E9E"
-  line: "rgba(255, 255, 255, 0.12)"
+  primary: "#B39CFF"
+  secondary: "#1E90FF"
+  hover: "#FF0099"
+  neutral-bg: "#0D0D0D"
+  surface: "#141416"
+  surface-strong: "#1C1C20"
+  ink: "#FFFFFF"
+  muted: "#9E9EA8"
+  line: "rgba(255, 255, 255, 0.10)"
 typography:
   display-monumental:
     fontFamily: '"Syne", "Space Grotesk", sans-serif'
@@ -97,16 +96,17 @@ components:
 
 ## Overview
 
-The visual language of Ayush Singh's portfolio merges the precision of architectural diagrams and data intelligence with the expressive energy of creative technology. It rejects generic templates in favor of a bold, high-contrast dark aesthetic anchored by signature **Acid Chartreuse (`#C7ED70`)**, **Cyber Indigo (`#818CF8`)**, and deep **Obsidian Charcoal (`#08080A`)**.
+The visual language of Ayush Singh's portfolio merges the precision of architectural diagrams and data intelligence with the expressive energy of creative technology. It establishes a strong dark visual identity anchored by signature **Electric Lavender (`#B39CFF`)**, **Electric Blue (`#1E90FF`)**, and dominant **Almost-Black (`#0D0D0D`)**, with **Vivid Pink (`#FF0099`)** reserved for selective interactive hover accents.
 
 ## Colors
 
-- **Primary Accent (`#C7ED70` - Acid Chartreuse):** Used for focal calls-to-action, key metrics, active state rings, and typographic highlights. High contrast against dark surfaces.
-- **Secondary Accent (`#818CF8` - Cyber Indigo):** Used for secondary badges, interactive hover gradients, and developer tech stack identifiers.
-- **Tertiary Accent (`#00F5D4` - Electric Cyan / Aqua):** Used for live deployment indicators, success states, and data visual accents.
-- **Dark Ground (`#08080A` - Obsidian Black):** Canvas background featuring subtle 36px blueprint gridlines in dark mode.
-- **Surfaces (`#101015` & `#171720`):** Matte charcoal cards framed with crisp translucent borders.
-- **Ink & Typography (`#F4F4F6` & `#8E8E9E`):** Pure legible contrast with deliberate hierarchical fading.
+- **Primary Accent (`#B39CFF` - Electric Lavender):** Used for focal calls-to-action, key active indicators, signature badges, and typographic highlights. High contrast against dark surfaces.
+- **Secondary Accent (`#1E90FF` - Electric Blue):** Used for secondary badges, technology labels, links, telemetry points, and developer tech stack chips.
+- **Hover Accent (`#FF0099` - Vivid Pink):** Reserved strictly for micro-interactions, subtle hover accents, and selective special details.
+- **Dark Ground (`#0D0D0D` - Dominant Almost-Black):** Dominant dark canvas background.
+- **Surfaces (`#141416` & `#1C1C20`):** Matte charcoal cards framed with crisp razor-sharp borders.
+- **Ink & Typography (`#FFFFFF` & `#9E9EA8`):** Pure legible contrast with deliberate hierarchical fading.
+- **Light Theme Ground (`#F7F5F5`):** Soft off-white canvas with `#2C2C2C` charcoal typography, preserving the exact same electric lavender and blue accents.
 
 ## Typography
 

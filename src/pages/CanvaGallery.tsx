@@ -416,10 +416,10 @@ function Lightbox({
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
+      document.documentElement.requestFullscreen?.().catch(() => { });
       setIsFullscreen(true);
     } else {
-      document.exitFullscreen?.().catch(() => {});
+      document.exitFullscreen?.().catch(() => { });
       setIsFullscreen(false);
     }
   };
@@ -494,11 +494,10 @@ function Lightbox({
               onToggleFavorite();
             }}
             title={isFavorite ? "Remove from Favorites" : "Save to Favorites"}
-            className={`flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-xl shadow-lg transition hover:scale-110 ${
-              isFavorite
+            className={`flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-xl shadow-lg transition hover:scale-110 ${isFavorite
                 ? "border-red-500/40 bg-red-500/20 text-red-500"
                 : "border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#121217]/90 text-black/70 dark:text-white/70 hover:text-red-500"
-            }`}
+              }`}
           >
             {isFavorite ? "❤️" : "🤍"}
           </button>
@@ -639,7 +638,7 @@ function Lightbox({
                 <span className="block text-[9px] font-bold uppercase tracking-widest text-black/40 dark:text-white/40">
                   Production
                 </span>
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                <span className="font-semibold text-[#B39CFF]">
                   Canva Pro Studio
                 </span>
               </div>
@@ -764,9 +763,8 @@ function GalleryCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       data-cursor-text="View"
-      className={`gallery-card group relative cursor-pointer ${
-        viewMode === "masonry" ? "mb-6 break-inside-avoid" : ""
-      }`}
+      className={`gallery-card group relative cursor-pointer ${viewMode === "masonry" ? "mb-6 break-inside-avoid" : ""
+        }`}
       style={{
         opacity: 0,
         transform: "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
@@ -788,20 +786,18 @@ function GalleryCard({
             onToggleFavorite(e);
           }}
           aria-label={isFavorite ? "Unsave artwork" : "Save artwork"}
-          className={`absolute top-3.5 right-3.5 z-30 flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur-xl shadow-md transition-all duration-300 hover:scale-115 active:scale-95 ${
-            isFavorite
+          className={`absolute top-3.5 right-3.5 z-30 flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur-xl shadow-md transition-all duration-300 hover:scale-115 active:scale-95 ${isFavorite
               ? "border-red-500/40 bg-red-500/20 text-red-500 opacity-100"
               : "border-black/10 dark:border-white/10 bg-white/70 dark:bg-black/60 text-black/60 dark:text-white/60 opacity-0 group-hover:opacity-100"
-          }`}
+            }`}
         >
           {isFavorite ? "❤️" : "🤍"}
         </button>
 
         {/* Artwork Image */}
         <div
-          className={`relative overflow-hidden bg-black/5 dark:bg-white/5 ${
-            viewMode === "grid" ? "aspect-[4/5]" : ""
-          }`}
+          className={`relative overflow-hidden bg-black/5 dark:bg-white/5 ${viewMode === "grid" ? "aspect-[4/5]" : ""
+            }`}
         >
           <img
             src={item.src}
@@ -810,9 +806,8 @@ function GalleryCard({
             height={1000}
             loading="lazy"
             decoding="async"
-            className={`w-full block transition-transform duration-700 ease-out group-hover:scale-[1.05] ${
-              viewMode === "grid" ? "h-full object-cover" : "h-auto object-cover"
-            }`}
+            className={`w-full block transition-transform duration-700 ease-out group-hover:scale-[1.05] ${viewMode === "grid" ? "h-full object-cover" : "h-auto object-cover"
+              }`}
           />
         </div>
 
@@ -887,7 +882,7 @@ function GalleryCard({
 
             {/* Mobile always visible minimal label */}
             <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent sm:hidden pointer-events-none">
-              <p className="text-[0.6rem] font-mono font-bold uppercase tracking-widest text-emerald-400">
+              <p className="text-[0.6rem] font-mono font-bold uppercase tracking-widest text-[#B39CFF]">
                 {item.cat}
               </p>
               <p
@@ -1132,16 +1127,16 @@ export default function CanvaGallery() {
         activeCat === "all"
           ? true
           : activeCat === "favorites"
-          ? favorites.includes(item.n)
-          : item.cat === activeCat;
+            ? favorites.includes(item.n)
+            : item.cat === activeCat;
 
       const matchesSearch =
         searchQuery.trim() === ""
           ? true
           : item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.cat.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.client.toLowerCase().includes(searchQuery.toLowerCase());
+          item.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.cat.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.client.toLowerCase().includes(searchQuery.toLowerCase());
 
       return matchesCat && matchesSearch;
     });
@@ -1310,11 +1305,10 @@ export default function CanvaGallery() {
                 data-sound-toggle="true"
                 onClick={handleToggleSound}
                 title={`Sound effects: ${soundEnabled ? "Enabled" : "Muted"}`}
-                className={`flex h-9 px-3 items-center justify-center gap-1.5 rounded-full border text-[11px] font-mono font-bold backdrop-blur-md transition-all active:scale-95 ${
-                  soundEnabled
-                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-[#C7ED70]"
+                className={`flex h-9 px-3 items-center justify-center gap-1.5 rounded-full border text-[11px] font-mono font-bold backdrop-blur-md transition-all active:scale-95 ${soundEnabled
+                    ? "border-[#B39CFF]/40 bg-[#B39CFF]/10 text-[#1E90FF] dark:text-[#B39CFF]"
                     : "border-black/10 dark:border-white/10 bg-transparent text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-                }`}
+                  }`}
               >
                 <span>{soundEnabled ? "🔊" : "🔇"}</span>
                 <span className="hidden sm:inline">{soundEnabled ? "FX On" : "FX Off"}</span>
@@ -1336,10 +1330,10 @@ export default function CanvaGallery() {
         {/* ── Hero Header ── */}
         <div className="relative z-10 max-w-[1400px] mx-auto px-[5%] pt-[140px] pb-6 text-center">
           {/* Eyebrow Pill */}
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/15 bg-black/[0.03] dark:bg-white/[0.04] px-5 py-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-[#10B981] backdrop-blur-md">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/15 bg-black/[0.03] dark:bg-white/[0.04] px-5 py-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-[#B39CFF] backdrop-blur-md">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#B39CFF] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B39CFF] shadow-[0_0_8px_#B39CFF]" />
             </span>
             <span>Award-Winning Canva Visuals</span>
           </div>
@@ -1429,8 +1423,8 @@ export default function CanvaGallery() {
                   cat === "all"
                     ? DESIGNS.length
                     : cat === "favorites"
-                    ? favorites.length
-                    : DESIGNS.filter((d) => d.cat === cat).length;
+                      ? favorites.length
+                      : DESIGNS.filter((d) => d.cat === cat).length;
 
                 return (
                   <button
@@ -1442,11 +1436,10 @@ export default function CanvaGallery() {
                         setActiveCat(cat);
                       });
                     }}
-                    className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider border transition-all duration-300 ${
-                      activeCat === cat
+                    className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider border transition-all duration-300 ${activeCat === cat
                         ? "bg-[#10B981] text-white border-[#10B981] shadow-[0_6px_20px_rgba(16,185,129,0.35)] -translate-y-0.5"
                         : "bg-white/50 dark:bg-white/5 text-black/60 dark:text-white/60 border-black/8 dark:border-white/10 hover:border-[#10B981] hover:text-[#10B981] dark:hover:text-[#10B981]"
-                    }`}
+                      }`}
                   >
                     {cat === "favorites" ? "Saved ❤️" : cat === "all" ? "All Works" : cat}
                     <span className="ml-1.5 opacity-60">({count})</span>
@@ -1500,11 +1493,10 @@ export default function CanvaGallery() {
                     });
                   }}
                   title="Masonry Layout"
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                    viewMode === "masonry"
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition ${viewMode === "masonry"
                       ? "bg-[#10B981] text-white shadow-xs"
                       : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-                  }`}
+                    }`}
                 >
                   Masonry
                 </button>
@@ -1517,11 +1509,10 @@ export default function CanvaGallery() {
                     });
                   }}
                   title="Grid Layout"
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                    viewMode === "grid"
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition ${viewMode === "grid"
                       ? "bg-[#10B981] text-white shadow-xs"
                       : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-                  }`}
+                    }`}
                 >
                   Grid
                 </button>
@@ -1534,11 +1525,10 @@ export default function CanvaGallery() {
                     });
                   }}
                   title="Spotlight Layout"
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                    viewMode === "spotlight"
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition ${viewMode === "spotlight"
                       ? "bg-[#10B981] text-white shadow-xs"
                       : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-                  }`}
+                    }`}
                 >
                   Spotlight
                 </button>
@@ -1684,11 +1674,10 @@ export default function CanvaGallery() {
 
         {/* ── Floating Action Navigation Bar (Scroll-to-top & Quick Inquire) ── */}
         <div
-          className={`fixed bottom-6 right-6 z-40 flex items-center gap-2.5 transition-all duration-400 ${
-            showScrollTop
+          className={`fixed bottom-6 right-6 z-40 flex items-center gap-2.5 transition-all duration-400 ${showScrollTop
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 translate-y-6 pointer-events-none"
-          }`}
+            }`}
         >
           {/* Scroll Progress Ring & Back to Top Button */}
           <button

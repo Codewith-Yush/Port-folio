@@ -72,10 +72,10 @@ export function Skills() {
         {/* Architectural Sub-Bar */}
         <div className="mb-6 flex items-center justify-between border-b border-[var(--line)] pb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-8">
           <div className="flex items-center gap-2.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+            <span className="h-2 w-2 rounded-full bg-[#B39CFF]" aria-hidden="true" />
             <span className="font-semibold text-[var(--ink)]">[03 // CAPABILITIES & ARCHITECTURE]</span>
           </div>
-          <span className="hidden sm:inline">[PRODUCTION &amp; INTELLIGENCE STACK]</span>
+          <span className="hidden sm:inline text-[#1E90FF]">[PRODUCTION &amp; INTELLIGENCE STACK]</span>
         </div>
 
         <div ref={headingRef}>
@@ -94,22 +94,22 @@ export function Skills() {
           {skillGroups.map((group, gIdx) => (
             <article
               key={group.title}
-              className="skills-card group relative flex flex-col justify-between rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 transition-all duration-200 hover:border-[var(--ink)] hover:shadow-[4px_4px_0px_var(--line)] sm:p-6"
+              className="skills-card group relative flex flex-col justify-between rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 transition-all duration-300 hover:border-[#B39CFF]/50 hover:shadow-[0_12px_30px_-15px_rgba(179,156,255,0.15)] sm:p-7"
             >
               {/* Corner crosshair stamp */}
-              <span className="brutal-corner-cross left-3 top-2.5">+</span>
-              <span className="brutal-corner-cross right-3 top-2.5 font-mono text-[10px] text-[var(--muted)]">
+              <span className="brutal-corner-cross left-3 top-2.5 text-[#B39CFF]">+</span>
+              <span className="brutal-corner-cross right-3 top-2.5 font-mono text-[10px] text-[#1E90FF] font-semibold">
                 0{gIdx + 1}
               </span>
 
               <div>
-                <div className="mb-2 flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]">
-                  <span>[{group.category}]</span>
+                <div className="mb-2.5 flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]">
+                  <span className="text-[#1E90FF] font-medium">[{group.category}]</span>
                 </div>
-                <h3 className="mb-5 font-sans text-lg font-extrabold tracking-tight text-[var(--ink)] sm:text-xl">
+                <h3 className="mb-6 font-sans text-xl font-bold tracking-tight text-[var(--ink)]">
                   {group.title}
                 </h3>
-                <div className="grid gap-3.5 sm:gap-4">
+                <div className="grid gap-4">
                   {group.skills.map((skill, sIdx) => (
                     <SkillMeter
                       key={skill.name}
