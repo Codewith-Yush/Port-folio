@@ -14,10 +14,29 @@ export default defineConfig({
     minify: "esbuild",
     rollupOptions: {
       output: {
-        manualChunks: {
-          "vendor-react": ["react", "react-dom", "react-router-dom"],
-          "vendor-gsap": ["gsap", "gsap/ScrollTrigger"],
-          "vendor-icons": ["lucide-react"],
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("three")) {
+              return "vendor-three";
+            }
+            if (id.includes("framer-motion")) {
+              return "vendor-framer";
+            }
+            if (id.includes("gsap") || id.includes("@gsap")) {
+              return "vendor-gsap";
+            }
+            if (id.includes("lucide-react")) {
+              return "vendor-icons";
+            }
+            if (
+              id.includes("react-router") ||
+              id.includes("react-dom") ||
+              id.includes("/react/") ||
+              id.endsWith("/react")
+            ) {
+              return "vendor-react";
+            }
+          }
         },
       },
     },

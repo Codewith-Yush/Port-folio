@@ -4,50 +4,63 @@
 
 :root {
   color-scheme: light;
-  --flame: #252A34;
-  /* Dark Gunmetal Charcoal (#252A34) */
-  --ember: #393E46;
-  /* Slate Charcoal */
-  --blush: #06B6D4;
-  /* Electric Cyan */
-  --page: #F7F8FA;
-  /* Crisp Clean White-Gray */
+  --flame: #0A0A0C;
+  /* Pitch Stark Black Accent in light */
+  --ember: #27272A;
+  /* Charcoal Neutral */
+  --blush: #0284C7;
+  /* Clean Signal Blue */
+  --page: #F6F7F9;
+  /* Crisp Drafting Paper Canvas */
   --surface: #FFFFFF;
   /* Clean White Card Surface */
-  --surface-strong: #EAEBED;
-  /* Elevated Surface */
-  --ink: #111827;
-  /* Deep High-Contrast Text */
-  --muted: #4B5563;
-  --line: #E5E7EB;
+  --surface-strong: #ECEEF2;
+  /* Solid Surface Step */
+  --ink: #0A0A0C;
+  /* Deep High-Contrast Ink */
+  --muted: #525866;
+  /* Legible Slate Caption */
+  --line: #E2E4E9;
+  /* Hairline Architectural Divider */
+  --coral: #D14836;
+  --coral-hover: #DF6C4F;
+  --coral-soft: rgba(209, 72, 54, 0.12);
+  --coral-glow: rgba(209, 72, 54, 0.22);
+  --accent: #C7ED70;
+  /* Acid Chartreuse */
   --inverse: white;
-  --shadow-rgb: 17 24 39;
-  --cursor-ring: rgba(17, 24, 39, 0.45);
+  --shadow-rgb: 10 10 12;
+  --cursor-ring: rgba(10, 10, 12, 0.55);
 }
 
 .dark {
   color-scheme: dark;
   --flame: #C7ED70;
-  /* Signature Acid Chartreuse matching Hero Exhibition Poster */
+  /* Signature Acid Chartreuse */
   --ember: #818CF8;
   /* Cyber Indigo */
   --blush: #00F5D4;
-  /* Electric Neon Cyan / Aqua */
+  /* Electric Signal Cyan */
   --page: #08080A;
-  /* Obsidian Deep Black (Crisp & High-End) */
+  /* Deep Obsidian Architectural Black */
   --surface: #101015;
-  /* Sleek Obsidian Charcoal Card */
+  /* Architectural Charcoal Card */
   --surface-strong: #171720;
   /* Elevated Dark Surface */
   --ink: #F4F4F6;
   /* Crisp Zinc 50 Typography */
   --muted: #8E8E9E;
-  /* Legible Slate Text */
+  /* Legible Technical Slate */
   --line: rgba(255, 255, 255, 0.12);
   /* Razor-sharp architectural hairlines */
+  --coral: #FF6B55;
+  --coral-hover: #FF9398;
+  --coral-soft: rgba(255, 107, 85, 0.14);
+  --coral-glow: rgba(255, 147, 152, 0.22);
+  --accent: #C7ED70;
   --inverse: #08080A;
   --shadow-rgb: 0 0 0;
-  --cursor-ring: rgba(199, 237, 112, 0.65);
+  --cursor-ring: rgba(199, 237, 112, 0.7);
 }
 
 * {
@@ -78,18 +91,14 @@ body {
   text-rendering: geometricPrecision;
 }
 
-/* Subtle architectural blueprint grid texture in dark mode */
+/* Clean architectural canvas in dark mode */
 .dark body {
   background-color: var(--page);
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 36px 36px;
 }
 
-/* Global accessible focus-visible styles */
+/* Global accessible focus-visible styles mapped to design tokens */
 :focus-visible {
-  outline: 2px solid #10B981;
+  outline: 2px solid var(--flame);
   outline-offset: 3px;
 }
 
@@ -98,7 +107,7 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 [role="button"]:focus-visible {
-  outline: 2px solid #10B981;
+  outline: 2px solid var(--flame);
   outline-offset: 2px;
 }
 
@@ -163,13 +172,13 @@ textarea {
   transform: translateY(-2px);
 }
 
-/* ── Gallery Card Gradient Border on Hover ── */
+/* ── Gallery Card Subtle Border on Hover ── */
 .gallery-card .group::before {
   content: '';
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: linear-gradient(135deg, #10B981, #06B6D4, #8B5CF6);
+  background: linear-gradient(135deg, var(--flame), var(--ember), var(--blush));
   opacity: 0;
   z-index: -1;
   transition: opacity 0.3s ease;
@@ -247,9 +256,9 @@ footer {
 }
 
 .btn-neo-primary:hover {
-  background: #10B981;
-  color: #000000;
-  border-color: #10B981;
+  background: var(--flame);
+  color: var(--page);
+  border-color: var(--flame);
 }
 
 .dark .btn-neo-primary {
@@ -346,11 +355,57 @@ footer {
   font-size: 13px;
   font-weight: 500;
   color: var(--ink);
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .badge-neo-pill:hover {
   border-color: var(--ink);
+}
+
+.dark .badge-neo-pill:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Architectural Minimal Brutalism Extensions ── */
+.brutal-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.brutal-card:hover {
+  border-color: var(--ink);
+}
+
+.dark .brutal-card:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.brutal-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.brutal-corner-cross {
+  position: absolute;
+  font-family: monospace;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--muted);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 @media (prefers-reduced-motion: reduce) {

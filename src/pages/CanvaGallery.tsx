@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo, startTransition } from "react";
 import { Link } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import { ThemeToggle } from "../components/ThemeToggle";
 
 import {
@@ -12,7 +13,7 @@ import {
   playSuccess,
 } from "../utils/soundEffects";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /* ─── Unified Sound Synthesizer Bridge ───── */
 class SoundFX {
@@ -249,25 +250,28 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
   const ref = useRef<HTMLSpanElement>(null);
   const counted = useRef(false);
 
-  useEffect(() => {
-    if (!ref.current || counted.current) return;
-    counted.current = true;
-    gsap.fromTo(
-      ref.current,
-      { innerHTML: 0 },
-      {
-        innerHTML: target,
-        duration: 2,
-        snap: { innerHTML: 1 },
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top 95%",
-          once: true,
-        },
-      }
-    );
-  }, [target]);
+  useGSAP(
+    () => {
+      if (!ref.current || counted.current) return;
+      counted.current = true;
+      gsap.fromTo(
+        ref.current,
+        { innerHTML: 0 },
+        {
+          innerHTML: target,
+          duration: 2,
+          snap: { innerHTML: 1 },
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: ref.current,
+            start: "top 95%",
+            once: true,
+          },
+        }
+      );
+    },
+    { dependencies: [target] }
+  );
 
   return (
     <span>
@@ -336,34 +340,40 @@ function Lightbox({
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   /* Mount entrance animation */
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    gsap.fromTo(
-      backdropRef.current,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.35, ease: "power2.out" }
-    );
-    gsap.fromTo(
-      contentRef.current,
-      { opacity: 0, scale: 0.9, y: 30 },
-      { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "expo.out", delay: 0.05 }
-    );
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
+  useGSAP(
+    () => {
+      document.body.style.overflow = "hidden";
+      gsap.fromTo(
+        backdropRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.35, ease: "power2.out" }
+      );
+      gsap.fromTo(
+        contentRef.current,
+        { opacity: 0, scale: 0.9, y: 30 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "expo.out", delay: 0.05 }
+      );
+      return () => {
+        document.body.style.overflow = "";
+      };
+    },
+    { dependencies: [] }
+  );
 
   /* Crossfade image when navigation occurs */
-  useEffect(() => {
-    setZoomLevel(1);
-    if (imgRef.current) {
-      gsap.fromTo(
-        imgRef.current,
-        { opacity: 0, scale: 0.96 },
-        { opacity: 1, scale: 1, duration: 0.35, ease: "power2.out" }
-      );
-    }
-  }, [item]);
+  useGSAP(
+    () => {
+      setZoomLevel(1);
+      if (imgRef.current) {
+        gsap.fromTo(
+          imgRef.current,
+          { opacity: 0, scale: 0.96 },
+          { opacity: 1, scale: 1, duration: 0.35, ease: "power2.out" }
+        );
+      }
+    },
+    { dependencies: [item] }
+  );
 
   const handleClose = useCallback(() => {
     soundManager.slide();
@@ -556,6 +566,10 @@ function Lightbox({
               ref={imgRef}
               src={item.src}
               alt={item.label}
+              width={1000}
+              height={1250}
+              loading="lazy"
+              decoding="async"
               style={{
                 transform: `scale(${zoomLevel})`,
                 transition: "transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)",
@@ -792,6 +806,8 @@ function GalleryCard({
           <img
             src={item.src}
             alt={item.label}
+            width={800}
+            height={1000}
             loading="lazy"
             decoding="async"
             className={`w-full block transition-transform duration-700 ease-out group-hover:scale-[1.05] ${
@@ -1071,9 +1087,8 @@ export default function CanvaGallery() {
 
 
   /* Hero entrance animation */
-  useEffect(() => {
-    let statsTimer: number;
-    const ctx = gsap.context(() => {
+  useGSAP(
+    () => {
       gsap.fromTo(
         heroTitleRef.current,
         { opacity: 0, y: 60, skewY: -3 },
@@ -1085,7 +1100,7 @@ export default function CanvaGallery() {
         { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", delay: 0.6 }
       );
 
-      statsTimer = window.setTimeout(() => {
+      const statsTimer = window.setTimeout(() => {
         const statsItems = document.querySelectorAll<HTMLElement>(".stats-item");
         if (statsItems.length) {
           gsap.fromTo(
@@ -1102,13 +1117,13 @@ export default function CanvaGallery() {
           );
         }
       }, 700);
-    });
 
-    return () => {
-      clearTimeout(statsTimer);
-      ctx.revert();
-    };
-  }, []);
+      return () => {
+        clearTimeout(statsTimer);
+      };
+    },
+    { dependencies: [] }
+  );
 
   /* Filtered designs logic */
   const filtered = useMemo(() => {
@@ -1160,8 +1175,8 @@ export default function CanvaGallery() {
   }, [activeCat, searchQuery, viewMode]);
 
   /* Marquee animation */
-  useEffect(() => {
-    const ctx = gsap.context(() => {
+  useGSAP(
+    () => {
       if (marqueeRef.current) {
         const marqueeTl = gsap.to(marqueeRef.current, {
           xPercent: -50,
@@ -1189,10 +1204,9 @@ export default function CanvaGallery() {
           },
         });
       }
-    });
-
-    return () => ctx.revert();
-  }, []);
+    },
+    { dependencies: [] }
+  );
 
   const closeLb = useCallback(() => setLightboxIdx(null), []);
   const nextLb = useCallback(
@@ -1424,7 +1438,9 @@ export default function CanvaGallery() {
                     type="button"
                     onClick={() => {
                       soundManager.pop();
-                      setActiveCat(cat);
+                      startTransition(() => {
+                        setActiveCat(cat);
+                      });
                     }}
                     className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider border transition-all duration-300 ${
                       activeCat === cat
@@ -1446,7 +1462,12 @@ export default function CanvaGallery() {
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    startTransition(() => {
+                      setSearchQuery(val);
+                    });
+                  }}
                   placeholder="Filter by keyword..."
                   className="w-full rounded-full border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/5 px-4 py-2 pl-9 text-xs text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:border-[#10B981] focus:outline-none"
                 />
@@ -1456,7 +1477,11 @@ export default function CanvaGallery() {
                 {searchQuery && (
                   <button
                     type="button"
-                    onClick={() => setSearchQuery("")}
+                    onClick={() => {
+                      startTransition(() => {
+                        setSearchQuery("");
+                      });
+                    }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white"
                   >
                     ✕
@@ -1470,7 +1495,9 @@ export default function CanvaGallery() {
                   type="button"
                   onClick={() => {
                     soundManager.tick();
-                    setViewMode("masonry");
+                    startTransition(() => {
+                      setViewMode("masonry");
+                    });
                   }}
                   title="Masonry Layout"
                   className={`px-3 py-1 rounded-full text-xs font-bold transition ${
@@ -1485,7 +1512,9 @@ export default function CanvaGallery() {
                   type="button"
                   onClick={() => {
                     soundManager.tick();
-                    setViewMode("grid");
+                    startTransition(() => {
+                      setViewMode("grid");
+                    });
                   }}
                   title="Grid Layout"
                   className={`px-3 py-1 rounded-full text-xs font-bold transition ${
@@ -1500,7 +1529,9 @@ export default function CanvaGallery() {
                   type="button"
                   onClick={() => {
                     soundManager.tick();
-                    setViewMode("spotlight");
+                    startTransition(() => {
+                      setViewMode("spotlight");
+                    });
                   }}
                   title="Spotlight Layout"
                   className={`px-3 py-1 rounded-full text-xs font-bold transition ${

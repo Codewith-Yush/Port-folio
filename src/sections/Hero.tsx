@@ -1,29 +1,33 @@
-import { useLayoutEffect, useRef } from "react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { playClick } from "../utils/soundEffects";
 import { scrollToSection } from "../utils/scrollToSection";
 import { FlipFadeText } from "../components/ui/flip-fade-text";
 
+gsap.registerPlugin(useGSAP);
+
 const HEADLINE = ["Crafting", "resilient", "web", "systems", "&", "tools."];
 const ROLES = ["Full Stack & Creative Systems", "Freelance Developer", "Data Science Student"];
 
 const chipClass =
-  "hero-chip inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1.5 text-[var(--ink)] transition-colors hover:border-[var(--ink)]";
+  "hero-chip inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--ink)] transition-colors duration-200 hover:border-[var(--ink)] hover:bg-[var(--surface-strong)]";
 
 export function Hero() {
   const reducedMotion = usePrefersReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
   const roleRef = useRef<HTMLSpanElement>(null);
 
-  useLayoutEffect(() => {
-    const root = heroRef.current;
-    if (!root) return;
-    const cleanups: Array<() => void> = [];
+  useGSAP(
+    () => {
+      const root = heroRef.current;
+      if (!root) return;
+      const cleanups: Array<() => void> = [];
 
-    const context = gsap.context(() => {
       if (reducedMotion) {
         gsap.set(
           ".hero-fade, .hero-word, .hero-chip, .poster-main, .poster-card, .poster-tag",
@@ -149,13 +153,13 @@ export function Hero() {
           poster.removeEventListener("pointerleave", onLeave);
         });
       }
-    }, heroRef);
 
-    return () => {
-      context.revert();
-      cleanups.forEach((fn) => fn());
-    };
-  }, [reducedMotion]);
+      return () => {
+        cleanups.forEach((fn) => fn());
+      };
+    },
+    { scope: heroRef, dependencies: [reducedMotion] },
+  );
 
   return (
     <section
@@ -189,25 +193,30 @@ export function Hero() {
       />
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col justify-between px-6 pb-6 pt-20 sm:px-10 sm:pb-8 sm:pt-24 lg:px-16 lg:pt-24">
-        {/* Status row */}
+        {/* Architectural Status Row */}
         <div
           data-ui="status"
-          className="hero-status flex items-center justify-between py-1 text-xs text-[var(--muted)] sm:py-1.5"
+          className="hero-status flex flex-wrap items-center justify-between gap-2 border-b border-[var(--line)] py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--muted)] sm:py-2.5"
         >
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2 w-2" aria-hidden="true">
               <span className="hero-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
-            <span className="font-medium text-[var(--ink)]">Ayush Singh</span>
-            <span aria-hidden="true">—</span>
+            <span className="font-semibold text-[var(--ink)]">AYUSH SINGH</span>
+            <span aria-hidden="true" className="opacity-40">/</span>
             <span className="relative inline-block h-[1.3em] overflow-hidden align-bottom">
-              <span ref={roleRef} className="inline-block">
+              <span ref={roleRef} className="inline-block text-[var(--ink)]">
                 {ROLES[0]}
               </span>
             </span>
           </div>
-          <span className="hidden sm:inline">New Delhi, India (IST)</span>
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline">[28.6139° N, 77.2090° E]</span>
+            <span className="border border-[var(--line)] px-2 py-0.5 rounded-sm text-[var(--ink)] font-semibold">
+              AVAILABLE Q2/Q3
+            </span>
+          </div>
         </div>
 
         {/* Main grid */}
@@ -215,7 +224,7 @@ export function Hero() {
           <div className="relative z-10 flex max-w-2xl flex-col items-start">
             <h1
               aria-label="Crafting resilient web systems & tools."
-              className="font-sans text-[clamp(2.35rem,4.5vw,4rem)] font-bold leading-[1.04] tracking-[-0.03em] text-[var(--ink)]"
+              className="font-sans text-[clamp(2.5rem,5.2vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.035em] text-[var(--ink)]"
             >
               {HEADLINE.map((word, i) => {
                 const accent = word === "resilient";
@@ -243,7 +252,9 @@ export function Hero() {
             </p>
 
             <div className="hero-fade mt-7 flex w-full flex-col gap-3.5 sm:mt-8 sm:w-auto sm:flex-row">
-              <a
+              <motion.a
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 href="#work"
                 onClick={(e) => {
                   e.preventDefault();
@@ -256,114 +267,157 @@ export function Hero() {
                 <span className="btn-icon-pod h-7 w-7 rounded-full bg-[var(--page)] text-[var(--ink)] dark:bg-black dark:text-[#C7ED70]">
                   <ArrowDown className="btn-icon-pod-down h-3.5 w-3.5" />
                 </span>
-              </a>
-              <Link
-                to="/resume"
-                className="btn-neo-base btn-neo-secondary group inline-flex h-12 items-center justify-between gap-4 px-6 sm:min-w-[160px]"
-              >
-                <span>View Résumé</span>
-                <span className="btn-icon-pod h-7 w-7 rounded-full bg-[var(--surface-strong)] text-[var(--ink)]">
-                  <ArrowUpRight className="btn-icon-pod-arrow h-3.5 w-3.5 text-emerald-600 dark:text-[#C7ED70]" />
-                </span>
-              </Link>
+              </motion.a>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="inline-flex">
+                <Link
+                  to="/resume"
+                  className="btn-neo-base btn-neo-secondary group inline-flex h-12 w-full items-center justify-between gap-4 px-6 sm:min-w-[160px]"
+                >
+                  <span>View Résumé</span>
+                  <span className="btn-icon-pod h-7 w-7 rounded-full bg-[var(--surface-strong)] text-[var(--ink)]">
+                    <ArrowUpRight className="btn-icon-pod-arrow h-3.5 w-3.5 text-emerald-600 dark:text-[#C7ED70]" />
+                  </span>
+                </Link>
+              </motion.div>
             </div>
 
             <nav
               aria-label="Social links"
               className="mt-6 flex flex-wrap items-center gap-2.5 text-xs text-[var(--muted)] sm:mt-8 sm:gap-3"
             >
-              <a className={chipClass} href="https://github.com/codewith-Yush" target="_blank" rel="noopener noreferrer">
+              <motion.a
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className={chipClass}
+                href="https://github.com/codewith-Yush"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current opacity-80" aria-hidden="true">
                   <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.933.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
                 </svg>
                 <span>GitHub</span>
                 <span className="opacity-50">↗</span>
-              </a>
-              <a className={chipClass} href="https://linkedin.com/in/ayush-singh-643a4b25a" target="_blank" rel="noopener noreferrer">
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className={chipClass}
+                href="https://linkedin.com/in/ayush-singh-643a4b25a"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current opacity-80" aria-hidden="true">
                   <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z M4 6a2 2 0 100-4 2 2 0 000 4z" />
                 </svg>
                 <span>LinkedIn</span>
                 <span className="opacity-50">↗</span>
-              </a>
-              <a className={chipClass} href="https://twitter.com/ayushsingh" target="_blank" rel="noopener noreferrer">
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className={chipClass}
+                href="https://twitter.com/ayushsingh"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current opacity-80" aria-hidden="true">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
                 <span>X</span>
                 <span className="opacity-50">↗</span>
-              </a>
+              </motion.a>
             </nav>
           </div>
 
-          {/* Poster */}
+          {/* Architectural Poster Plate */}
           <div
             data-ui="poster"
             className="relative mx-auto aspect-[0.94] w-full max-w-[420px] select-none sm:max-w-[440px] lg:max-w-[460px] xl:max-w-[480px]"
             aria-hidden="true"
           >
             <div data-depth="12" className="absolute inset-0">
-              <div className="poster-main absolute left-[6%] top-[5%] h-[84%] w-[84%] overflow-hidden rounded-2xl border border-[var(--ink)] bg-[#C7ED70] shadow-[0_28px_60px_-30px_rgba(0,0,0,0.4)]">
-                <div className="absolute inset-3 rounded-xl border border-black/15" />
-                <span className="absolute left-[8%] top-[6%] text-xs font-semibold text-black">
+              <div className="poster-main absolute left-[6%] top-[5%] h-[84%] w-[84%] overflow-hidden rounded-2xl border-2 border-[var(--ink)] bg-[#C7ED70] shadow-[0_24px_50px_-25px_rgba(0,0,0,0.45)]">
+                {/* Architectural Hairline Grid & Corner Stamps */}
+                <div className="absolute inset-3 rounded-xl border border-black/20" />
+                <span className="brutal-corner-cross left-4 top-3 text-black font-mono font-bold">+</span>
+                <span className="brutal-corner-cross right-4 top-3 text-black font-mono font-bold">+</span>
+                <span className="brutal-corner-cross left-4 bottom-3 text-black font-mono font-bold">+</span>
+                <span className="brutal-corner-cross right-4 bottom-3 text-black font-mono font-bold">+</span>
+
+                <span className="absolute left-[8%] top-[6%] font-mono text-[11px] font-bold tracking-[0.14em] uppercase text-black">
                   Ayush Singh Studio
                 </span>
-                <span className="absolute right-[8%] top-[6%] text-xs font-semibold text-black">
-                  N°01
+                <span className="absolute right-[8%] top-[6%] font-mono text-[11px] font-bold tracking-[0.14em] text-black">
+                  [N° 01]
                 </span>
-                <span className="poster-amp absolute -left-[4%] top-[12%] font-serif text-[clamp(13rem,30vw,20rem)] leading-[0.88] tracking-[-0.12em] text-black">
+                <span className="poster-amp absolute -left-[4%] top-[12%] font-serif text-[clamp(13rem,30vw,20rem)] leading-[0.88] tracking-[-0.12em] text-black select-none pointer-events-none">
                   &amp;
                 </span>
-                <span className="absolute bottom-[8%] left-[8%] text-xs font-medium leading-snug text-black">
-                  Web Systems
+                <span className="absolute bottom-[8%] left-[8%] font-mono text-[11px] font-semibold leading-relaxed tracking-[0.08em] text-black uppercase">
+                  Web Architecture
                   <br />
-                  &amp; Visual Direction
+                  &amp; Intelligence
                 </span>
               </div>
             </div>
 
             <div data-depth="26" className="absolute inset-0">
-              <div className="poster-card absolute bottom-[6%] right-[2%] flex min-h-[30%] w-[62%] sm:w-[58%] flex-col justify-between rounded-xl border border-[var(--ink)] bg-[var(--ink)] p-4 sm:p-5 text-[var(--page)] shadow-[0_20px_45px_-22px_rgba(0,0,0,0.55)]">
-                <span className="text-[11px] sm:text-xs text-[var(--page)] opacity-75">Studio Exhibition / 2026</span>
-                <span className="font-sans text-lg sm:text-xl font-bold leading-tight tracking-tight text-[var(--page)]">
+              <div className="poster-card absolute bottom-[6%] right-[2%] flex min-h-[30%] w-[62%] sm:w-[58%] flex-col justify-between rounded-xl border-2 border-[var(--ink)] bg-[var(--ink)] p-4 sm:p-5 text-[var(--page)] shadow-[0_20px_45px_-20px_rgba(0,0,0,0.6)]">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--page)] opacity-80">
+                  [EXHIBITION // 2026]
+                </span>
+                <span className="font-sans text-lg sm:text-xl font-extrabold leading-tight tracking-tight text-[var(--page)]">
                   Engineering Ideas Into Reality.
                 </span>
               </div>
             </div>
 
             <div data-depth="40" className="absolute inset-0">
-              <span className="poster-tag absolute right-[3%] top-[12%] rounded-full border border-[var(--line)] bg-[var(--surface)]/90 px-3 py-1 text-[11px] font-semibold text-[var(--ink)] backdrop-blur-sm shadow-sm">
-                React
-              </span>
-              <span className="poster-tag absolute right-[8%] top-[23%] rounded-full border border-[var(--line)] bg-[var(--surface)]/90 px-3 py-1 text-[11px] font-semibold text-[var(--ink)] backdrop-blur-sm shadow-sm">
-                Data
-              </span>
-              <span className="poster-tag absolute left-[2%] top-[40%] rounded-full border border-[var(--line)] bg-[var(--surface)]/90 px-3 py-1 text-[11px] font-semibold text-[var(--ink)] backdrop-blur-sm shadow-sm">
-                Design
-              </span>
+              <motion.span
+                animate={reducedMotion ? undefined : { y: [0, -6, 0] }}
+                transition={{ repeat: Infinity, duration: 4.2, ease: "easeInOut" }}
+                className="poster-tag absolute right-[3%] top-[12%] rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] font-semibold text-[var(--ink)] shadow-sm"
+              >
+                React &amp; Next.js
+              </motion.span>
+              <motion.span
+                animate={reducedMotion ? undefined : { y: [0, 6, 0] }}
+                transition={{ repeat: Infinity, duration: 4.8, ease: "easeInOut", delay: 0.6 }}
+                className="poster-tag absolute right-[8%] top-[23%] rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] font-semibold text-[var(--ink)] shadow-sm"
+              >
+                Power BI &amp; ML
+              </motion.span>
+              <motion.span
+                animate={reducedMotion ? undefined : { y: [0, -7, 0] }}
+                transition={{ repeat: Infinity, duration: 5.4, ease: "easeInOut", delay: 1.2 }}
+                className="poster-tag absolute left-[2%] top-[40%] rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] font-semibold text-[var(--ink)] shadow-sm"
+              >
+                Creative Systems
+              </motion.span>
             </div>
           </div>
         </div>
 
-        {/* Focus & Specialization 3D Flip-Fade Banner */}
-        <div className="hero-fade my-4 sm:my-6 flex flex-col items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)]/60 px-5 py-3.5 shadow-sm backdrop-blur-sm sm:flex-row sm:gap-6 sm:px-6">
-          <div className="flex items-center gap-2.5 font-mono text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+        {/* Focus & Specialization Architectural Banner */}
+        <div className="hero-fade my-4 sm:my-6 flex flex-col items-center justify-between gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-5 py-3.5 shadow-sm sm:flex-row sm:gap-6 sm:px-6">
+          <div className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--muted)]">
             <span className="relative flex h-2 w-2" aria-hidden="true">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
-            <span>Specialization</span>
+            <span className="font-semibold text-[var(--ink)]">[SPECIALIZATION]</span>
           </div>
 
           <FlipFadeText
-            words={["FULL STACK", "DATA SCIENCE", "CREATIVE SYSTEMS", "AI ARCHITECTURE"]}
+            words={["FULL STACK ARCHITECTURE", "DATA INTELLIGENCE (POWER BI)", "CREATIVE SYSTEMS", "AI WORKFLOWS"]}
             interval={2600}
             className="min-h-[44px] py-0"
-            textClassName="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-[var(--ink)]"
+            textClassName="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight text-[var(--ink)]"
           />
 
-          <div className="hidden font-mono text-[11px] uppercase tracking-wider text-[var(--muted)] sm:block">
-            <span>2026 // Production</span>
+          <div className="hidden font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--muted)] sm:block">
+            <span>2026 // PRODUCTION</span>
           </div>
         </div>
 

@@ -446,6 +446,7 @@ export function InteractiveParticles({
     };
 
     // ── resize ────────────────────────────────────────────────────────────────
+    let resizeTimer: number | null = null;
     const applySize = () => {
       view = getSize();
       camera.aspect = view.width / view.height;
@@ -455,9 +456,20 @@ export function InteractiveParticles({
       rect = canvas.getBoundingClientRect();
       applyScale();
     };
-    const resizeObserver = new ResizeObserver(applySize);
+
+    const debouncedApplySize = () => {
+      if (resizeTimer !== null) clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        resizeTimer = null;
+        if (!disposed) {
+          applySize();
+        }
+      }, 100);
+    };
+
+    const resizeObserver = new ResizeObserver(debouncedApplySize);
     resizeObserver.observe(container);
-    window.addEventListener("resize", applySize);
+    window.addEventListener("resize", debouncedApplySize, { passive: true });
 
     // ── loop ──────────────────────────────────────────────────────────────────
     // Rendering every display refresh is unnecessary for this ambient effect.
@@ -494,11 +506,12 @@ export function InteractiveParticles({
     // ── cleanup ─────────────────────────────────────────────────────────────
     return () => {
       disposed = true;
+      if (resizeTimer !== null) clearTimeout(resizeTimer);
       renderer.setAnimationLoop(null);
       visibilityObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibilityChange);
       canvas.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("resize", applySize);
+      window.removeEventListener("resize", debouncedApplySize);
       resizeObserver.disconnect();
       if (uniforms) gsap.killTweensOf([uniforms.uSize, uniforms.uRandom, uniforms.uDepth]);
       if (object3D) {
@@ -510,8 +523,14 @@ export function InteractiveParticles({
         (hitArea.material as THREE.Material).dispose();
       }
       if (touch) touch.texture.dispose();
-      // Dispose GL resources but keep the context — the same canvas reuses its
-      // single WebGL context when the effect re-runs (e.g. after an upload).
+      // Ensure WebGL context and resources are released
+      try {
+        const gl = renderer.getContext();
+        const loseContextExt = gl?.getExtension("WEBGL_lose_context");
+        loseContextExt?.loseContext();
+      } catch {
+        /* Ignore if unsupported */
+      }
       renderer.dispose();
     };
   }, [effectiveSrc, color, size, randomness, depth, touchRadius, threshold, maxDimension]);

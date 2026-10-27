@@ -1,7 +1,6 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { navItems } from "../data/portfolio";
 import { useActiveSection } from "../hooks/useActiveSection";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
@@ -12,20 +11,12 @@ import { SoundToggle } from "./SoundToggle";
 import { playClick } from "../utils/soundEffects";
 import { scrollToSection } from "../utils/scrollToSection";
 
-gsap.registerPlugin(ScrollTrigger);
-
 export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
-
-  const headerRef = useRef<HTMLElement | null>(null);
-  const progressBarRef = useRef<HTMLDivElement | null>(null);
-  const desktopNavRef = useRef<HTMLElement | null>(null);
-  const mobilePanelRef = useRef<HTMLDivElement | null>(null);
-  const hamburgerRef = useRef<HTMLButtonElement | null>(null);
 
   const hrefs = useMemo(() => navItems.map((item) => item.href), []);
   const activeHref = useActiveSection(hrefs);
@@ -38,62 +29,13 @@ export function Header() {
 
   const effectiveActiveHref = optimisticHref ?? activeHref;
 
-  const navLinkRefs = useRef<Map<string, HTMLAnchorElement>>(new Map());
-  const navIndicatorRef = useRef<HTMLDivElement | null>(null);
-
-  // GSAP Sliding Pill Indicator for Desktop Navbar Dock
-  useLayoutEffect(() => {
-    const targetHref =
-      location.pathname !== "/"
-        ? location.pathname
-        : (effectiveActiveHref || "");
-    const activeEl = targetHref ? navLinkRefs.current.get(targetHref) : undefined;
-    const indicatorEl = navIndicatorRef.current;
-
-    if (!indicatorEl) return;
-    if (!activeEl) {
-      gsap.to(indicatorEl, { opacity: 0, duration: 0.25 });
-      return;
-    }
-
-    const x = activeEl.offsetLeft;
-    const width = activeEl.offsetWidth;
-
-    if (reducedMotion) {
-      gsap.set(indicatorEl, { x, width, opacity: 1 });
-    } else {
-      gsap.to(indicatorEl, {
-        x,
-        width,
-        opacity: 1,
-        duration: 0.35,
-        ease: "power2.out",
-      });
-    }
-
-    let resizeTimer: number | null = null;
-    const handleResize = () => {
-      if (resizeTimer !== null) clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => {
-        resizeTimer = null;
-        const currentTarget =
-          location.pathname !== "/"
-            ? location.pathname
-            : (effectiveActiveHref || "");
-        const el = currentTarget ? navLinkRefs.current.get(currentTarget) : undefined;
-        if (el && indicatorEl) {
-          gsap.set(indicatorEl, { x: el.offsetLeft, width: el.offsetWidth, opacity: 1 });
-        }
-      }, 100);
-    };
-
-    window.addEventListener("resize", handleResize, { passive: true });
-    document.fonts?.ready?.then(handleResize);
-    return () => {
-      if (resizeTimer !== null) clearTimeout(resizeTimer);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [effectiveActiveHref, location.pathname, reducedMotion]);
+  // Smooth spring scroll progress bar with Framer Motion
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
 
   const closeMenu = () => setOpen(false);
 
@@ -118,7 +60,7 @@ export function Header() {
     scrollToSection(href);
   };
 
-  // Scroll handler with throttle
+  // Scroll handler with throttle for blur/border state
   useEffect(() => {
     let frame = 0;
     const updateScrolled = () => {
@@ -143,130 +85,30 @@ export function Header() {
     };
   }, []);
 
-  // Entrance animations
-  useLayoutEffect(() => {
-    if (reducedMotion) return;
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        headerRef.current,
-        { y: -70, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }
-      );
-
-      const items = desktopNavRef.current?.querySelectorAll("[data-nav-item]");
-      if (items) {
-        gsap.fromTo(
-          items,
-          { y: -15, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.6,
-            stagger: 0.05,
-            ease: "power2.out",
-            delay: 0.2,
-          }
-        );
-      }
-
-      if (progressBarRef.current) {
-        ScrollTrigger.create({
-          start: "top top",
-          end: "max",
-          onUpdate: (self) => {
-            if (progressBarRef.current) {
-              gsap.set(progressBarRef.current, {
-                scaleX: self.progress,
-                force3D: true,
-              });
-            }
-          },
-        });
-      }
-    }, headerRef);
-
-    return () => ctx.revert();
-  }, [reducedMotion]);
-
-  // Mobile menu animation
+  // Lock body scroll when mobile menu is open
   useEffect(() => {
-    const panel = mobilePanelRef.current;
-    if (!panel) return;
-
-    if (reducedMotion) {
-      panel.style.display = open ? "block" : "none";
-      panel.style.opacity = open ? "1" : "0";
-      return;
-    }
-
-    const links = panel.querySelectorAll("[data-mobile-link]");
-    const bottomContent = panel.querySelector("[data-mobile-bottom]");
-
-    gsap.killTweensOf([panel, ...links, bottomContent].filter(Boolean));
-
     if (open) {
       document.body.style.overflow = "hidden";
-      panel.style.display = "block";
-      panel.style.pointerEvents = "auto";
-
-      gsap.fromTo(
-        panel,
-        { opacity: 0, y: -15 },
-        { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }
-      );
-
-      gsap.fromTo(
-        links,
-        { y: 20, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.35,
-          stagger: 0.05,
-          ease: "power2.out",
-          delay: 0.08,
-        }
-      );
-
-      if (bottomContent) {
-        gsap.fromTo(
-          bottomContent,
-          { y: 15, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.35, ease: "power3.out", delay: 0.25 }
-        );
-      }
     } else {
       document.body.style.overflow = "";
-      gsap.to(panel, {
-        opacity: 0,
-        y: -10,
-        duration: 0.25,
-        ease: "power2.in",
-        onComplete: () => {
-          panel.style.display = "none";
-          panel.style.pointerEvents = "none";
-        },
-      });
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
 
-    if (open) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open, reducedMotion]);
+  }, [open]);
 
   return (
-    <header
-      ref={headerRef}
+    <motion.header
+      initial={reducedMotion ? false : { y: -70, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         isScrolled
@@ -274,52 +116,68 @@ export function Header() {
           : "bg-[var(--page)]/60 backdrop-blur-md border-b border-transparent py-3.5 sm:py-4"
       )}
     >
-      {/* GSAP Scroll Progress Indicator */}
-      <div
-        ref={progressBarRef}
+      {/* Minimal Brutalist Architectural Scroll Progress Bar */}
+      <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-emerald-500 via-teal-400 to-[#C7ED70] origin-left scale-x-0 z-50 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-[var(--flame)] origin-left z-50 opacity-90"
+        style={{ scaleX: reducedMotion ? 1 : scaleX }}
       />
+
       <Container className="flex items-center justify-between gap-4">
-        {/* Brand Logo with Status Beacon */}
-        <a
+        {/* Brand Logo with Status Beacon & Coordinates */}
+        <motion.a
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           href="#hero"
           onClick={(e) => handleNavClick(e, "#hero")}
-          className="group flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[var(--ink)] transition-opacity duration-300 hover:opacity-80"
+          className="group flex items-center gap-3 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] text-[var(--ink)] transition-opacity duration-200"
           aria-label="Ayush Singh Portfolio Home"
         >
-          <span className="relative flex h-2.5 w-2.5 items-center justify-center">
+          <span className="relative flex h-2 w-2 items-center justify-center">
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-[#C7ED70]" />
           </span>
-          <span className="font-display font-extrabold tracking-wider">Ayush Singh</span>
-        </a>
+          <span className="font-sans font-extrabold tracking-tight text-sm sm:text-base">
+            Ayush Singh
+          </span>
+          <span className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--muted)] lg:inline-block border border-[var(--line)] px-2 py-0.5 rounded-sm">
+            SYS // 2026
+          </span>
+        </motion.a>
 
-        {/* Floating Island Dock Navbar (Desktop) */}
+        {/* Minimal Brutalist Navigation Dock (Desktop) */}
         <nav
-          ref={desktopNavRef}
-          className="hidden items-center gap-1 rounded-full p-1.5 transition-colors duration-300 md:flex relative bg-[var(--surface)]/90 border border-[var(--line)] backdrop-blur-2xl"
+          className="hidden items-center gap-1 rounded-full p-1 transition-colors duration-200 md:flex relative bg-[var(--surface)] border border-[var(--line)]"
         >
-          {/* GSAP Sliding Pill Indicator */}
-          <div
-            ref={navIndicatorRef}
-            aria-hidden="true"
-            className="absolute inset-y-1.5 left-0 rounded-full pointer-events-none transition-colors duration-300 bg-[var(--ink)]"
-            style={{ opacity: 0 }}
-          />
-
           {navItems.map((item) => {
             const isRouterLink = item.href.startsWith("/");
             const isActive = isRouterLink
               ? location.pathname === item.href
               : effectiveActiveHref === item.href;
 
+            const linkContent = (
+              <>
+                {isActive && (
+                  <motion.div
+                    layoutId="navPillIndicator"
+                    className="absolute inset-0 rounded-full bg-[var(--ink)]"
+                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10">{item.label}</span>
+              </>
+            );
+
+            const linkClass = cn(
+              "relative z-10 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors duration-150 select-none",
+              isActive
+                ? "text-[var(--page)] font-bold"
+                : "text-[var(--muted)] hover:text-[var(--ink)]"
+            );
+
             if (isRouterLink) {
               return (
                 <Link
                   key={item.href}
-                  ref={(el) => {
-                    if (el) navLinkRefs.current.set(item.href, el as unknown as HTMLAnchorElement);
-                  }}
                   to={item.href}
                   onClick={() => {
                     playClick();
@@ -327,14 +185,9 @@ export function Header() {
                   }}
                   data-nav-item="true"
                   aria-current={isActive ? "page" : undefined}
-                  className={cn(
-                    "relative z-10 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] transition-colors duration-200 select-none",
-                    isActive
-                      ? "text-[var(--page)] font-extrabold"
-                      : "text-[var(--muted)] hover:text-[var(--ink)]"
-                  )}
+                  className={linkClass}
                 >
-                  <span>{item.label}</span>
+                  {linkContent}
                 </Link>
               );
             }
@@ -342,21 +195,13 @@ export function Header() {
             return (
               <a
                 key={item.href}
-                ref={(el) => {
-                  if (el) navLinkRefs.current.set(item.href, el);
-                }}
                 href={item.href}
                 onClick={(e) => handleNavClick(e, item.href)}
                 data-nav-item="true"
                 aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "relative z-10 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] transition-colors duration-200 select-none",
-                  isActive
-                    ? "text-[var(--page)] font-extrabold"
-                    : "text-[var(--muted)] hover:text-[var(--ink)]"
-                )}
+                className={linkClass}
               >
-                <span>{item.label}</span>
+                {linkContent}
               </a>
             );
           })}
@@ -368,8 +213,8 @@ export function Header() {
           <ThemeToggle />
 
           {/* Mobile Hamburger Button */}
-          <button
-            ref={hamburgerRef}
+          <motion.button
+            whileTap={{ scale: 0.92 }}
             type="button"
             onClick={() => {
               playClick();
@@ -379,116 +224,142 @@ export function Header() {
             aria-controls="mobile-navigation"
             aria-label="Toggle navigation menu"
             className={cn(
-              "btn-neo-control group relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-300 md:hidden active:scale-95 border border-[var(--line)] bg-[var(--surface)]/80 backdrop-blur-md text-[var(--ink)]",
+              "btn-neo-control group relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 md:hidden border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)]",
               open && "border-[var(--ink)] bg-[var(--ink)] text-[var(--page)] dark:bg-[#C7ED70] dark:text-black dark:border-[#C7ED70]"
             )}
           >
             <span
               className={cn(
-                "absolute h-[2px] w-4 bg-current transition-transform duration-300",
+                "absolute h-[1.5px] w-4 bg-current transition-transform duration-200",
                 open ? "rotate-45" : "-translate-y-1.5"
               )}
             />
             <span
               className={cn(
-                "absolute h-[2px] w-4 bg-current transition-all duration-300",
+                "absolute h-[1.5px] w-4 bg-current transition-all duration-200",
                 open ? "opacity-0 scale-0" : "opacity-100"
               )}
             />
             <span
               className={cn(
-                "absolute h-[2px] w-4 bg-current transition-transform duration-300",
+                "absolute h-[1.5px] w-4 bg-current transition-transform duration-200",
                 open ? "-rotate-45" : "translate-y-1.5"
               )}
             />
-          </button>
+          </motion.button>
         </div>
       </Container>
 
-      {/* Mobile Slide-Over Fullscreen Menu */}
-      <div
-        ref={mobilePanelRef}
-        id="mobile-navigation"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile Navigation Menu"
-        className="fixed inset-x-0 top-[60px] sm:top-[64px] h-[calc(100svh-60px)] sm:h-[calc(100svh-64px)] z-50 overflow-y-auto bg-[var(--page)]/98 backdrop-blur-3xl border-b border-[var(--line)] shadow-2xl md:hidden"
-        style={{ display: "none", opacity: 0 }}
-      >
-        <div className="flex flex-col justify-between h-full px-6 py-8">
-          <nav className="flex flex-col gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-2">
-              Navigation
-            </span>
-            {navItems.map((item) => {
-              const isRouterLink = item.href.startsWith("/");
-              const isActive = isRouterLink
-                ? location.pathname === item.href
-                : effectiveActiveHref === item.href;
+      {/* Mobile Slide-Over Fullscreen Menu with Framer Motion AnimatePresence */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="mobile-navigation"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile Navigation Menu"
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-x-0 top-[60px] sm:top-[64px] h-[calc(100svh-60px)] sm:h-[calc(100svh-64px)] z-50 overflow-y-auto bg-[var(--page)]/98 backdrop-blur-3xl border-b border-[var(--line)] shadow-2xl md:hidden"
+          >
+            <div className="flex flex-col justify-between h-full px-6 py-8">
+              <motion.nav
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.05, delayChildren: 0.05 },
+                  },
+                }}
+                className="flex flex-col gap-3"
+              >
+                <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--muted)] mb-2">
+                  [INDEX // DIRECTORY]
+                </span>
+                {navItems.map((item, nIdx) => {
+                  const isRouterLink = item.href.startsWith("/");
+                  const isActive = isRouterLink
+                    ? location.pathname === item.href
+                    : effectiveActiveHref === item.href;
 
-              const content = (
-                <>
-                  <span>{item.label}</span>
-                  <span
-                    className={cn(
-                      "flex h-7 w-7 items-center justify-center rounded-full border border-current/20 text-xs transition-transform duration-300 group-hover:translate-x-1",
-                      isActive ? "bg-emerald-400 text-black dark:bg-[#C7ED70] dark:text-black font-bold" : "text-emerald-500 opacity-80"
-                    )}
-                  >
-                    →
-                  </span>
-                </>
-              );
+                  const content = (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-xs tabular-nums text-[var(--muted)]">
+                          0{nIdx + 1}
+                        </span>
+                        <span>{item.label}</span>
+                      </div>
+                      <span
+                        className={cn(
+                          "flex h-7 w-7 items-center justify-center rounded-full border border-current/25 text-xs transition-transform duration-200 group-hover:translate-x-1",
+                          isActive ? "bg-[var(--flame)] text-[var(--page)] dark:bg-[#C7ED70] dark:text-black font-bold" : "text-[var(--ink)] opacity-70"
+                        )}
+                      >
+                        ↗
+                      </span>
+                    </>
+                  );
 
-              const className = cn(
-                "group flex items-center justify-between rounded-2xl border px-5 py-4 font-sans text-sm font-semibold uppercase tracking-wider transition-colors duration-300",
-                isActive
-                  ? "bg-[var(--ink)] text-[var(--page)] border-[var(--ink)]"
-                  : "border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)]"
-              );
+                  const className = cn(
+                    "group flex items-center justify-between rounded-xl border px-4 py-3.5 font-sans text-sm font-bold uppercase tracking-[0.14em] transition-colors duration-200",
+                    isActive
+                      ? "bg-[var(--ink)] text-[var(--page)] border-[var(--ink)]"
+                      : "border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)]"
+                  );
 
-              if (isRouterLink) {
-                return (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    onClick={() => {
-                      playClick();
-                      closeMenu();
-                    }}
-                    data-mobile-link="true"
-                    aria-current={isActive ? "page" : undefined}
-                    className={className}
-                  >
-                    {content}
-                  </Link>
-                );
-              }
+                  return (
+                    <motion.div
+                      key={item.href}
+                      variants={{
+                        hidden: { opacity: 0, y: 14 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
+                      }}
+                    >
+                      {isRouterLink ? (
+                        <Link
+                          to={item.href}
+                          onClick={() => {
+                            playClick();
+                            closeMenu();
+                          }}
+                          data-mobile-link="true"
+                          aria-current={isActive ? "page" : undefined}
+                          className={className}
+                        >
+                          {content}
+                        </Link>
+                      ) : (
+                        <a
+                          href={item.href}
+                          onClick={(e) => handleNavClick(e, item.href)}
+                          data-mobile-link="true"
+                          aria-current={isActive ? "page" : undefined}
+                          className={className}
+                        >
+                          {content}
+                        </a>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </motion.nav>
 
-              return (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
-                  data-mobile-link="true"
-                  aria-current={isActive ? "page" : undefined}
-                  className={className}
-                >
-                  {content}
-                </a>
-              );
-            })}
-          </nav>
-
-          {/* Bottom Mobile Quick Links */}
-          <div data-mobile-bottom="true" className="pt-6 border-t border-[var(--line)] flex flex-col gap-3">
-            <div className="flex items-center justify-between text-xs text-[var(--muted)]">
-              <span>Status: <strong className="text-emerald-600 dark:text-[#C7ED70]">Available for Work</strong></span>
-              <a href="mailto:ayushsingh7360@gmail.com" className="text-emerald-600 dark:text-[#C7ED70] font-bold hover:underline">Email Me ↗</a>
+              {/* Bottom Mobile Quick Links */}
+              <div data-mobile-bottom="true" className="pt-6 border-t border-[var(--line)] flex flex-col gap-3">
+                <div className="flex items-center justify-between text-xs text-[var(--muted)]">
+                  <span>Status: <strong className="text-emerald-600 dark:text-[#C7ED70]">Available for Work</strong></span>
+                  <a href="mailto:ayushsingh7360@gmail.com" className="text-emerald-600 dark:text-[#C7ED70] font-bold hover:underline">Email Me ↗</a>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </header>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 }

@@ -43,8 +43,8 @@ export type Service = {
 export const personalInfo = {
   name: "Ayush Singh",
   title: "Full Stack Developer & Creative Technologist",
-  headline: "Full Stack Developer, Freelancer & Data Science Student",
-  bio: "I build responsive digital systems bridging the gap between scalable data architecture, high-performance web systems, and thoughtful interface design.",
+  headline: "Full Stack Developer, Creative Technologist & Data Science (Power BI)",
+  bio: "I build responsive digital systems bridging the gap between scalable data architecture, interactive Power BI business intelligence, and modern high-performance web applications.",
   email: "ayushsingh7360@gmail.com",
   github: "https://github.com/codewith-Yush",
   linkedin: "https://linkedin.com/in/ayush-singh-643a4b25a",

@@ -1,12 +1,12 @@
 import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import App from "./App";
 import { Loader } from "./components/Loader";
 import { CustomCursor } from "./components/CustomCursor";
 import { ScrollManager } from "./components/ScrollManager";
 import "./styles/index.css";
 
+const App = lazy(() => import("./App"));
 const CanvaGallery = lazy(() => import("./pages/CanvaGallery"));
 const Resume = lazy(() => import("./pages/Resume"));
 

@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import { Container } from "../components/Container";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { useMagnetic } from "../hooks/useMagnetic";
 import { GooeyTextReveal } from "../components/ui/gooey-text-reveal";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const CONTACT_EMAIL = "ayushsingh7360@gmail.com";
 const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY as string | undefined;
@@ -35,7 +37,7 @@ const CSS = `
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]">
+    <span className="font-mono text-xs uppercase tracking-[0.22em] text-[var(--muted)]">
       {children}
     </span>
   );
@@ -46,22 +48,24 @@ function SocialButton({ href, label }: { href: string; label: string }) {
   const magnetic = useMagnetic<HTMLAnchorElement>(0.2, reducedMotion);
 
   return (
-    <a
+    <motion.a
+      whileHover={{ scale: 1.03, x: 2 }}
+      whileTap={{ scale: 0.97 }}
       ref={magnetic.ref}
       onMouseMove={magnetic.onMouseMove}
       onMouseLeave={magnetic.onMouseLeave}
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="group inline-flex h-11 items-center justify-between gap-4 rounded-xl border border-[var(--line)] bg-white px-4 text-sm font-medium text-[var(--ink)] transition-colors hover:border-[#9baa9d] hover:bg-[#f7faf6] dark:border-[#39463c] dark:bg-[#1b241d] dark:hover:border-[#627766] dark:hover:bg-[#222e25] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#52745f] dark:focus-visible:outline-[#9ac59f]"
+      className="group inline-flex h-11 items-center justify-between gap-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 text-sm font-medium text-[var(--ink)] transition-colors hover:border-[var(--flame)] hover:bg-[var(--surface-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--flame)]"
     >
       <span>{label}</span>
-      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line)] bg-[#f2f6f1] text-[var(--ink)] dark:border-[#39463c] dark:bg-[#263329]">
+      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] text-[var(--ink)]">
         <span className="text-xs transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
           ↗
         </span>
       </span>
-    </a>
+    </motion.a>
   );
 }
 
@@ -80,7 +84,7 @@ function FloatingField({
   autoComplete?: string;
 }) {
   const base =
-    "peer w-full rounded-xl border border-[var(--line)] bg-[#f7f9f6] px-4 pb-3 pt-7 text-base text-[var(--ink)] placeholder-transparent transition-colors duration-200 focus:border-[#7f9b85] dark:focus:border-[#78977d] focus:bg-white focus:outline-none dark:border-[#39463c] dark:bg-[#202b23] dark:focus:border-[#78977d] dark:focus:bg-[#1b241d] sm:text-lg";
+    "peer w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 pb-3 pt-7 text-base text-[var(--ink)] placeholder-transparent transition-colors duration-200 focus:border-[var(--flame)] focus:bg-[var(--surface-strong)] focus:outline-none sm:text-lg";
 
   return (
     <div className="relative">
@@ -107,7 +111,7 @@ function FloatingField({
       )}
       <label
         htmlFor={id}
-        className="pointer-events-none absolute left-4 top-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[var(--muted)] transition-colors duration-200 peer-focus:text-[#52745f] peer-[:not(:placeholder-shown)]:text-[#52745f] dark:peer-focus:text-[#a9cfad] dark:peer-[:not(:placeholder-shown)]:text-[#a9cfad]"
+        className="pointer-events-none absolute left-4 top-2.5 text-xs font-medium uppercase tracking-[0.12em] text-[var(--muted)] transition-colors duration-200 peer-focus:text-[var(--flame)] peer-[:not(:placeholder-shown)]:text-[var(--flame)]"
       >
         {label}
       </label>
@@ -139,9 +143,9 @@ export function Contact() {
   }, []);
 
   /* Scroll reveal */
-  useEffect(() => {
-    if (reducedMotion) return;
-    const ctx = gsap.context(() => {
+  useGSAP(
+    () => {
+      if (reducedMotion) return;
       gsap.fromTo(
         ".contact-reveal",
         { y: 28, opacity: 0 },
@@ -154,22 +158,28 @@ export function Contact() {
           scrollTrigger: { trigger: sectionRef.current, start: "top 80%", once: true },
         },
       );
-    }, sectionRef);
-    return () => ctx.revert();
-  }, [reducedMotion]);
+    },
+    { scope: sectionRef, dependencies: [reducedMotion] }
+  );
 
   /* Move focus to the confirmation so screen-reader users hear it */
   useEffect(() => {
-    if (phase !== "success") return;
-    successRef.current?.focus();
-    if (!reducedMotion && successRef.current) {
+    if (phase === "success") {
+      successRef.current?.focus();
+    }
+  }, [phase]);
+
+  useGSAP(
+    () => {
+      if (phase !== "success" || reducedMotion || !successRef.current) return;
       gsap.fromTo(
         successRef.current,
         { opacity: 0, y: 12 },
         { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
       );
-    }
-  }, [phase, reducedMotion]);
+    },
+    { scope: sectionRef, dependencies: [phase, reducedMotion] }
+  );
 
   const handleCopyEmail = async () => {
     try {
@@ -254,23 +264,23 @@ export function Contact() {
     <section
       id="contact"
       ref={sectionRef}
-      className="relative overflow-hidden border-t border-[#e2e8e1] bg-[#f5f7f3] py-16 text-[#24332a] [--page:#f5f7f3] [--surface:#ffffff] [--ink:#24332a] [--muted:#68766d] [--line:#dce4dc] dark:border-[#29352c] dark:bg-[#121a14] dark:text-[#edf3ed] dark:[--page:#121a14] dark:[--surface:#1b241d] dark:[--ink:#edf3ed] dark:[--muted:#a4b0a6] dark:[--line:#344137] sm:py-24 md:py-28"
+      className="relative overflow-hidden border-t border-[var(--line)] bg-[var(--page)] py-16 text-[var(--ink)] sm:py-24 md:py-28"
     >
       <style>{CSS}</style>
 
       <Container className="relative z-10">
-        {/* Sub-bar */}
-        <div className="mb-12 flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)] sm:mb-16">
+        {/* Architectural Sub-bar */}
+        <div className="mb-10 flex items-center justify-between border-b border-[var(--line)] pb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-14">
           <span className="flex items-center gap-2.5">
             <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
-            <span>( 04 ) — Contact</span>
+            <span className="font-semibold text-[var(--ink)]">[04 // INITIATE TRANSMISSION]</span>
           </span>
-          <span>Replies within 12h</span>
+          <span className="hidden sm:inline">[SLA // RESPONSE WITHIN 12H]</span>
         </div>
 
-        <div className="flex flex-col items-start gap-14 lg:flex-row lg:gap-20">
+        <div className="flex flex-col items-start gap-12 lg:flex-row lg:gap-16">
           {/* Left: intro + details */}
-          <div className="flex w-full flex-col gap-10 lg:w-[45%]">
+          <div className="flex w-full flex-col gap-8 lg:w-[45%]">
             <div>
               <GooeyTextReveal
                 mode="scroll"
@@ -280,25 +290,25 @@ export function Contact() {
                 stagger={0.08}
                 disabled={reducedMotion}
               >
-                <h2 className="font-sans text-[clamp(2.4rem,5vw,4rem)] font-bold leading-[1.02] tracking-tight">
-                  Let&rsquo;s build something together.
+                <h2 className="font-sans text-[clamp(2.5rem,5.2vw,4.2rem)] font-extrabold leading-[1.02] tracking-tight text-[var(--ink)]">
+                  Let&rsquo;s engineer something resilient.
                 </h2>
               </GooeyTextReveal>
               <p className="contact-reveal mt-5 max-w-md text-base font-normal leading-relaxed text-[var(--muted)]">
-                Whether you have an upcoming project, a freelance inquiry, or an architectural
-                challenge, my inbox is always open.
+                Whether you have an upcoming project, a freelance contract, or an architectural
+                data challenge, my inbox is always open.
               </p>
             </div>
 
-            <dl className="contact-reveal divide-y divide-[var(--line)] border-y border-[var(--line)] text-sm">
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-4">
-                <dt>
-                  <Label>Email</Label>
+            <dl className="contact-reveal divide-y divide-[var(--line)] border-y border-[var(--line)] font-mono text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3.5">
+                <dt className="uppercase tracking-[0.18em] text-[var(--muted)]">
+                  [DIRECT EMAIL]
                 </dt>
                 <dd className="flex items-center gap-3">
                   <a
                     href={`mailto:${CONTACT_EMAIL}`}
-                    className="ct-link font-medium text-[var(--ink)]"
+                    className="ct-link font-sans text-sm font-bold text-[var(--ink)]"
                   >
                     {CONTACT_EMAIL}
                   </a>
@@ -306,31 +316,31 @@ export function Contact() {
                     type="button"
                     onClick={handleCopyEmail}
                     aria-live="polite"
-                    className="font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--muted)] transition-colors hover:text-[var(--ink)]"
+                    className="rounded-sm border border-[var(--line)] px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-[var(--muted)] transition-colors hover:border-[var(--ink)] hover:text-[var(--ink)] hover:bg-[var(--surface-strong)]"
                   >
                     {copied ? "Copied ✓" : "Copy"}
                   </button>
                 </dd>
               </div>
-              <div className="flex items-center justify-between gap-4 py-4">
-                <dt>
-                  <Label>Response</Label>
+              <div className="flex items-center justify-between gap-4 py-3.5">
+                <dt className="uppercase tracking-[0.18em] text-[var(--muted)]">
+                  [RESPONSE TIME]
                 </dt>
-                <dd className="font-medium">Under 12 hours</dd>
+                <dd className="font-sans font-semibold text-[var(--ink)]">Under 12 hours</dd>
               </div>
-              <div className="flex items-center justify-between gap-4 py-4">
-                <dt>
-                  <Label>Based in</Label>
+              <div className="flex items-center justify-between gap-4 py-3.5">
+                <dt className="uppercase tracking-[0.18em] text-[var(--muted)]">
+                  [LOCATION & TIME]
                 </dt>
-                <dd className="font-medium">New Delhi · IST (UTC+5:30)</dd>
+                <dd className="font-sans font-semibold text-[var(--ink)]">New Delhi, IN · IST (UTC+5:30)</dd>
               </div>
-              <div className="flex items-center justify-between gap-4 py-4">
-                <dt>
-                  <Label>Status</Label>
+              <div className="flex items-center justify-between gap-4 py-3.5">
+                <dt className="uppercase tracking-[0.18em] text-[var(--muted)]">
+                  [ENGAGEMENT]
                 </dt>
-                <dd className="flex items-center gap-2.5 font-medium">
+                <dd className="flex items-center gap-2 font-sans font-bold text-[var(--ink)]">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  Open to freelance &amp; full-time
+                  Open for Q2/Q3 Roles
                 </dd>
               </div>
             </dl>
@@ -343,136 +353,156 @@ export function Contact() {
 
           {/* Right: form / confirmation */}
           <div className="contact-reveal w-full lg:w-[55%]">
-            {phase === "success" ? (
-              <div
-                ref={successRef}
-                tabIndex={-1}
-                role="status"
-                className="flex min-h-[26rem] flex-col items-start justify-center rounded-2xl border border-[var(--line)] bg-white p-8 shadow-[0_12px_35px_rgba(36,51,42,0.06)] focus:outline-none dark:bg-[#1b241d] dark:shadow-none sm:p-12"
-              >
-                <svg
-                  viewBox="0 0 52 52"
-                  className="h-14 w-14 text-emerald-700"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <circle className="ct-check-circle" cx="26" cy="26" r="24" />
-                  <path className="ct-check-tick" d="M15 27l8 8 14-16" />
-                </svg>
-                <h3 className="mt-8 font-sans text-3xl font-bold uppercase tracking-[-0.04em] sm:text-4xl">
-                  Message sent.
-                </h3>
-                <p className="mt-3 max-w-sm text-base leading-relaxed text-[var(--muted)]">
-                  Thanks for reaching out. I&rsquo;ll reply to your email within 12 hours.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPhase("idle");
-                    setErrorMessage("");
-                  }}
-                  className="mt-8 inline-flex h-11 items-center justify-center rounded-xl border border-[var(--line)] bg-white px-6 text-sm font-semibold text-[var(--ink)] transition-colors hover:bg-[#f7faf6] dark:bg-[#222e25] dark:hover:bg-[#29372c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#52745f] dark:focus-visible:outline-[#9ac59f]"
-                >
-                  Send another
-                </button>
-              </div>
-            ) : (
-              <form
-                onSubmit={handleSubmit}
-                aria-busy={sending}
-                className="rounded-2xl border border-[var(--line)] bg-white p-6 shadow-[0_12px_35px_rgba(36,51,42,0.06)] dark:bg-[#1b241d] dark:shadow-none sm:p-10"
-              >
-                {/* Web3Forms fields */}
-                <input type="hidden" name="access_key" value={WEB3FORMS_KEY ?? ""} />
-                <input
-                  type="hidden"
-                  name="subject"
-                  value="New portfolio message from Ayush Singh Portfolio"
-                />
-                <input type="hidden" name="from_name" value="Portfolio Contact Form" />
-                <input
-                  type="checkbox"
-                  name="botcheck"
-                  className="hidden"
+            <AnimatePresence mode="wait">
+              {phase === "success" ? (
+                <motion.div
+                  key="success-card"
+                  initial={{ opacity: 0, scale: 0.96, y: 16 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.96, y: -16 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  ref={successRef}
                   tabIndex={-1}
-                  autoComplete="off"
-                />
+                  role="status"
+                  className="flex min-h-[26rem] flex-col items-start justify-center rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-8 shadow-sm focus:outline-none sm:p-12"
+                >
+                  <svg
+                    viewBox="0 0 52 52"
+                    className="h-14 w-14 text-emerald-500 dark:text-[#C7ED70]"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle className="ct-check-circle" cx="26" cy="26" r="24" />
+                    <path className="ct-check-tick" d="M15 27l8 8 14-16" />
+                  </svg>
+                  <h3 className="mt-8 font-sans text-3xl font-bold uppercase tracking-[-0.04em] sm:text-4xl text-[var(--ink)]">
+                    Message sent.
+                  </h3>
+                  <p className="mt-3 max-w-sm text-base leading-relaxed text-[var(--muted)]">
+                    Thanks for reaching out. I&rsquo;ll reply to your email within 12 hours.
+                  </p>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="button"
+                    onClick={() => {
+                      setPhase("idle");
+                      setErrorMessage("");
+                    }}
+                    className="mt-8 inline-flex h-11 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--surface-strong)] px-6 text-sm font-semibold text-[var(--ink)] transition-colors hover:border-[var(--flame)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--flame)]"
+                  >
+                    Send another
+                  </motion.button>
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="contact-form"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -16 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  onSubmit={handleSubmit}
+                  aria-busy={sending}
+                  className="relative rounded-xl border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[6px_6px_0px_var(--line)] transition-all duration-200 hover:border-[var(--ink)] sm:p-10"
+                >
+                  {/* Corner crosshairs */}
+                  <span className="brutal-corner-cross left-3 top-2.5">+</span>
+                  <span className="brutal-corner-cross right-3 top-2.5">+</span>
 
-                <div className="mb-8 flex items-center justify-between border-b border-[var(--line)] pb-4">
-                  <Label>New inquiry</Label>
-                  <Label>All fields required</Label>
-                </div>
+                  {/* Web3Forms fields */}
+                  <input type="hidden" name="access_key" value={WEB3FORMS_KEY ?? ""} />
+                  <input
+                    type="hidden"
+                    name="subject"
+                    value="New portfolio message from Ayush Singh Portfolio"
+                  />
+                  <input type="hidden" name="from_name" value="Portfolio Contact Form" />
+                  <input
+                    type="checkbox"
+                    name="botcheck"
+                    className="hidden"
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
 
-                <div className="grid gap-8 sm:gap-9">
-                  <FloatingField id="name" label="Your name" autoComplete="name" />
-                  <FloatingField id="email" label="Email address" type="email" autoComplete="email" />
-
-                  <fieldset>
-                    <legend className="mb-3">
-                      <Label>Project type (optional)</Label>
-                    </legend>
-                    <div className="flex flex-wrap gap-2">
-                      {PROJECT_TYPES.map((t) => (
-                        <label key={t} className="cursor-pointer">
-                          <input type="radio" name="project_type" value={t} className="peer sr-only" />
-                          <span className="inline-flex items-center rounded-full border border-[var(--line)] bg-[#f7f9f6] px-3.5 py-2 text-[13px] text-[var(--muted)] transition-colors duration-200 hover:border-[#9baa9d] hover:bg-white hover:text-[var(--ink)] peer-checked:border-[#b7d0bb] peer-checked:bg-[#eaf3e9] peer-checked:text-[#31553a] dark:border-[#39463c] dark:bg-[#202b23] dark:hover:border-[#627766] dark:hover:bg-[#27352a] dark:peer-checked:border-[#6b8f70] dark:peer-checked:bg-[#2c4431] dark:peer-checked:text-[#d7ead8] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#52745f] dark:focus-visible:outline-[#9ac59f]">
-                            {t}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-
-                  <FloatingField id="message" label="Project scope & brief" multiline />
-
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <button
-                      ref={submitMagnetic.ref}
-                      onMouseMove={submitMagnetic.onMouseMove}
-                      onMouseLeave={submitMagnetic.onMouseLeave}
-                      type="submit"
-                      disabled={sending}
-                      className="group inline-flex h-12 w-full items-center justify-between gap-6 rounded-xl bg-[#dcebdc] pl-6 pr-2.5 text-sm font-semibold text-[#28452d] transition-colors hover:bg-[#cfe2d0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#52745f] dark:focus-visible:outline-[#9ac59f] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-                    >
-                      <span>
-                        {sending ? (
-                          <span className="flex items-center gap-2">
-                            <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                            <span>Sending…</span>
-                          </span>
-                        ) : phase === "error" ? (
-                          "Try again"
-                        ) : (
-                          "Send message"
-                        )}
-                      </span>
-                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/75 text-[#28452d] dark:bg-[#304536] dark:text-[#edf3ed]">
-                        <span className="text-sm font-bold transition-transform duration-300 group-hover:translate-x-1">
-                          →
-                        </span>
-                      </span>
-                    </button>
-
-                    <p className="font-mono text-[11px] text-[var(--muted)]">
-                      No spam. Only replies.
-                    </p>
+                  <div className="mb-8 flex items-center justify-between border-b border-[var(--line)] pb-4 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--muted)]">
+                    <span>[NEW INQUIRY]</span>
+                    <span>[TRANSMISSION READY]</span>
                   </div>
 
-                  {phase === "error" && errorMessage && (
-                    <p
-                      role="alert"
-                      className="rounded-xl border border-[#f0c7bd] bg-[#fff3ef] px-4 py-3 text-sm leading-relaxed text-[#9a3e2d]"
-                    >
-                      {errorMessage}
-                    </p>
-                  )}
-                </div>
-              </form>
-            )}
+                  <div className="grid gap-8 sm:gap-9">
+                    <FloatingField id="name" label="Your name" autoComplete="name" />
+                    <FloatingField id="email" label="Email address" type="email" autoComplete="email" />
+
+                    <fieldset>
+                      <legend className="mb-3">
+                        <Label>Project type (optional)</Label>
+                      </legend>
+                      <div className="flex flex-wrap gap-2">
+                        {PROJECT_TYPES.map((t) => (
+                          <label key={t} className="cursor-pointer">
+                            <input type="radio" name="project_type" value={t} className="peer sr-only" />
+                            <span className="inline-flex items-center rounded-full border border-[var(--line)] bg-[var(--surface-strong)] px-3.5 py-2 text-xs text-[var(--muted)] transition-colors duration-200 hover:border-[var(--flame)] hover:text-[var(--ink)] peer-checked:border-[var(--flame)] peer-checked:bg-[var(--flame)] peer-checked:text-black font-semibold peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--flame)]">
+                              {t}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
+
+                    <FloatingField id="message" label="Project scope & brief" multiline />
+
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        ref={submitMagnetic.ref}
+                        onMouseMove={submitMagnetic.onMouseMove}
+                        onMouseLeave={submitMagnetic.onMouseLeave}
+                        type="submit"
+                        disabled={sending}
+                        className="btn-neo-base btn-neo-primary group inline-flex h-12 w-full items-center justify-between gap-6 pl-6 pr-2 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                      >
+                        <span>
+                          {sending ? (
+                            <span className="flex items-center gap-2">
+                              <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                              <span>Sending…</span>
+                            </span>
+                          ) : phase === "error" ? (
+                            "Try again"
+                          ) : (
+                            "Send message"
+                          )}
+                        </span>
+                        <span className="btn-icon-pod h-8 w-8 rounded-full bg-[var(--page)] text-[var(--ink)] dark:bg-black dark:text-[#C7ED70]">
+                          <span className="text-sm font-bold transition-transform duration-300 group-hover:translate-x-0.5">
+                            →
+                          </span>
+                        </span>
+                      </motion.button>
+
+                      <p className="font-mono text-xs text-[var(--muted)]">
+                        No spam. Only replies.
+                      </p>
+                    </div>
+
+                    {phase === "error" && errorMessage && (
+                      <p
+                        role="alert"
+                        className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm leading-relaxed text-rose-600 dark:text-rose-400"
+                      >
+                        {errorMessage}
+                      </p>
+                    )}
+                  </div>
+                </motion.form>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </Container>

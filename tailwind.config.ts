@@ -9,6 +9,8 @@ export default {
         ember: "var(--ember)",
         flame: "var(--flame)",
         blush: "var(--blush)",
+        coral: "var(--coral)",
+        "coral-hover": "var(--coral-hover)",
       },
       fontFamily: {
         sans: [

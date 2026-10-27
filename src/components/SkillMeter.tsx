@@ -1,103 +1,65 @@
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion } from "framer-motion";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
-
-gsap.registerPlugin(ScrollTrigger);
 
 type SkillMeterProps = {
   name: string;
   level: number;
   tier?: "Advanced" | "Core" | "Specialized" | "Production";
   tags?: string[];
+  index?: number;
 };
 
-export function SkillMeter({ name, level, tier = "Advanced", tags }: SkillMeterProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
-  const numberRef = useRef<HTMLSpanElement>(null);
+export function SkillMeter({ name, level, tier = "Advanced", tags, index = 0 }: SkillMeterProps) {
   const reducedMotion = usePrefersReducedMotion();
 
-  useEffect(() => {
-    if (reducedMotion) {
-      if (barRef.current) barRef.current.style.width = `${level}%`;
-      if (numberRef.current) numberRef.current.innerText = tier;
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      const counterObj = { val: 0 };
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 92%",
-          once: true,
-        },
-      });
-
-      tl.to(
-        counterObj,
-        {
-          val: level,
-          duration: 1.4,
-          ease: "power2.out",
-          onUpdate: () => {
-            if (numberRef.current) {
-              numberRef.current.innerText = tier;
-            }
-          },
-        },
-        0
-      );
-
-      if (barRef.current) {
-        tl.fromTo(
-          barRef.current,
-          { width: "0%" },
-          { width: `${level}%`, duration: 1.4, ease: "power3.out" },
-          0
-        );
-      }
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, [level, tier, reducedMotion]);
-
   return (
-    <div ref={containerRef} className="group/skill">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="text-sm font-medium text-[var(--ink)] tracking-tight">
+    <motion.div
+      initial={reducedMotion ? false : { opacity: 0, y: 16 }}
+      whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, delay: index * 0.05, ease: "easeOut" }}
+      className="group/skill border-b border-[var(--line)] pb-3 last:border-b-0 last:pb-0"
+    >
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="font-sans text-xs font-bold tracking-tight text-[var(--ink)] sm:text-sm">
           {name}
         </span>
-        <span
-          ref={numberRef}
-          className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-xs font-semibold text-emerald-700 dark:text-emerald-300"
-        >
-          {tier}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[10px] tabular-nums text-[var(--muted)]">
+            {level}%
+          </span>
+          <span className="inline-flex items-center rounded-sm border border-[var(--line)] bg-[var(--surface-strong)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider font-semibold text-[var(--ink)]">
+            {tier}
+          </span>
+        </div>
       </div>
 
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--line)]">
-        <div
-          ref={barRef}
-          className="h-full rounded-full bg-emerald-500"
-          style={{ width: reducedMotion ? `${level}%` : "0%" }}
+      <div className="h-1 w-full overflow-hidden rounded-none bg-[var(--line)]">
+        <motion.div
+          className="h-full bg-[var(--flame)] dark:bg-[#C7ED70]"
+          initial={reducedMotion ? { width: `${level}%` } : { width: "0%" }}
+          whileInView={{ width: `${level}%` }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{
+            duration: 1.1,
+            delay: reducedMotion ? 0 : 0.1 + index * 0.04,
+            ease: [0.16, 1, 0.3, 1],
+          }}
         />
       </div>
 
       {tags && tags.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
+        <div className="mt-2 flex flex-wrap gap-1">
           {tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs text-[var(--muted)] bg-[var(--surface-strong)] px-2.5 py-0.5 rounded-full font-medium"
+              className="rounded-sm border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--muted)]"
             >
-              {tag}
+              #{tag}
             </span>
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

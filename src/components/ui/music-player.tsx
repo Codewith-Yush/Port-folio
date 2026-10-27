@@ -210,6 +210,10 @@ export function MusicPlayer({
         <img
           src={artwork}
           alt={`${track.title} artwork`}
+          width={80}
+          height={80}
+          loading="lazy"
+          decoding="async"
           className="absolute -top-5 left-0 z-20 h-20 w-20 rounded-xl object-cover shadow-lg shadow-black/30 ring-1 ring-white/20"
         />
       ) : null}
