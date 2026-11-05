@@ -326,9 +326,9 @@ export function Footer() {
         <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[var(--surface)] to-transparent" />
       </div>
 
-      <Container className="relative z-10 pt-16 pb-12 sm:pt-20 sm:pb-16">
+      <Container className="relative z-10 pt-12 pb-10 sm:pt-16 sm:pb-14">
         {/* ── 1. ARCHITECTURAL 4-COLUMN BENTO / COLOPHON ── */}
-        <div className="ft-reveal grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-12 lg:gap-8 pb-16 sm:pb-20 border-b border-[var(--line)]">
+        <div className="ft-reveal grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-12 lg:gap-8 pb-10 sm:pb-14 border-b border-[var(--line)]">
           {/* Column 1: Identity & Transmission Protocol (4 cols) */}
           <div className="flex flex-col justify-between gap-6 lg:col-span-4">
             <div className="flex flex-col gap-4">
@@ -507,7 +507,7 @@ export function Footer() {
 
         {/* ── 2. THE MONUMENTAL SIGNATURE EXPERIENCE ── */}
         <section
-          className="ft-reveal group relative isolate mt-12 overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:mt-16 sm:p-12 md:p-16 transition-all duration-500 hover:border-[#B39CFF]/40 shadow-sm"
+          className="ft-reveal group relative isolate mt-10 overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:mt-12 sm:p-10 md:p-12 transition-all duration-500 hover:border-[#B39CFF]/40 shadow-sm"
           onMouseEnter={handleScrambleStart}
           onTouchStart={handleScrambleStart}
           aria-label="Ayush Singh Monumental Signature"
@@ -523,7 +523,7 @@ export function Footer() {
           />
 
           {/* Top header bar within card */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--line)] pb-6 font-mono text-[11px] text-[var(--muted)]">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--line)] pb-4 font-mono text-[10px] text-[var(--muted)] sm:text-[11px] sm:pb-5">
             <div className="flex items-center gap-2 uppercase tracking-[0.2em]">
               <Terminal className="h-3.5 w-3.5 text-[#B39CFF]" />
               <span>COLOPHON SPECIFICATION // REPO ID: AYUSH-SINGH</span>
@@ -537,7 +537,7 @@ export function Footer() {
           </div>
 
           {/* Monumental Headline Name */}
-          <div className="py-8 sm:py-12 select-none">
+          <div className="py-6 sm:py-8 md:py-10 select-none">
             <h2
               className="m-0 flex flex-wrap items-baseline gap-x-[0.25em] font-sans font-black uppercase leading-[0.85] tracking-[-0.05em] sm:tracking-[-0.075em] text-[clamp(2.8rem,11.5vw,9.5rem)]"
               aria-label={FULL_NAME}
@@ -552,7 +552,7 @@ export function Footer() {
           </div>
 
           {/* Technical Colophon Specifications Grid */}
-          <div className="grid grid-cols-2 gap-4 border-t border-[var(--line)] pt-6 sm:grid-cols-4 font-mono text-xs text-[var(--muted)]">
+          <div className="grid grid-cols-2 gap-3.5 border-t border-[var(--line)] pt-4 sm:grid-cols-4 sm:gap-4 sm:pt-5 font-mono text-xs text-[var(--muted)]">
             {TECH_SPEC.map((spec) => (
               <div key={spec.label} className="flex flex-col gap-1">
                 <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--muted)]/80">

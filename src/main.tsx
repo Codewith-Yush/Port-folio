@@ -13,10 +13,7 @@ const Resume = lazy(() => import("./pages/Resume"));
 function RouteFallback() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--page)] text-[var(--ink)] relative overflow-hidden">
-      <Loader />
-      <span className="absolute bottom-12 font-mono text-xs uppercase tracking-widest text-[var(--muted)]">
-        Loading Showcase...
-      </span>
+      <Loader size="lg" label="Loading Showcase..." />
     </div>
   );
 }

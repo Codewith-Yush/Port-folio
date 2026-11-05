@@ -18,9 +18,9 @@ export function SkillMeter({ name, level, tier = "Advanced", tags, index = 0 }: 
       whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.5, delay: index * 0.05, ease: "easeOut" }}
-      className="group/skill border-b border-[var(--line)] pb-3 last:border-b-0 last:pb-0"
+      className="group/skill border-b border-[var(--line)] pb-2.5 sm:pb-3 last:border-b-0 last:pb-0"
     >
-      <div className="mb-1.5 flex items-center justify-between gap-2">
+      <div className="mb-1 sm:mb-1.5 flex items-center justify-between gap-2">
         <span className="font-sans text-xs font-bold tracking-tight text-[var(--ink)] sm:text-sm">
           {name}
         </span>
@@ -49,7 +49,7 @@ export function SkillMeter({ name, level, tier = "Advanced", tags, index = 0 }: 
       </div>
 
       {tags && tags.length > 0 && (
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
+        <div className="mt-1.5 sm:mt-2 flex flex-wrap gap-1.5">
           {tags.map((tag) => (
             <span
               key={tag}

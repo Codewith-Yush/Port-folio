@@ -19,11 +19,11 @@ export function SectionHeading({
 
   return (
     <div className={cn("max-w-3xl", className)}>
-      <h2 className="font-sans text-[clamp(2.2rem,4.5vw,3.75rem)] font-bold tracking-tight text-[var(--ink)]">
+      <h2 className="font-sans text-[clamp(1.85rem,3.4vw,3rem)] font-bold tracking-tight leading-[1.08] text-[var(--ink)] sm:text-[clamp(2rem,3.6vw,3.25rem)]">
         {fullTitle}
       </h2>
       {copy ? (
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--muted)] font-normal">
+        <p className="mt-2.5 max-w-xl text-xs sm:text-sm leading-relaxed text-[var(--muted)] font-normal sm:mt-3">
           {copy}
         </p>
       ) : null}

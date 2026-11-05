@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type MouseEvent } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { navItems } from "../data/portfolio";
@@ -11,11 +11,22 @@ import { SoundToggle } from "./SoundToggle";
 import { playClick } from "../utils/soundEffects";
 import { scrollToSection } from "../utils/scrollToSection";
 
+/** Theme tokens used while the header floats over the (always dark) video hero */
+const ON_HERO_VARS = {
+  "--ink": "#ffffff",
+  "--page": "#000000",
+  "--muted": "rgba(255,255,255,0.78)",
+  "--line": "rgba(255,255,255,0.22)",
+  "--surface": "rgba(255,255,255,0.10)",
+  "--surface-strong": "rgba(255,255,255,0.18)",
+} as CSSProperties;
+
 export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [overHero, setOverHero] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
 
   const hrefs = useMemo(() => navItems.map((item) => item.href), []);
@@ -60,30 +71,38 @@ export function Header() {
     scrollToSection(href);
   };
 
-  // Scroll handler with throttle for blur/border state
+  // Scroll handler (rAF-throttled): blur/border state + "am I still over the hero?"
   useEffect(() => {
     let frame = 0;
-    const updateScrolled = () => {
-      const scrolled = window.scrollY > 30;
+
+    const update = () => {
+      const y = window.scrollY;
+      const scrolled = y > 30;
       setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
+
+      const hero = location.pathname === "/" ? document.getElementById("hero") : null;
+      const over = !!hero && y < hero.offsetHeight - 90;
+      setOverHero((prev) => (prev !== over ? over : prev));
     };
 
-    updateScrolled();
+    update();
 
-    const handleScroll = () => {
+    const schedule = () => {
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
         frame = 0;
-        updateScrolled();
+        update();
       });
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
     return () => {
       if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
     };
-  }, []);
+  }, [location.pathname]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -109,11 +128,15 @@ export function Header() {
       initial={reducedMotion ? false : { y: -70, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      style={overHero ? ON_HERO_VARS : undefined}
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        isScrolled
-          ? "bg-[var(--page)]/90 backdrop-blur-2xl border-b border-[var(--line)] shadow-[0_4px_25px_rgba(0,0,0,0.15)] py-2.5 sm:py-3"
-          : "bg-[var(--page)]/60 backdrop-blur-md border-b border-transparent py-3.5 sm:py-4"
+        overHero
+          ? // floating over the video: no slab, just a soft top scrim so everything stays readable
+            "border-b border-transparent bg-gradient-to-b from-black/65 via-black/25 to-transparent py-3.5 sm:py-4"
+          : isScrolled
+            ? "bg-[var(--page)]/90 backdrop-blur-2xl border-b border-[var(--line)] shadow-[0_4px_25px_rgba(0,0,0,0.15)] py-2.5 sm:py-3"
+            : "bg-[var(--page)]/60 backdrop-blur-md border-b border-transparent py-3.5 sm:py-4"
       )}
     >
       {/* Minimal Brutalist Architectural Scroll Progress Bar */}
@@ -134,9 +157,19 @@ export function Header() {
           aria-label="Ayush Singh Portfolio Home"
         >
           <span className="relative flex h-2 w-2 items-center justify-center">
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]" />
+            <span
+              className={cn(
+                "relative inline-flex h-2 w-2 rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]",
+                overHero && "!bg-[#B39CFF]"
+              )}
+            />
           </span>
-          <span className="font-sans font-extrabold tracking-tight text-sm sm:text-base">
+          <span
+            className={cn(
+              "font-sans font-extrabold tracking-tight text-sm sm:text-base",
+              overHero && "drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]"
+            )}
+          >
             Ayush Singh
           </span>
           <span className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--muted)] lg:inline-block border border-[var(--line)] px-2 py-0.5 rounded-sm">
@@ -146,7 +179,10 @@ export function Header() {
 
         {/* Minimal Brutalist Navigation Dock (Desktop) */}
         <nav
-          className="hidden items-center gap-1 rounded-full p-1 transition-colors duration-200 md:flex relative bg-[var(--surface)] border border-[var(--line)]"
+          className={cn(
+            "hidden items-center gap-1 rounded-full p-1 transition-colors duration-200 md:flex relative bg-[var(--surface)] border border-[var(--line)]",
+            overHero && "backdrop-blur-md"
+          )}
         >
           {navItems.map((item) => {
             const isRouterLink = item.href.startsWith("/");
@@ -225,6 +261,7 @@ export function Header() {
             aria-label="Toggle navigation menu"
             className={cn(
               "btn-neo-control group relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 md:hidden border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)]",
+              overHero && "backdrop-blur-md",
               open && "border-[#B39CFF] bg-[#B39CFF] text-[#0D0D0D] dark:bg-[#B39CFF] dark:text-[#0D0D0D] dark:border-[#B39CFF]"
             )}
           >

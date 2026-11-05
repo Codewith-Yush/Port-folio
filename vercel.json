@@ -63,7 +63,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!assets/|images/|artwork/|songs/|.*\\.[\\w]+$).*)",
+      "source": "/((?!assets/|images/|.*\\.[\\w]+$).*)",
       "destination": "/index.html"
     }
   ]

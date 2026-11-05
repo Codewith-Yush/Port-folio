@@ -1,3 +1,4 @@
+import { Preloader } from "./components/Loader";
 import { Header } from "./components/Header";
 import { CommandShortcuts } from "./components/CommandShortcuts";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
@@ -12,7 +13,8 @@ export default function App() {
   useSmoothScroll();
 
   return (
-    <div className="min-h-[100svh] overflow-x-clip bg-[var(--page)] text-[var(--ink)] transition-colors duration-300 relative">
+    <div className="relative min-h-[100svh] overflow-x-clip bg-[var(--page)] text-[var(--ink)] transition-colors duration-300">
+      <Preloader />
       <Header />
       <main>
         <Hero />

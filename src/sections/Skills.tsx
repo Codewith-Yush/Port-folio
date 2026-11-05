@@ -66,11 +66,11 @@ export function Skills() {
     <section
       id="skills"
       ref={sectionRef}
-      className="relative scroll-mt-20 overflow-hidden bg-[var(--page)] pt-14 pb-14 text-[var(--ink)] transition-colors duration-300 sm:scroll-mt-24 sm:pt-16 sm:pb-16 md:scroll-mt-28 md:pt-18 md:pb-18"
+      className="relative flex min-h-[100svh] flex-col justify-center scroll-mt-16 overflow-hidden bg-[var(--page)] py-12 text-[var(--ink)] transition-colors duration-300 sm:scroll-mt-20 sm:py-14 md:scroll-mt-24 lg:py-12 xl:py-16"
     >
-      <Container className="relative z-10">
+      <Container className="relative z-10 my-auto">
         {/* Architectural Sub-Bar */}
-        <div className="mb-6 flex items-center justify-between border-b border-[var(--line)] pb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-8">
+        <div className="mb-4 flex items-center justify-between border-b border-[var(--line)] pb-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-6 sm:pb-3 sm:text-[11px]">
           <div className="flex items-center gap-2.5">
             <span className="h-2 w-2 rounded-full bg-[#B39CFF]" aria-hidden="true" />
             <span className="font-semibold text-[var(--ink)]">[03 // CAPABILITIES & ARCHITECTURE]</span>
@@ -88,13 +88,13 @@ export function Skills() {
         {/* Minimal Brutalist Responsive Skills Grid */}
         <div
           ref={gridRef}
-          className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-6"
+          className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-5 xl:gap-6"
           aria-label="Skill Categories"
         >
           {skillGroups.map((group, gIdx) => (
             <article
               key={group.title}
-              className="skills-card group relative flex flex-col justify-between rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 transition-all duration-300 hover:border-[#B39CFF]/50 hover:shadow-[0_12px_30px_-15px_rgba(179,156,255,0.15)] sm:p-7"
+              className="skills-card group relative flex flex-col justify-between rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 transition-all duration-300 hover:border-[#B39CFF]/50 hover:shadow-[0_12px_30px_-15px_rgba(179,156,255,0.15)] sm:p-6 lg:p-5 xl:p-6"
             >
               {/* Corner crosshair stamp */}
               <span className="brutal-corner-cross left-3 top-2.5 text-[#B39CFF]">+</span>
@@ -103,13 +103,13 @@ export function Skills() {
               </span>
 
               <div>
-                <div className="mb-2.5 flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]">
+                <div className="mb-2 flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]">
                   <span className="text-[#1E90FF] font-medium">[{group.category}]</span>
                 </div>
-                <h3 className="mb-6 font-sans text-xl font-bold tracking-tight text-[var(--ink)]">
+                <h3 className="mb-4 font-sans text-lg font-bold tracking-tight text-[var(--ink)] sm:mb-5 sm:text-xl">
                   {group.title}
                 </h3>
-                <div className="grid gap-4">
+                <div className="grid gap-3 lg:gap-3 xl:gap-3.5">
                   {group.skills.map((skill, sIdx) => (
                     <SkillMeter
                       key={skill.name}

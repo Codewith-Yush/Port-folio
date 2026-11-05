@@ -16,9 +16,6 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            if (id.includes("three")) {
-              return "vendor-three";
-            }
             if (id.includes("framer-motion")) {
               return "vendor-framer";
             }

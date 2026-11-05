@@ -1,9 +1,13 @@
 import {
+  memo,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
   startTransition,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -15,7 +19,6 @@ import {
   useScroll,
   useSpring,
   useTransform,
-  useMotionValue,
 } from "framer-motion";
 import {
   ArrowUpRight,
@@ -32,6 +35,55 @@ import { projects, type Project } from "../data/portfolio";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { Container } from "../components/Container";
 import { playTab, playClick } from "../utils/soundEffects";
+
+/* ========================================================================== */
+/*  Styles (kept in this file so there is no separate CSS import to resolve)  */
+/*  All motion below is transform / opacity only → runs on the compositor.    */
+/* ========================================================================== */
+
+const STYLES = `
+.prj-item {
+  opacity: 0;
+  transform: translate3d(0, 40px, 0) scale(0.985);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(min(var(--i, 0), 3) * 80ms);
+  will-change: opacity, transform;
+}
+.prj-item[data-in="true"] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/* Image parallax: scroll-driven CSS animation (no JS, no per-frame work on the main thread).
+   Browsers without support simply show the image slightly zoomed and still. */
+.prj-img { transform: scale(1.08); }
+@supports (animation-timeline: view()) {
+  .prj-img {
+    animation: prj-parallax linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+  }
+}
+@keyframes prj-parallax {
+  from { transform: translate3d(0, -7%, 0) scale(1.16); }
+  to   { transform: translate3d(0, 7%, 0)  scale(1.16); }
+}
+
+.prj-frame { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+@keyframes prj-list-in { from { opacity: 0; } to { opacity: 1; } }
+.prj-list { animation: prj-list-in 0.35s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .prj-item { opacity: 1; transform: none; transition: none; will-change: auto; }
+  .prj-img  { animation: none !important; transform: none; }
+  .prj-list { animation: none; }
+  .prj-frame { transition: none; }
+}
+`;
 
 /* ========================================================================== */
 /*  Design System Configuration (Aligned with DESIGN.md)                      */
@@ -150,9 +202,9 @@ type Parsed = NonNullable<ReturnType<typeof parseMetric>>;
 const fmt = (p: Parsed, v: number) =>
   p.hasComma
     ? v.toLocaleString("en-US", {
-      minimumFractionDigits: p.decimals,
-      maximumFractionDigits: p.decimals,
-    })
+        minimumFractionDigits: p.decimals,
+        maximumFractionDigits: p.decimals,
+      })
     : v.toFixed(p.decimals);
 
 /** Counts the leading number up once it scrolls into view. */
@@ -190,96 +242,135 @@ function CountUp({
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Scroll-Animated Parallax Project Card Component                           */
+/*  Project Card                                                              */
+/*  - one-time IntersectionObserver reveal (no scroll listeners per card)     */
+/*  - image parallax handled by CSS scroll-driven animation                   */
+/*  - spotlight + tilt move via transform only, throttled with rAF            */
 /* -------------------------------------------------------------------------- */
-function ScrollProjectCard({
+const ProjectCard = memo(function ProjectCard({
   project,
   index,
   total,
-  onOpenCase,
+  reduced,
+  onOpen,
 }: {
   project: Project;
   index: number;
   total: number;
-  onOpenCase: () => void;
+  reduced: boolean;
+  onOpen: (index: number) => void;
 }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const reduced = usePrefersReducedMotion();
+  const itemRef = useRef<HTMLDivElement>(null);
+  const articleRef = useRef<HTMLElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const spotRef = useRef<HTMLDivElement>(null);
+  const raf = useRef(0);
+  const ptr = useRef({ x: 0, y: 0 });
 
-  // Scroll tracking specifically for this card
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    offset: ["start end", "end start"],
-  });
+  // Reveal once when entering the viewport
+  useEffect(() => {
+    const el = itemRef.current;
+    if (!el) return;
+    if (reduced || typeof IntersectionObserver === "undefined") {
+      el.dataset.in = "true";
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.dataset.in = "true";
+          io.disconnect();
+        }
+      },
+      { threshold: 0.08, rootMargin: "0px 0px -10% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
 
-  // Soft cursor spotlight tracking
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+  useEffect(
+    () => () => {
+      if (raf.current) cancelAnimationFrame(raf.current);
+    },
+    [],
+  );
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType !== "mouse" || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    mouseX.set(e.clientX - rect.left);
-    mouseY.set(e.clientY - rect.top);
+  const apply = useCallback(() => {
+    raf.current = 0;
+    const art = articleRef.current;
+    const frame = frameRef.current;
+    const spot = spotRef.current;
+    if (!art || !frame || !spot) return;
+    const r = art.getBoundingClientRect();
+    const x = ptr.current.x - r.left;
+    const y = ptr.current.y - r.top;
+    spot.style.transform = `translate3d(${x - 280}px, ${y - 280}px, 0)`;
+    const nx = x / r.width - 0.5;
+    const ny = y / r.height - 0.5;
+    frame.style.transform = `perspective(1400px) rotateX(${(-ny * 4).toFixed(2)}deg) rotateY(${(nx * 5).toFixed(2)}deg)`;
+  }, []);
+
+  const handlePointerMove = (e: ReactPointerEvent<HTMLElement>) => {
+    if (reduced || e.pointerType !== "mouse") return;
+    ptr.current.x = e.clientX;
+    ptr.current.y = e.clientY;
+    if (!raf.current) raf.current = requestAnimationFrame(apply);
   };
 
-  // Multi-plane optical parallax scroll transforms
-  const imageY = useTransform(scrollYProgress, [0, 1], reduced ? ["0%", "0%"] : ["-8%", "8%"]);
-  const badgeY = useTransform(scrollYProgress, [0, 1], reduced ? ["0px", "0px"] : ["12px", "-12px"]);
-  const cardScale = useTransform(
-    scrollYProgress,
-    [0, 0.25, 0.85, 1],
-    reduced ? [1, 1, 1, 1] : [0.96, 1, 1, 0.98],
-  );
-  const cardOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.85, 1],
-    reduced ? [1, 1, 1, 1] : [0.55, 1, 1, 0.75],
-  );
+  const handlePointerLeave = () => {
+    if (frameRef.current) {
+      frameRef.current.style.transform = "perspective(1400px) rotateX(0deg) rotateY(0deg)";
+    }
+  };
 
   const meta = CATEGORY_META[getCategory(project)];
   const domainUrl = getDomainUrl(project);
-
-  // Alternating layout on desktop for an engaging editorial rhythm
   const isEven = index % 2 === 1;
+  const open = () => onOpen(index);
 
   return (
-    <motion.div
-      ref={cardRef}
-      onPointerMove={handlePointerMove}
-      style={{
-        scale: cardScale,
-        opacity: cardOpacity,
-      }}
-      className="relative mb-16 sm:mb-24 last:mb-0"
+    <div
+      ref={itemRef}
+      className="prj-item relative mb-10 sm:mb-14 lg:mb-16 last:mb-0"
+      style={{ "--i": index } as CSSProperties}
     >
-      <article className="group relative overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8 md:p-10 lg:p-12 transition-all duration-300 hover:border-[#B39CFF]/40 shadow-xl dark:bg-[#141416]">
-        {/* Soft cursor-following ambient spotlight */}
-        <motion.div
+      <article
+        ref={articleRef}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+        className="group relative isolate overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-7 md:p-8 lg:p-9 xl:p-10 transition-[border-color] duration-300 hover:border-[#B39CFF]/40 shadow-xl dark:bg-[#141416]"
+      >
+        {/* Cursor spotlight: fixed-size gradient moved with transform (no repaint) */}
+        <div
+          ref={spotRef}
           aria-hidden="true"
-          className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          className="pointer-events-none absolute left-0 top-0 -z-10 h-[560px] w-[560px] rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           style={{
-            background: useTransform(
-              [mouseX, mouseY],
-              ([x, y]) =>
-                `radial-gradient(650px circle at ${x}px ${y}px, rgba(179, 156, 255, 0.08), transparent 70%)`,
-            ),
+            background: "radial-gradient(circle, rgba(179,156,255,0.12), transparent 68%)",
+            willChange: "transform",
           }}
         />
 
-        {/* Subtle accent hairline at the top */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#B39CFF]/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        {/* Oversized editorial index number */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-4 right-6 -z-10 select-none font-serif text-[7rem] font-normal italic leading-none text-[var(--ink)]/[0.045] sm:text-[9rem] lg:text-[11rem]"
+        >
+          {pad(index + 1)}
+        </span>
 
-        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-14">
-          {/* Text Column (Alternates on desktop) */}
+        {/* Accent hairline */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#B39CFF]/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+        <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-12">
+          {/* Text Column */}
           <div
             className={cn(
-              "flex flex-col justify-between space-y-6 lg:col-span-6",
+              "flex flex-col justify-between space-y-4 sm:space-y-5 lg:col-span-6",
               isEven ? "lg:order-2" : "lg:order-1",
             )}
           >
             <div>
-              {/* Category & Index Header */}
               <div className="mb-4 flex flex-wrap items-center gap-3">
                 <span className="font-mono text-xs font-bold text-[#B39CFF]">
                   {pad(index + 1)} / {pad(total)}
@@ -296,7 +387,7 @@ function ScrollProjectCard({
                 </span>
 
                 {index === 0 && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#B39CFF]/40 bg-[#B39CFF]/10 px-2.5 py-0.5 font-mono text-[11px] font-bold text-[#B39CFF] uppercase tracking-wider">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#B39CFF]/40 bg-[#B39CFF]/10 px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-[#B39CFF]">
                     <Sparkles className="h-3 w-3" />
                     Featured
                   </span>
@@ -307,31 +398,28 @@ function ScrollProjectCard({
                 </span>
               </div>
 
-              {/* Title with Arrow Link */}
               <h3
-                onClick={onOpenCase}
+                onClick={open}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    onOpenCase();
+                    open();
                   }
                 }}
-                className="group/title inline-flex items-center gap-2.5 font-sans text-3xl font-bold tracking-tight text-[var(--ink)] cursor-pointer sm:text-4xl md:text-5xl transition-colors duration-200 hover:text-[#B39CFF]"
+                className="group/title inline-flex cursor-pointer items-center gap-2 font-sans text-2xl font-bold tracking-tight text-[var(--ink)] transition-colors duration-200 hover:text-[#B39CFF] sm:text-3xl lg:text-4xl"
               >
                 <span>{project.title}</span>
-                <ArrowUpRight className="h-6 w-6 text-[var(--muted)] transition-transform duration-300 group-hover/title:translate-x-1 group-hover/title:-translate-y-1 group-hover/title:text-[#B39CFF]" />
+                <ArrowUpRight className="h-6 w-6 text-[var(--muted)] transition-transform duration-300 group-hover/title:-translate-y-1 group-hover/title:translate-x-1 group-hover/title:text-[#B39CFF]" />
               </h3>
 
-              {/* Description */}
-              <p className="mt-4 text-base leading-relaxed text-[var(--muted)]">
+              <p className="mt-2.5 text-xs leading-relaxed text-[var(--muted)] sm:text-sm">
                 {project.description}
               </p>
 
-              {/* Scroll-Animated Quantitative KPI Badges */}
               {project.metrics.length > 0 && (
-                <div className="mt-6 flex flex-wrap gap-2.5">
+                <div className="mt-4 flex flex-wrap gap-2">
                   {project.metrics.map((m) => (
                     <div
                       key={m.label}
@@ -347,12 +435,11 @@ function ScrollProjectCard({
                 </div>
               )}
 
-              {/* Tech Stack Chips */}
               <div className="mt-5 flex flex-wrap gap-1.5">
                 {project.stack.map((t) => (
                   <span
                     key={t}
-                    className="rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-1 font-mono text-xs text-[var(--muted)] transition-colors duration-200 hover:text-[var(--ink)] hover:border-[#1E90FF]/40"
+                    className="rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-1 font-mono text-xs text-[var(--muted)] transition-colors duration-200 hover:border-[#1E90FF]/40 hover:text-[var(--ink)]"
                   >
                     {t}
                   </span>
@@ -360,8 +447,7 @@ function ScrollProjectCard({
               </div>
             </div>
 
-            {/* Action Buttons Bar */}
-            <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-[var(--line)]">
+            <div className="flex flex-wrap items-center gap-3 border-t border-[var(--line)] pt-4">
               {project.galleryLink ? (
                 <Link
                   to={project.galleryLink}
@@ -401,7 +487,7 @@ function ScrollProjectCard({
                 type="button"
                 onClick={() => {
                   playClick();
-                  onOpenCase();
+                  open();
                 }}
                 className="btn-neo-base btn-neo-secondary inline-flex h-11 items-center gap-2 px-4 text-xs font-semibold"
               >
@@ -411,10 +497,21 @@ function ScrollProjectCard({
             </div>
           </div>
 
-          {/* Image Column (Alternates on desktop) */}
-          <div className={cn("lg:col-span-6", isEven ? "lg:order-1" : "lg:order-2")}>
-            <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] shadow-lg transition-all duration-300 group-hover:border-[#B39CFF]/40">
-              {/* Minimal Clean System Top Bar */}
+          {/* Image Column */}
+          <div className={cn("relative lg:col-span-6", isEven ? "lg:order-1" : "lg:order-2")}>
+            {/* soft category glow behind the frame (static gradient, no blur filter) */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-8 -z-10"
+              style={{
+                background: `radial-gradient(55% 55% at 50% 50%, ${meta.accentColor}2e, transparent 72%)`,
+              }}
+            />
+
+            <div
+              ref={frameRef}
+              className="prj-frame overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] shadow-lg group-hover:will-change-transform"
+            >
               <div className="flex h-10 items-center justify-between border-b border-[var(--line)] bg-[var(--surface-strong)] px-4">
                 <div className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
@@ -427,65 +524,64 @@ function ScrollProjectCard({
                   <span>{domainUrl}</span>
                 </div>
 
-                <span className="font-mono text-[10px] text-[var(--muted)] uppercase tracking-wider hidden sm:inline">
+                <span className="hidden font-mono text-[10px] uppercase tracking-wider text-[var(--muted)] sm:inline">
                   Verified Production
                 </span>
               </div>
 
-              {/* Image Frame with Multi-Layer Scroll Parallax Shift */}
               <div
                 onClick={() => {
                   playClick();
-                  onOpenCase();
+                  open();
                 }}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    onOpenCase();
+                    open();
                   }
                 }}
                 className="group/image relative aspect-[16/10] w-full cursor-pointer overflow-hidden bg-neutral-950 outline-none"
               >
-                <motion.img
-                  src={project.image}
-                  alt={project.title}
-                  width={1200}
-                  height={750}
-                  loading="lazy"
-                  decoding="async"
-                  style={{ y: imageY, scale: 1.05 }}
-                  className="h-full w-full object-cover object-top transition-transform duration-500 group-hover/image:scale-[1.09]"
-                />
+                {/* hover zoom lives on its own wrapper so it never fights the parallax transform */}
+                <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover/image:scale-[1.05]">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    width={1200}
+                    height={750}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchPriority={index === 0 ? "high" : "auto"}
+                    decoding="async"
+                    draggable={false}
+                    className="prj-img h-full w-full object-cover object-top"
+                  />
+                </div>
 
-                {/* Floating Optical Parallax Badge */}
                 {project.metrics.length > 0 && (
-                  <motion.div
-                    style={{ y: badgeY }}
-                    className="absolute top-4 right-4 z-10 hidden sm:flex items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3.5 py-1.5 font-mono text-xs text-[#F4F4F6] backdrop-blur-md shadow-lg"
-                  >
+                  <div className="absolute right-4 top-4 z-10 hidden items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3.5 py-1.5 font-mono text-xs text-[#F4F4F6] shadow-lg sm:flex">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF]" />
-                    <span>{project.metrics[0].value} {project.metrics[0].label}</span>
-                  </motion.div>
+                    <span>
+                      {project.metrics[0].value} {project.metrics[0].label}
+                    </span>
+                  </div>
                 )}
 
-                {/* Subtle soft gradient at bottom */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover/image:opacity-100" />
 
-                {/* Floating "View Case Study" badge on hover */}
-                <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full border border-white/20 bg-black/80 px-4 py-2 font-mono text-xs font-semibold text-white backdrop-blur-md transition-all duration-300 group-hover/image:translate-y-0 group-hover/image:opacity-100 hover:border-[#FF0099] sm:translate-y-2 sm:opacity-0">
+                <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full border border-white/20 bg-black/80 px-4 py-2 font-mono text-xs font-semibold text-white transition-all duration-300 group-hover/image:translate-y-0 group-hover/image:opacity-100 sm:translate-y-2 sm:opacity-0">
                   <span>View Case Study</span>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-[#B39CFF] group-hover:text-[#FF0099]" />
+                  <ArrowUpRight className="h-3.5 w-3.5 text-[#B39CFF]" />
                 </div>
               </div>
             </div>
           </div>
         </div>
       </article>
-    </motion.div>
+    </div>
   );
-}
+});
 
 /* -------------------------------------------------------------------------- */
 /*  Case Study Modal Overlay                                                  */
@@ -495,6 +591,7 @@ function CaseStudy({
   index,
   total,
   nextTitle,
+  nextImage,
   reduced,
   onClose,
   onGo,
@@ -503,6 +600,7 @@ function CaseStudy({
   index: number;
   total: number;
   nextTitle: string;
+  nextImage: string;
   reduced: boolean;
   onClose: () => void;
   onGo: (i: number) => void;
@@ -561,6 +659,14 @@ function CaseStudy({
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [project.title]);
 
+  // Warm the next project's image so "Next" feels instant
+  useEffect(() => {
+    if (!nextImage) return;
+    const img = new Image();
+    img.decoding = "async";
+    img.src = nextImage;
+  }, [nextImage]);
+
   const { scrollY, scrollYProgress } = useScroll({ container: scrollRef });
   const heroY = useTransform(scrollY, [0, 600], ["0%", "10%"]);
   const progress = useSpring(scrollYProgress, { stiffness: 180, damping: 28 });
@@ -577,7 +683,6 @@ function CaseStudy({
       transition={{ duration: 0.28, ease: EASE }}
       className="fixed inset-0 z-[100] bg-[var(--page)] text-[var(--ink)]"
     >
-      {/* Top progress indicator */}
       <motion.div
         aria-hidden="true"
         style={{ scaleX: progress }}
@@ -585,8 +690,8 @@ function CaseStudy({
       />
 
       <div ref={scrollRef} className="h-full overflow-y-auto overscroll-contain">
-        {/* Sticky Top Navigation Bar */}
-        <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--page)]/85 backdrop-blur-xl">
+        {/* Sticky bar: solid background (no backdrop blur over scrolling content) */}
+        <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--page)]/95">
           <Container>
             <div className="flex h-16 items-center justify-between">
               <button
@@ -601,7 +706,7 @@ function CaseStudy({
                 <span>Back to Projects</span>
               </button>
 
-              <div className="hidden sm:flex items-center gap-2 font-mono text-xs tabular-nums tracking-widest text-[var(--muted)]">
+              <div className="hidden items-center gap-2 font-mono text-xs tabular-nums tracking-widest text-[var(--muted)] sm:flex">
                 <span className="font-bold text-[var(--ink)]">{pad(index + 1)}</span>
                 <span className="text-[var(--line)]">/</span>
                 <span>{pad(total)}</span>
@@ -609,12 +714,12 @@ function CaseStudy({
 
               <div className="flex items-center gap-2">
                 {total > 1 && (
-                  <div className="flex items-center gap-1.5 border-r border-[var(--line)] pr-3 mr-1">
+                  <div className="mr-1 flex items-center gap-1.5 border-r border-[var(--line)] pr-3">
                     <button
                       type="button"
                       onClick={() => onGo(index - 1)}
                       aria-label="Previous project"
-                      className="grid h-8 w-8 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-all duration-200 hover:border-[var(--ink)] hover:text-[var(--ink)] active:scale-90"
+                      className="grid h-8 w-8 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-[color,border-color,transform] duration-200 hover:border-[var(--ink)] hover:text-[var(--ink)] active:scale-90"
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </button>
@@ -622,7 +727,7 @@ function CaseStudy({
                       type="button"
                       onClick={() => onGo(index + 1)}
                       aria-label="Next project"
-                      className="grid h-8 w-8 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-all duration-200 hover:border-[var(--ink)] hover:text-[var(--ink)] active:scale-90"
+                      className="grid h-8 w-8 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-[color,border-color,transform] duration-200 hover:border-[var(--ink)] hover:text-[var(--ink)] active:scale-90"
                     >
                       <ChevronRight className="h-4 w-4" />
                     </button>
@@ -657,7 +762,6 @@ function CaseStudy({
           </Container>
         </header>
 
-        {/* Modal Main Content */}
         <Container>
           <div key={project.title} className="py-10 sm:py-14">
             <div className="pb-8">
@@ -682,7 +786,6 @@ function CaseStudy({
               </h1>
             </div>
 
-            {/* High-Res Hero Image Frame */}
             <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-2xl">
               <div className="flex h-11 items-center justify-between border-b border-[var(--line)] bg-[var(--surface-strong)] px-4">
                 <div className="flex items-center gap-2">
@@ -705,15 +808,14 @@ function CaseStudy({
                   alt={project.title}
                   width={1600}
                   height={900}
-                  style={{ y: reduced ? 0 : heroY, scale: reduced ? 1 : 1.15 }}
+                  decoding="async"
+                  style={{ y: reduced ? 0 : heroY, scale: reduced ? 1 : 1.15, willChange: "transform" }}
                   className="h-full w-full object-cover object-top"
                 />
               </div>
             </div>
 
-            {/* Narrative Breakdown */}
             <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16">
-              {/* Sticky Sidebar Meta */}
               <aside className="lg:col-span-4">
                 <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 lg:sticky lg:top-24">
                   <h3 className="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
@@ -793,7 +895,6 @@ function CaseStudy({
                 </div>
               </aside>
 
-              {/* Main Narrative Column */}
               <div className="space-y-12 lg:col-span-8">
                 <div>
                   <h2 className="mb-3 font-mono text-xs font-bold uppercase tracking-wider text-[#B39CFF]">
@@ -804,7 +905,6 @@ function CaseStudy({
                   </p>
                 </div>
 
-                {/* Quantitative Impact Metrics */}
                 <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
                   <h3 className="mb-6 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
                     <TrendingUp className="h-4 w-4 text-[#B39CFF]" />
@@ -813,7 +913,7 @@ function CaseStudy({
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
                     {project.metrics.map((m) => (
                       <div key={m.label} className="border-l-2 border-[#B39CFF] pl-4">
-                        <div className="font-sans text-4xl font-bold tracking-tight text-[var(--ink)] tabular-nums sm:text-5xl">
+                        <div className="font-sans text-4xl font-bold tabular-nums tracking-tight text-[var(--ink)] sm:text-5xl">
                           <CountUp value={m.value} disabled={reduced} rootRef={scrollRef} />
                         </div>
                         <div className="mt-1.5 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
@@ -824,7 +924,6 @@ function CaseStudy({
                   </div>
                 </div>
 
-                {/* Architecture & Engineering */}
                 <div>
                   <h3 className="mb-3 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
                     Engineering Architecture
@@ -834,7 +933,6 @@ function CaseStudy({
                   </p>
                 </div>
 
-                {/* Core Deliverables */}
                 <div>
                   <h3 className="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
                     Core Deliverables
@@ -843,7 +941,7 @@ function CaseStudy({
                     {project.features.map((f, i) => (
                       <div
                         key={f}
-                        className="flex items-start gap-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 transition-colors duration-200 hover:border-[#B39CFF]/40"
+                        className="flex items-start gap-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 transition-[border-color] duration-200 hover:border-[#B39CFF]/40"
                       >
                         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--surface-strong)] font-mono text-xs font-bold text-[#B39CFF]">
                           {pad(i + 1)}
@@ -860,9 +958,8 @@ function CaseStudy({
           </div>
         </Container>
 
-        {/* Next Project Footer Switcher */}
         {total > 1 && (
-          <div className="border-t border-[var(--line)] bg-[var(--surface)] py-12 transition-colors duration-200 sm:py-16">
+          <div className="border-t border-[var(--line)] bg-[var(--surface)] py-12 sm:py-16">
             <Container>
               <button
                 type="button"
@@ -911,17 +1008,18 @@ export function Projects() {
     [],
   );
 
-  // Section-wide scroll progress line
+  // Section-wide scroll progress (tiny bar, transform only)
   const { scrollYProgress: sectionScroll } = useScroll({
     target: sectionRef,
     offset: ["start 20%", "end 80%"],
   });
   const progressSpring = useSpring(sectionScroll, { stiffness: 220, damping: 28 });
 
-  const openCase = (idx: number) => {
+  // Stable handlers so memoised cards don't re-render
+  const openCase = useCallback((idx: number) => {
     playClick();
     setOpenIndex(idx);
-  };
+  }, []);
 
   const goTo = (i: number) => {
     const n = list.length;
@@ -944,16 +1042,19 @@ export function Projects() {
   };
 
   const openProject = openIndex !== null ? list[openIndex] : undefined;
+  const nextProject = openIndex !== null ? list[(openIndex + 1) % list.length] : undefined;
 
   return (
     <section
       ref={sectionRef}
       id="work"
-      className="relative scroll-mt-20 bg-[var(--page)] pt-16 pb-20 transition-colors duration-500 sm:scroll-mt-24 sm:pt-20 sm:pb-28 md:scroll-mt-28 md:pt-24 md:pb-36"
+      className="relative scroll-mt-16 bg-[var(--page)] pt-12 pb-16 transition-colors duration-500 sm:scroll-mt-20 sm:pt-16 sm:pb-20 lg:scroll-mt-24 lg:pt-16 lg:pb-24 xl:pt-20 xl:pb-28"
     >
+      <style>{STYLES}</style>
+
       <Container>
         {/* Section Architectural Header */}
-        <div className="flex flex-col justify-between gap-5 border-b border-[var(--line)] pb-6 sm:flex-row sm:items-end">
+        <div className="flex flex-col justify-between gap-4 border-b border-[var(--line)] pb-4 sm:flex-row sm:items-end sm:pb-5">
           <div>
             <div className="mb-2.5 flex items-center gap-2.5 font-mono text-xs uppercase tracking-widest text-[var(--muted)]">
               <span className="relative flex h-2 w-2">
@@ -964,12 +1065,15 @@ export function Projects() {
             </div>
 
             <h2 className="font-sans text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl md:text-5xl">
-              Featured Projects
+              Featured{" "}
+              <span className="font-serif font-normal italic tracking-normal text-[#7654D6] dark:text-[#B39CFF]">
+                Projects
+              </span>
             </h2>
           </div>
 
           <div className="flex flex-col gap-2 sm:items-end sm:text-right">
-            <span className="font-mono text-xs uppercase tracking-wider text-[#B39CFF] font-bold">
+            <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#B39CFF]">
               [INDEX ARCHIVE // 04 PRODUCTION CASE STUDIES]
             </span>
             <p className="max-w-md text-xs leading-relaxed text-[var(--muted)] sm:text-sm">
@@ -978,8 +1082,8 @@ export function Projects() {
           </div>
         </div>
 
-        {/* Filter Navigation Bar & Scroll Indicator */}
-        <div className="mt-6 flex flex-col justify-between gap-4 border-b border-[var(--line)] pb-3.5 sm:flex-row sm:items-center">
+        {/* Filter bar: sticky, solid background (no blur → no per-frame repaint) */}
+        <div className="sticky top-[60px] z-20 mt-4 flex flex-col justify-between gap-3 border-b border-[var(--line)] bg-[var(--page)]/95 pb-3 pt-2 sm:top-[64px] sm:mt-5 sm:flex-row sm:items-center">
           <div
             role="group"
             aria-label="Filter project categories"
@@ -1016,10 +1120,9 @@ export function Projects() {
             })}
           </div>
 
-          {/* Section Scroll Progress Bar */}
-          <div className="hidden sm:flex items-center gap-3 font-mono text-xs text-[var(--muted)]">
+          <div className="hidden items-center gap-3 font-mono text-xs text-[var(--muted)] sm:flex">
             <span className="text-[11px] uppercase tracking-wider">Scroll Track</span>
-            <div className="h-1.5 w-24 overflow-hidden rounded-full bg-[var(--surface-strong)] border border-[var(--line)]">
+            <div className="h-1.5 w-24 overflow-hidden rounded-full border border-[var(--line)] bg-[var(--surface-strong)]">
               <motion.div
                 style={{ scaleX: progressSpring }}
                 className="h-full w-full origin-left bg-[#B39CFF]"
@@ -1028,7 +1131,7 @@ export function Projects() {
           </div>
         </div>
 
-        {/* Scroll-Animated Project Cards Showcase */}
+        {/* Project Cards */}
         {list.length === 0 ? (
           <div className="my-10 rounded-2xl border border-dashed border-[var(--line)] p-8 py-20 text-center sm:my-16 sm:py-24">
             <Layers className="mx-auto mb-3 h-8 w-8 text-[var(--muted)] opacity-60" />
@@ -1044,18 +1147,18 @@ export function Projects() {
             </button>
           </div>
         ) : (
-          <div className="mt-12 sm:mt-16">
-            <AnimatePresence mode="popLayout">
-              {list.map((project, idx) => (
-                <ScrollProjectCard
-                  key={project.title}
-                  project={project}
-                  index={idx}
-                  total={list.length}
-                  onOpenCase={() => openCase(idx)}
-                />
-              ))}
-            </AnimatePresence>
+          /* keyed by filter: a clean remount + short fade instead of heavy layout animations */
+          <div key={filter} className="prj-list mt-8 sm:mt-12">
+            {list.map((project, idx) => (
+              <ProjectCard
+                key={project.title}
+                project={project}
+                index={idx}
+                total={list.length}
+                reduced={reduced}
+                onOpen={openCase}
+              />
+            ))}
           </div>
         )}
 
@@ -1090,12 +1193,13 @@ export function Projects() {
 
       {/* Case Study Fullscreen Modal */}
       <AnimatePresence>
-        {openProject && openIndex !== null && typeof document !== "undefined" && (
+        {openProject && openIndex !== null && nextProject && typeof document !== "undefined" && (
           <CaseStudy
             project={openProject}
             index={openIndex}
             total={list.length}
-            nextTitle={list[(openIndex + 1) % list.length].title}
+            nextTitle={nextProject.title}
+            nextImage={nextProject.image}
             reduced={reduced}
             onClose={closeCase}
             onGo={goTo}
