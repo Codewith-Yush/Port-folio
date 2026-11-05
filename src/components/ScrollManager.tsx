@@ -2,9 +2,11 @@ import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { scrollToSection } from "../utils/scrollToSection";
+import { useSmoothScroll, getLenis } from "../hooks/useSmoothScroll";
 
 /**
  * Enterprise Scroll & Route Restoration Manager:
+ * - Mounts and orchestrates global Lenis smooth scroll engine
  * - Restores scroll to top (0, 0) instantly on page switches with no hash
  * - Accurately navigates to section hash targets (#work, #skills, #contact, etc.)
  * - Polling with requestAnimationFrame ensures dynamic routes and lazy-loaded components
@@ -13,6 +15,7 @@ import { scrollToSection } from "../utils/scrollToSection";
  * - Refreshes GSAP ScrollTrigger on every route change
  */
 export function ScrollManager() {
+  useSmoothScroll();
   const location = useLocation();
   const prevPathRef = useRef(location.pathname);
 
@@ -50,22 +53,23 @@ export function ScrollManager() {
     // Refresh ScrollTrigger instances so triggers align with the new page layout
     const refreshTimer = window.setTimeout(() => {
       ScrollTrigger.refresh();
+      getLenis()?.resize();
     }, 150);
 
     if (location.hash) {
       const targetId = location.hash;
 
       if (targetId === "#hero" || targetId === "#") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        scrollToSection("#hero", { smooth: !isNewPath });
         return () => clearTimeout(refreshTimer);
       }
 
       let cancelled = false;
-      let animationFrameId = 0;
+      let timerId = 0;
       let lastTop = -1;
       let stableChecks = 0;
       let attempts = 0;
-      const maxAttempts = 150; // ~2.5s polling window for async hydration
+      const maxAttempts = 35; // ~1.4s polling window with 40ms interval
 
       const checkAndScroll = () => {
         if (cancelled) return;
@@ -84,51 +88,31 @@ export function ScrollManager() {
           }
 
           // Once position has stabilized across consecutive checks
-          if (stableChecks >= 3 || (attempts > 35 && stableChecks >= 1)) {
-            window.scrollTo({
-              top: Math.max(0, currentTop),
-              behavior: isNewPath ? "instant" : "smooth",
-            });
-
-            // Post-scroll check for late-loading images or layout shifts
-            if (isNewPath) {
-              const settleTimer = window.setTimeout(() => {
-                if (cancelled) return;
-                const finalTarget = document.querySelector<HTMLElement>(targetId);
-                if (finalTarget) {
-                  const finalTop = finalTarget.getBoundingClientRect().top + window.scrollY;
-                  if (Math.abs(window.scrollY - finalTop) > 6) {
-                    window.scrollTo({
-                      top: Math.max(0, finalTop),
-                      behavior: "smooth",
-                    });
-                  }
-                }
-              }, 400);
-
-              return () => {
-                window.clearTimeout(settleTimer);
-              };
-            }
+          if (stableChecks >= 2 || attempts > 15) {
+            scrollToSection(targetId, { smooth: !isNewPath });
             return;
           }
         }
 
         if (attempts < maxAttempts) {
-          animationFrameId = requestAnimationFrame(checkAndScroll);
+          timerId = window.setTimeout(checkAndScroll, 40);
         }
       };
 
-      animationFrameId = requestAnimationFrame(checkAndScroll);
+      timerId = window.setTimeout(checkAndScroll, 40);
 
       return () => {
         cancelled = true;
-        cancelAnimationFrame(animationFrameId);
+        window.clearTimeout(timerId);
         clearTimeout(refreshTimer);
       };
     } else {
       // Navigated to a new page without a hash
       if (isNewPath) {
+        const lenis = getLenis();
+        if (lenis) {
+          lenis.scrollTo(0, { immediate: true });
+        }
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
@@ -142,4 +126,3 @@ export function ScrollManager() {
 
   return null;
 }
-

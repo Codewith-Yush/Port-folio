@@ -33,6 +33,7 @@ import {
 import { cn } from "../utils/cn";
 import { projects, type Project } from "../data/portfolio";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
+import { stopSmoothScroll, startSmoothScroll } from "../hooks/useSmoothScroll";
 import { Container } from "../components/Container";
 import { playTab, playClick } from "../utils/soundEffects";
 
@@ -295,13 +296,15 @@ const ProjectCard = memo(function ProjectCard({
     [],
   );
 
+  const rectRef = useRef<DOMRect | null>(null);
+
   const apply = useCallback(() => {
     raf.current = 0;
     const art = articleRef.current;
     const frame = frameRef.current;
     const spot = spotRef.current;
     if (!art || !frame || !spot) return;
-    const r = art.getBoundingClientRect();
+    const r = (rectRef.current ||= art.getBoundingClientRect());
     const x = ptr.current.x - r.left;
     const y = ptr.current.y - r.top;
     spot.style.transform = `translate3d(${x - 280}px, ${y - 280}px, 0)`;
@@ -318,6 +321,7 @@ const ProjectCard = memo(function ProjectCard({
   };
 
   const handlePointerLeave = () => {
+    rectRef.current = null;
     if (frameRef.current) {
       frameRef.current.style.transform = "perspective(1400px) rotateX(0deg) rotateY(0deg)";
     }
@@ -546,7 +550,10 @@ const ProjectCard = memo(function ProjectCard({
               >
                 {/* hover zoom lives on its own wrapper so it never fights the parallax transform */}
                 <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover/image:scale-[1.05]">
-                  <img
+                  <picture className="h-full w-full block">
+                    <source srcSet={project.image.replace(/\.webp$/i, ".avif")} type="image/avif" />
+                    <source srcSet={project.image} type="image/webp" />
+                    <img
                     src={project.image}
                     alt={project.title}
                     width={1200}
@@ -557,6 +564,8 @@ const ProjectCard = memo(function ProjectCard({
                     draggable={false}
                     className="prj-img h-full w-full object-cover object-top"
                   />
+                </picture>
+
                 </div>
 
                 {project.metrics.length > 0 && (
@@ -617,6 +626,7 @@ function CaseStudy({
   latest.current = { index, onClose, onGo };
 
   useEffect(() => {
+    stopSmoothScroll();
     const prevFocus = document.activeElement as HTMLElement | null;
     const sb = window.innerWidth - document.documentElement.clientWidth;
     const prevOverflow = document.body.style.overflow;
@@ -652,6 +662,7 @@ function CaseStudy({
       document.body.style.overflow = prevOverflow;
       document.body.style.paddingRight = prevPad;
       prevFocus?.focus?.();
+      startSmoothScroll();
     };
   }, []);
 
@@ -677,6 +688,7 @@ function CaseStudy({
       role="dialog"
       aria-modal="true"
       aria-label={project.title}
+      data-lenis-prevent
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -689,7 +701,7 @@ function CaseStudy({
         className="absolute inset-x-0 top-0 z-40 h-[3px] origin-left bg-[#B39CFF]"
       />
 
-      <div ref={scrollRef} className="h-full overflow-y-auto overscroll-contain">
+      <div ref={scrollRef} data-lenis-prevent className="h-full overflow-y-auto overscroll-contain">
         {/* Sticky bar: solid background (no backdrop blur over scrolling content) */}
         <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--page)]/95">
           <Container>
@@ -1114,6 +1126,7 @@ export function Projects() {
                       className="absolute inset-x-0 -bottom-2 h-[2px] bg-[#B39CFF]"
                       transition={{ type: "spring", stiffness: 400, damping: 32 }}
                     />
+
                   )}
                 </button>
               );

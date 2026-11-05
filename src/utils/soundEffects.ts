@@ -4,7 +4,6 @@
  * - Synthesizes tactile, modern acoustic feedback in real time
  * - Global audio auto-unlock on user gesture
  * - Universal click audio on every click across the portfolio
- * - Precision luxury mechanical scroll notch sound (Apple Watch / Leica / iPod wheel effect)
  * - Persistent toggle state via localStorage ('portfolio_sound_fx')
  */
 
@@ -282,101 +281,25 @@ export function playSuccess(): void {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Scroll Notch Synthesizer & Movement Tracker
-   • Apple Watch / Leica / iPod wheel mechanical ratchet sound
-   • Tick-Tock dual notch alternating frequencies (820Hz / 920Hz)
-   • Dynamic velocity response & anti-buzz throttling (~20 ticks/sec max)
-   • Seamless integration with both Locomotive Scroll v5 and native window scroll
+   Scroll Sound (Disabled per request)
 ───────────────────────────────────────────────────────────────────────────── */
 
-let scrollTickCount = 0;
-let lastScrollY = typeof window !== "undefined" ? window.scrollY : 0;
-let accumulatedScrollDistance = 0;
-let lastScrollTickTime = 0;
-
-const SCROLL_TICK_DISTANCE = 72; // Trigger tick every 72px of scroll motion
-const MIN_SCROLL_TICK_INTERVAL = 46; // Minimum 46ms between ticks (~21 ticks/sec max)
-
 /**
- * Precision acoustic dial / digital crown ratchet notch tick
+ * Scroll notch sound (disabled)
  */
-export function playScrollTick(direction: number = 1, velocity: number = 0): void {
-  if (!isSoundFxEnabled()) return;
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-
-    const execute = () => {
-      const now = ctx.currentTime;
-      scrollTickCount++;
-
-      // Alternating Tick-Tock dual notch (tactile ratchet gear effect)
-      const isTick = scrollTickCount % 2 === 0;
-      const baseFreq = isTick ? 820 : 920;
-
-      // Subtle dynamic pitch response to scroll velocity (faster = slightly higher pitch)
-      const speedMultiplier = Math.min(1.22, 1 + Math.abs(velocity) * 0.04);
-      const freq = baseFreq * speedMultiplier * (direction >= 0 ? 1 : 0.96);
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      // Triangle wave delivers warm, organic acoustic timbre (luxury mechanical notch)
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(freq, now);
-      osc.frequency.exponentialRampToValueAtTime(freq * 0.6, now + 0.016);
-
-      // Volume envelope: ultra-fast 1ms attack to prevent DC pop, followed by rapid 18ms decay
-      const gainLevel = Math.min(0.07, 0.042 + Math.min(0.025, Math.abs(velocity) * 0.008));
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.linearRampToValueAtTime(gainLevel, now + 0.001);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.018);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.02);
-    };
-
-    if (ctx.state === "suspended") {
-      ctx.resume().then(execute).catch(() => {});
-    } else {
-      execute();
-    }
-  } catch {
-    // Fail silently
-  }
+export function playScrollTick(_direction: number = 1, _velocity: number = 0): void {
+  // Disabled
 }
 
 /**
- * Feed scroll position updates from Locomotive Scroll, Lenis, or window scroll.
+ * Scroll movement handler (disabled)
  */
 export function handleScrollMovement(
-  currentY: number,
-  velocity?: number,
-  direction?: number
+  _currentY: number,
+  _velocity?: number,
+  _direction?: number
 ): void {
-  if (!isSoundFxEnabled()) return;
-
-  const delta = Math.abs(currentY - lastScrollY);
-  if (delta < 1) return;
-
-  const dir = direction !== undefined ? direction : (currentY >= lastScrollY ? 1 : -1);
-  const vel = velocity !== undefined ? velocity : (delta / 16);
-
-  lastScrollY = currentY;
-  accumulatedScrollDistance += delta;
-
-  const now = performance.now();
-  if (
-    accumulatedScrollDistance >= SCROLL_TICK_DISTANCE &&
-    now - lastScrollTickTime >= MIN_SCROLL_TICK_INTERVAL
-  ) {
-    playScrollTick(dir, vel);
-    accumulatedScrollDistance = 0;
-    lastScrollTickTime = now;
-  }
+  // Disabled
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -432,26 +355,12 @@ export function initGlobalSoundSystem(): () => void {
   }
   isInitialized = true;
 
-  // 1. Universal click listener (bubble phase on document)
+  // Universal click listener (bubble phase on document)
   document.addEventListener("click", handleGlobalDocumentClick, { passive: true });
-
-  // 2. Global window scroll listener (fallback for all pages/views)
-  let scrollRafId = 0;
-  const onWindowScroll = () => {
-    if (scrollRafId) return;
-    scrollRafId = window.requestAnimationFrame(() => {
-      scrollRafId = 0;
-      handleScrollMovement(window.scrollY);
-    });
-  };
-
-  window.addEventListener("scroll", onWindowScroll, { passive: true });
 
   // Cleanup helper
   return () => {
     document.removeEventListener("click", handleGlobalDocumentClick);
-    window.removeEventListener("scroll", onWindowScroll);
-    if (scrollRafId) cancelAnimationFrame(scrollRafId);
     isInitialized = false;
   };
 }

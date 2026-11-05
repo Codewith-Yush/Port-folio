@@ -4,6 +4,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { scrollToSection } from "../utils/scrollToSection";
 
 import {
   isSoundFxEnabled,
@@ -1040,7 +1041,7 @@ export default function CanvaGallery() {
   const progressRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const circleProgressRef = useRef<SVGPathElement>(null);
 
   // Sync favorites with localStorage
   const toggleFavorite = useCallback((designNum: string) => {
@@ -1068,8 +1069,11 @@ export default function CanvaGallery() {
       const total = document.documentElement.scrollHeight - window.innerHeight;
       const current = window.scrollY;
       const progress = total > 0 ? current / total : 0;
-      setScrollProgress(progress);
-      setShowScrollTop(current > 400);
+      if (circleProgressRef.current) {
+        circleProgressRef.current.setAttribute("stroke-dasharray", `${(progress * 100).toFixed(1)}, 100`);
+      }
+      const shouldShow = current > 400;
+      setShowScrollTop((prev) => (prev !== shouldShow ? shouldShow : prev));
 
       if (progressRef.current) {
         progressRef.current.style.transform = `scaleX(${progress})`;
@@ -1684,7 +1688,7 @@ export default function CanvaGallery() {
             type="button"
             onClick={() => {
               soundManager.pop();
-              window.scrollTo({ top: 0, behavior: "smooth" });
+              scrollToSection("#hero");
             }}
             title="Scroll to top"
             className="group relative flex h-12 w-12 items-center justify-center rounded-full border border-black/10 dark:border-white/10 bg-white/90 dark:bg-[#121217]/90 backdrop-blur-xl shadow-xl transition-all duration-300 hover:scale-110 active:scale-95"
@@ -1700,7 +1704,8 @@ export default function CanvaGallery() {
               />
               <path
                 className="text-[#10B981]"
-                strokeDasharray={`${scrollProgress * 100}, 100`}
+                ref={circleProgressRef}
+                strokeDasharray="0, 100"
                 strokeWidth="3"
                 strokeLinecap="round"
                 stroke="currentColor"

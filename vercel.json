@@ -22,11 +22,15 @@
       ]
     },
     {
-      "source": "/(.*)\\.(ico|png|jpg|jpeg|webp|avif|svg|woff2|woff|ttf)",
+      "source": "/(.*)\\.(ico|png|jpg|jpeg|webp|avif|svg|woff2|woff|ttf|mp4|webm)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Accept-Ranges",
+          "value": "bytes"
         }
       ]
     },

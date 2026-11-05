@@ -337,17 +337,24 @@ export function ParticlePreloader({
       o.fillText(lines[0], w / 2, h / 2 - lh / 2 - 6);
       o.fillText(lines[1], w / 2, h / 2 + lh / 2 - 6);
 
-      const data = o.getImageData(0, 0, w, h).data;
-      let step = 4;
+      const minY = Math.max(0, Math.floor(h / 2 - lh - 16));
+      const maxY = Math.min(h, Math.ceil(h / 2 + lh + 16));
+      const minX = Math.max(0, Math.floor(w / 2 - (longest * fs * 0.42)));
+      const maxX = Math.min(w, Math.ceil(w / 2 + (longest * fs * 0.42)));
+      const boxW = Math.max(1, maxX - minX);
+      const boxH = Math.max(1, maxY - minY);
+
+      const data = o.getImageData(minX, minY, boxW, boxH).data;
+      let step = Math.max(3, Math.ceil(fs / 32));
       let pts: number[] = [];
       for (;;) {
         pts = [];
-        for (let y = 0; y < h; y += step) {
-          for (let x = 0; x < w; x += step) {
-            if (data[(y * w + x) * 4 + 3] > 128) pts.push(x, y);
+        for (let y = 0; y < boxH; y += step) {
+          for (let x = 0; x < boxW; x += step) {
+            if (data[(y * boxW + x) * 4 + 3] > 128) pts.push(minX + x, minY + y);
           }
         }
-        if (pts.length / 2 <= 4200) break;
+        if (pts.length / 2 <= 3200 || step >= 10) break;
         step++;
       }
       psize = Math.max(1.6, Math.min(3.4, step * 0.46));

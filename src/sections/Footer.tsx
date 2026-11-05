@@ -284,7 +284,7 @@ export function Footer() {
 
   const scrollToTop = () => {
     playClick("interactive");
-    window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+    scrollToSection("#hero");
   };
 
   const currentYear = new Date().getFullYear();

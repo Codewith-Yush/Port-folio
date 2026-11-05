@@ -1,7 +1,6 @@
+import { lazy, Suspense } from "react";
 import { Preloader } from "./components/Loader";
 import { Header } from "./components/Header";
-import { CommandShortcuts } from "./components/CommandShortcuts";
-import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { Hero } from "./sections/Hero";
 import { Projects } from "./sections/Projects";
 import { Skills } from "./sections/Skills";
@@ -9,9 +8,11 @@ import { Services } from "./sections/Services";
 import { Contact } from "./sections/Contact";
 import { Footer } from "./sections/Footer";
 
-export default function App() {
-  useSmoothScroll();
+const CommandShortcuts = lazy(() =>
+  import("./components/CommandShortcuts").then((m) => ({ default: m.CommandShortcuts }))
+);
 
+export default function App() {
   return (
     <div className="relative min-h-[100svh] overflow-x-clip bg-[var(--page)] text-[var(--ink)] transition-colors duration-300">
       <Preloader />
@@ -24,7 +25,9 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
-      <CommandShortcuts />
+      <Suspense fallback={null}>
+        <CommandShortcuts />
+      </Suspense>
     </div>
   );
 }

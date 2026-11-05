@@ -13,7 +13,7 @@ gsap.registerPlugin(useGSAP);
 /** Files live in /public → served from the site root */
 const VIDEO_SRC = "/hero.mp4";
 const VIDEO_WEBM_SRC: string | null = null; // e.g. "/hero.webm" if you add a WebM version
-const POSTER_SRC = "/hero-poster.jpg";
+const POSTER_SRC = "/images/hero-poster.webp";
 
 const ROLES = ["Full Stack & Creative Systems", "Freelance Developer", "Data Science Student"];
 
@@ -112,8 +112,23 @@ export function Hero() {
     if (!media || !section) return;
 
     let raf = 0;
+    let inView = true;
+    let sectionHeight = section.offsetHeight || window.innerHeight;
     const target = { x: 0, y: 0, s: 0 };
     const cur = { x: 0, y: 0, s: 0 };
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+      },
+      { threshold: 0.01 }
+    );
+    io.observe(section);
+
+    const onResize = () => {
+      sectionHeight = section.offsetHeight || window.innerHeight;
+    };
+    window.addEventListener("resize", onResize, { passive: true });
 
     const loop = () => {
       raf = 0;
@@ -133,13 +148,14 @@ export function Hero() {
     };
 
     const onMove = (e: PointerEvent) => {
-      if (section.getBoundingClientRect().bottom < 0) return;
+      if (!inView) return;
       target.x = (e.clientX / window.innerWidth - 0.5) * 2;
       target.y = (e.clientY / window.innerHeight - 0.5) * 2;
       kick();
     };
     const onScroll = () => {
-      target.s = Math.min(1, Math.max(0, window.scrollY / (section.offsetHeight || 1)));
+      if (!inView && window.scrollY > sectionHeight) return;
+      target.s = Math.min(1, Math.max(0, window.scrollY / (sectionHeight || 1)));
       kick();
     };
 
@@ -147,6 +163,8 @@ export function Hero() {
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
+      io.disconnect();
+      window.removeEventListener("resize", onResize);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("scroll", onScroll);
       if (raf) cancelAnimationFrame(raf);
@@ -238,24 +256,19 @@ export function Hero() {
 
         .hero-shadow { text-shadow: 0 2px 28px rgba(0,0,0,.6), 0 0 2px rgba(0,0,0,.35); }
 
-        @keyframes hero-grain {
-          0% { transform: translate(0,0); } 25% { transform: translate(-3%,2%); }
-          50% { transform: translate(2%,-3%); } 75% { transform: translate(-2%,-1%); } 100% { transform: translate(0,0); }
-        }
         .hero-grain {
-          position: absolute; inset: -50%; opacity: .07; mix-blend-mode: overlay; pointer-events: none;
+          position: absolute; inset: 0; opacity: .04; pointer-events: none;
           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-          animation: hero-grain 1.1s steps(5) infinite;
         }
 
         /* slow breathing glow that echoes the storm */
         @keyframes hero-breathe { 0%,100% { opacity: .35; transform: scale(1); } 50% { opacity: .6; transform: scale(1.08); } }
-        .hero-breathe { animation: hero-breathe 7s ease-in-out infinite; }
+        .hero-breathe { animation: hero-breathe 7s ease-in-out infinite; will-change: transform, opacity; }
 
         @keyframes hero-cue { 0% { transform: scaleY(0); transform-origin: top; } 45% { transform: scaleY(1); transform-origin: top; } 55% { transform: scaleY(1); transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
 
         @media (prefers-reduced-motion: reduce) {
-          .hero-ping, .hero-grain, .hero-breathe { animation: none; }
+          .hero-ping, .hero-breathe { animation: none; }
         }
       `}</style>
 

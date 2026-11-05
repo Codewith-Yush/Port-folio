@@ -1,9 +1,11 @@
+import { scrollToTarget } from "../hooks/useSmoothScroll";
+
 /**
  * Unified Smooth Scroll Helper for Antigravity Portfolio
  * 
- * Provides pixel-perfect framing across all sections (#work, #skills, #contact, #hero)
- * by aligning the section container with the viewport top, allowing each section's internal padding
- * (py-16 sm:py-24 md:py-28) to provide the exact designed breathing distance below the sticky header.
+ * Provides pixel-perfect framing across all sections (#work, #skills, #services, #contact, #hero)
+ * powered by the Lenis inertial engine, allowing each section's internal padding
+ * to provide the exact designed breathing distance below the sticky header.
  */
 export function scrollToSection(
   rawTarget: string,
@@ -20,11 +22,16 @@ export function scrollToSection(
   const hash = rawTarget.startsWith("#") ? rawTarget : `#${rawTarget}`;
 
   if (hash === "#hero" || hash === "#" || hash === "") {
-    window.scrollTo({ top: 0, behavior: smooth ? "smooth" : "instant" });
-    if (updateHistory) {
-      window.history.pushState(null, "", "#hero");
-    }
-    onComplete?.();
+    scrollToTarget(0, {
+      immediate: !smooth,
+      duration: 1.2,
+      onComplete: () => {
+        if (updateHistory) {
+          window.history.pushState(null, "", "#hero");
+        }
+        onComplete?.();
+      },
+    });
     return;
   }
 
@@ -33,17 +40,15 @@ export function scrollToSection(
 
   if (!element) return;
 
-  // Align section container to the viewport top
-  const targetTop = element.getBoundingClientRect().top + window.scrollY;
-
-  window.scrollTo({
-    top: Math.max(0, targetTop),
-    behavior: smooth ? "smooth" : "instant",
+  scrollToTarget(element, {
+    offset: 0,
+    immediate: !smooth,
+    duration: 1.2,
+    onComplete: () => {
+      if (updateHistory) {
+        window.history.pushState(null, "", hash);
+      }
+      onComplete?.();
+    },
   });
-
-  if (updateHistory) {
-    window.history.pushState(null, "", hash);
-  }
-
-  onComplete?.();
 }

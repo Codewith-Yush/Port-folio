@@ -19,7 +19,7 @@ export default defineConfig({
             if (id.includes("framer-motion")) {
               return "vendor-framer";
             }
-            if (id.includes("gsap") || id.includes("@gsap")) {
+            if (id.includes("gsap") || id.includes("@gsap") || id.includes("lenis")) {
               return "vendor-gsap";
             }
             if (id.includes("lucide-react")) {
