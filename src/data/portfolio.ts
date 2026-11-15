@@ -43,7 +43,8 @@ export type Service = {
 export const personalInfo = {
   name: "Ayush Singh",
   title: "Full Stack Developer & Creative Technologist",
-  headline: "Full Stack Developer, Creative Technologist & Data Science (Power BI)",
+  headline:
+    "Full Stack Developer, Creative Technologist & Data Science (Power BI)",
   bio: "I build responsive digital systems bridging the gap between scalable data architecture, interactive Power BI business intelligence, and modern high-performance web applications.",
   email: "ayushsingh7360@gmail.com",
   github: "https://github.com/codewith-Yush",
@@ -183,30 +184,90 @@ export const skillGroups: SkillGroup[] = [
     title: "Web Engineering",
     category: "Full Stack & Modern Frontend",
     skills: [
-      { name: "React 19 & Next.js", level: 95, tier: "Advanced", tags: ["SSR", "Hooks", "Server Actions"] },
-      { name: "TypeScript & JavaScript", level: 92, tier: "Advanced", tags: ["Type Safety", "ESNext", "Async"] },
-      { name: "Tailwind CSS & Responsive UI", level: 94, tier: "Production", tags: ["Design Systems", "Mobile First"] },
-      { name: "REST APIs & Modern Backend", level: 88, tier: "Core", tags: ["FastAPI", "Node.js", "JSON"] },
+      {
+        name: "React 19 & Next.js",
+        level: 95,
+        tier: "Advanced",
+        tags: ["SSR", "Hooks", "Server Actions"],
+      },
+      {
+        name: "TypeScript & JavaScript",
+        level: 92,
+        tier: "Advanced",
+        tags: ["Type Safety", "ESNext", "Async"],
+      },
+      {
+        name: "Tailwind CSS & Responsive UI",
+        level: 94,
+        tier: "Production",
+        tags: ["Design Systems", "Mobile First"],
+      },
+      {
+        name: "REST APIs & Modern Backend",
+        level: 88,
+        tier: "Core",
+        tags: ["FastAPI", "Node.js", "JSON"],
+      },
     ],
   },
   {
     title: "Data Science & AI",
     category: "Analytics & Machine Learning",
     skills: [
-      { name: "Python & Data Processing", level: 88, tier: "Advanced", tags: ["Pandas", "NumPy", "Automation"] },
-      { name: "Power BI & BI Dashboards", level: 90, tier: "Production", tags: ["DAX", "Power Query", "Visuals"] },
-      { name: "Data Visualization & EDA", level: 86, tier: "Core", tags: ["Matplotlib", "Seaborn", "Stats"] },
-      { name: "Generative AI & Video Workflows", level: 90, tier: "Specialized", tags: ["Prompting", "AI Pipeline"] },
+      {
+        name: "Python & Data Processing",
+        level: 88,
+        tier: "Advanced",
+        tags: ["Pandas", "NumPy", "Automation"],
+      },
+      {
+        name: "Power BI & BI Dashboards",
+        level: 90,
+        tier: "Production",
+        tags: ["DAX", "Power Query", "Visuals"],
+      },
+      {
+        name: "Data Visualization & EDA",
+        level: 86,
+        tier: "Core",
+        tags: ["Matplotlib", "Seaborn", "Stats"],
+      },
+      {
+        name: "Generative AI & Video Workflows",
+        level: 90,
+        tier: "Specialized",
+        tags: ["Prompting", "AI Pipeline"],
+      },
     ],
   },
   {
     title: "Design & Workflow",
     category: "Visual Direction & Tooling",
     skills: [
-      { name: "UI/UX & Brand Design", level: 92, tier: "Advanced", tags: ["Canva Pro", "Figma", "Typography"] },
-      { name: "GSAP & Kinetic Motion", level: 88, tier: "Specialized", tags: ["ScrollTrigger", "Micro-Interactions"] },
-      { name: "Git, GitHub & CI/CD", level: 90, tier: "Core", tags: ["Version Control", "Vercel", "Vite"] },
-      { name: "Creative Strategy & Branding", level: 94, tier: "Production", tags: ["Social Kits", "Content Systems"] },
+      {
+        name: "UI/UX & Brand Design",
+        level: 92,
+        tier: "Advanced",
+        tags: ["Canva Pro", "Figma", "Typography"],
+      },
+      {
+        name: "GSAP & Kinetic Motion",
+        level: 88,
+        tier: "Specialized",
+        tags: ["ScrollTrigger", "Micro-Interactions"],
+      },
+      {
+        name: "Git, GitHub & CI/CD",
+        level: 90,
+        tier: "Core",
+        tags: ["Version Control", "Vercel", "Vite"],
+      },
+      {
+        name: "Creative Strategy & Branding",
+        level: 94,
+        tier: "Production",
+        tags: ["Social Kits", "Content Systems"],
+      },
     ],
   },
 ];
@@ -257,7 +318,12 @@ export const services: Service[] = [
       "Data visualization reports",
       "Business performance analytics",
     ],
-    process: ["Data Collection", "Visualization Setup", "Dashboard Design", "Reporting"],
+    process: [
+      "Data Collection",
+      "Visualization Setup",
+      "Dashboard Design",
+      "Reporting",
+    ],
     bestFor: ["Business Analytics", "Sales Reports", "Performance Tracking"],
   },
 ];

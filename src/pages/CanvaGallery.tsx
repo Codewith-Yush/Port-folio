@@ -562,22 +562,26 @@ function Lightbox({
             className="flex items-center justify-center overflow-auto p-3 sm:p-6"
             style={{ maxHeight: "68vh" }}
           >
-            <img
-              ref={imgRef}
-              src={item.src}
-              alt={item.label}
-              width={1000}
-              height={1250}
-              loading="lazy"
-              decoding="async"
-              style={{
-                transform: `scale(${zoomLevel})`,
-                transition: "transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)",
-                cursor: zoomLevel > 1 ? "zoom-out" : "zoom-in",
-              }}
-              onClick={toggleZoom}
-              className="max-h-[62vh] max-w-full rounded-xl object-contain shadow-sm"
-            />
+            <picture className="max-h-[62vh] max-w-full block">
+              <source srcSet={item.src.replace(/\.webp$/i, ".avif")} type="image/avif" />
+              <source srcSet={item.src} type="image/webp" />
+              <img
+                ref={imgRef}
+                src={item.src}
+                alt={item.label}
+                width={1000}
+                height={1250}
+                loading="lazy"
+                decoding="async"
+                style={{
+                  transform: `scale(${zoomLevel})`,
+                  transition: "transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)",
+                  cursor: zoomLevel > 1 ? "zoom-out" : "zoom-in",
+                }}
+                onClick={toggleZoom}
+                className="max-h-[62vh] max-w-full rounded-xl object-contain shadow-sm"
+              />
+            </picture>
           </div>
 
           {/* Color Palette Strip */}
@@ -800,16 +804,20 @@ function GalleryCard({
           className={`relative overflow-hidden bg-black/5 dark:bg-white/5 ${viewMode === "grid" ? "aspect-[4/5]" : ""
             }`}
         >
-          <img
-            src={item.src}
-            alt={item.label}
-            width={800}
-            height={1000}
-            loading="lazy"
-            decoding="async"
-            className={`w-full block transition-transform duration-700 ease-out group-hover:scale-[1.05] ${viewMode === "grid" ? "h-full object-cover" : "h-auto object-cover"
-              }`}
-          />
+          <picture className="w-full h-full block">
+            <source srcSet={item.src.replace(/\.webp$/i, ".avif")} type="image/avif" />
+            <source srcSet={item.src} type="image/webp" />
+            <img
+              src={item.src}
+              alt={item.label}
+              width={800}
+              height={1000}
+              loading="lazy"
+              decoding="async"
+              className={`w-full block transition-transform duration-700 ease-out group-hover:scale-[1.05] ${viewMode === "grid" ? "h-full object-cover" : "h-auto object-cover"
+                }`}
+            />
+          </picture>
         </div>
 
         {/* Spotlight extra metadata drawer if spotlight view is active */}
@@ -1065,10 +1073,17 @@ export default function CanvaGallery() {
 
   /* Scroll progress & floating controls */
   useEffect(() => {
-    const handleScroll = () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
+    let rafId = 0;
+    let total = document.documentElement.scrollHeight - window.innerHeight;
+
+    const onResize = () => {
+      total = document.documentElement.scrollHeight - window.innerHeight;
+    };
+
+    const update = () => {
+      rafId = 0;
       const current = window.scrollY;
-      const progress = total > 0 ? current / total : 0;
+      const progress = total > 0 ? Math.min(1, Math.max(0, current / total)) : 0;
       if (circleProgressRef.current) {
         circleProgressRef.current.setAttribute("stroke-dasharray", `${(progress * 100).toFixed(1)}, 100`);
       }
@@ -1080,8 +1095,17 @@ export default function CanvaGallery() {
       }
     };
 
+    const handleScroll = () => {
+      if (!rafId) rafId = window.requestAnimationFrame(update);
+    };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => {
+      if (rafId) window.cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
 

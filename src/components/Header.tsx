@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties, type MouseEvent } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { navItems } from "../data/portfolio";
@@ -11,22 +11,11 @@ import { SoundToggle } from "./SoundToggle";
 import { playClick } from "../utils/soundEffects";
 import { scrollToSection } from "../utils/scrollToSection";
 
-/** Theme tokens used while the header floats over the (always dark) video hero */
-const ON_HERO_VARS = {
-  "--ink": "#ffffff",
-  "--page": "#000000",
-  "--muted": "rgba(255,255,255,0.78)",
-  "--line": "rgba(255,255,255,0.22)",
-  "--surface": "rgba(255,255,255,0.10)",
-  "--surface-strong": "rgba(255,255,255,0.18)",
-} as CSSProperties;
-
 export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [overHero, setOverHero] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
 
   const hrefs = useMemo(() => navItems.map((item) => item.href), []);
@@ -71,18 +60,14 @@ export function Header() {
     scrollToSection(href);
   };
 
-  // Scroll handler (rAF-throttled): blur/border state + "am I still over the hero?"
+  // Scroll handler (rAF-throttled): blur/border state triggers promptly on scroll
   useEffect(() => {
     let frame = 0;
 
     const update = () => {
       const y = window.scrollY;
-      const scrolled = y > 30;
+      const scrolled = y > 20;
       setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
-
-      const hero = location.pathname === "/" ? document.getElementById("hero") : null;
-      const over = !!hero && y < hero.offsetHeight - 90;
-      setOverHero((prev) => (prev !== over ? over : prev));
     };
 
     update();
@@ -102,7 +87,7 @@ export function Header() {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
     };
-  }, [location.pathname]);
+  }, []);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -128,21 +113,17 @@ export function Header() {
       initial={reducedMotion ? false : { y: -70, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      style={overHero ? ON_HERO_VARS : undefined}
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        overHero
-          ? // floating over the video: no slab, just a soft top scrim so everything stays readable
-            "border-b border-transparent bg-gradient-to-b from-black/65 via-black/25 to-transparent py-3.5 sm:py-4"
-          : isScrolled
-            ? "bg-[var(--page)]/90 backdrop-blur-2xl border-b border-[var(--line)] shadow-[0_4px_25px_rgba(0,0,0,0.15)] py-2.5 sm:py-3"
-            : "bg-[var(--page)]/60 backdrop-blur-md border-b border-transparent py-3.5 sm:py-4"
+        isScrolled
+          ? "bg-[#F7F5F5]/85 dark:bg-[#0D0D0D]/85 backdrop-blur-2xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] py-2.5 sm:py-3"
+          : "bg-gradient-to-b from-[#F7F5F5]/75 dark:from-black/65 via-[#F7F5F5]/25 dark:via-black/20 to-transparent py-3.5 sm:py-4",
       )}
     >
-      {/* Minimal Brutalist Architectural Scroll Progress Bar */}
+      {/* Precision Architectural Scroll Progress Bar */}
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-[var(--flame)] origin-left z-50 opacity-90"
+        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#1E90FF] via-[#B39CFF] to-[#7654D6] origin-left z-50 opacity-90 shadow-[0_0_8px_rgba(179,156,255,0.5)]"
         style={{ scaleX: reducedMotion ? 1 : scaleX }}
       />
 
@@ -153,37 +134,23 @@ export function Header() {
           whileTap={{ scale: 0.98 }}
           href="#hero"
           onClick={(e) => handleNavClick(e, "#hero")}
-          className="group flex items-center gap-3 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] text-[var(--ink)] transition-opacity duration-200"
+          className="group flex items-center gap-3 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] transition-opacity duration-200"
           aria-label="Ayush Singh Portfolio Home"
         >
-          <span className="relative flex h-2 w-2 items-center justify-center">
-            <span
-              className={cn(
-                "relative inline-flex h-2 w-2 rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]",
-                overHero && "!bg-[#B39CFF]"
-              )}
-            />
+          <span className="relative flex h-2.5 w-2.5 items-center justify-center">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1E90FF]/60 dark:bg-[#B39CFF]/60" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]" />
           </span>
-          <span
-            className={cn(
-              "font-sans font-extrabold tracking-tight text-sm sm:text-base",
-              overHero && "drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]"
-            )}
-          >
+          <span className="font-sans font-extrabold tracking-tight text-sm sm:text-base text-neutral-900 dark:text-white drop-shadow-[0_1px_4px_rgba(255,255,255,0.4)] dark:drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] transition-colors duration-200">
             Ayush Singh
           </span>
-          <span className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--muted)] lg:inline-block border border-[var(--line)] px-2 py-0.5 rounded-sm">
+          <span className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-600 dark:text-neutral-400 lg:inline-block bg-black/[0.04] dark:bg-white/[0.06] px-2.5 py-0.5 rounded-full backdrop-blur-sm transition-colors duration-200">
             SYS // 2026
           </span>
         </motion.a>
 
-        {/* Minimal Brutalist Navigation Dock (Desktop) */}
-        <nav
-          className={cn(
-            "hidden items-center gap-1 rounded-full p-1 transition-colors duration-200 md:flex relative bg-[var(--surface)] border border-[var(--line)]",
-            overHero && "backdrop-blur-md"
-          )}
-        >
+        {/* Modern Borderless Frosted Glass Navigation Dock (Desktop) */}
+        <nav className="hidden items-center gap-1 rounded-full p-1.5 transition-all duration-300 md:flex relative bg-white/90 dark:bg-[#141416]/90 backdrop-blur-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
           {navItems.map((item) => {
             const isRouterLink = item.href.startsWith("/");
             const isActive = isRouterLink
@@ -195,7 +162,7 @@ export function Header() {
                 {isActive && (
                   <motion.div
                     layoutId="navPillIndicator"
-                    className="absolute inset-0 rounded-full bg-[var(--ink)] dark:bg-[#B39CFF]"
+                    className="absolute inset-0 rounded-full bg-neutral-900 text-white dark:bg-[#B39CFF] dark:text-[#0D0D0D] shadow-[0_2px_8px_rgba(0,0,0,0.18)] dark:shadow-[0_0_14px_rgba(179,156,255,0.45)]"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
@@ -204,10 +171,10 @@ export function Header() {
             );
 
             const linkClass = cn(
-              "relative z-10 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors duration-150 select-none",
+              "relative z-10 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-all duration-150 select-none",
               isActive
-                ? "text-[var(--page)] dark:text-[#0D0D0D] font-bold"
-                : "text-[var(--muted)] hover:text-[#B39CFF]"
+                ? "text-white dark:text-[#0D0D0D] font-bold"
+                : "text-neutral-600 hover:text-neutral-950 dark:text-white/70 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06]",
             );
 
             if (isRouterLink) {
@@ -260,27 +227,28 @@ export function Header() {
             aria-controls="mobile-navigation"
             aria-label="Toggle navigation menu"
             className={cn(
-              "btn-neo-control group relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 md:hidden border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)]",
-              overHero && "backdrop-blur-md",
-              open && "border-[#B39CFF] bg-[#B39CFF] text-[#0D0D0D] dark:bg-[#B39CFF] dark:text-[#0D0D0D] dark:border-[#B39CFF]"
+              "group relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 md:hidden",
+              "bg-white/90 dark:bg-[#141416]/90 backdrop-blur-xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.35)] text-neutral-800 dark:text-neutral-200 hover:scale-105 active:scale-95",
+              open &&
+                "!bg-[#1E90FF] dark:!bg-[#B39CFF] !text-white dark:!text-[#0D0D0D]",
             )}
           >
             <span
               className={cn(
                 "absolute h-[1.5px] w-4 bg-current transition-transform duration-200",
-                open ? "rotate-45" : "-translate-y-1.5"
+                open ? "rotate-45" : "-translate-y-1.5",
               )}
             />
             <span
               className={cn(
                 "absolute h-[1.5px] w-4 bg-current transition-all duration-200",
-                open ? "opacity-0 scale-0" : "opacity-100"
+                open ? "opacity-0 scale-0" : "opacity-100",
               )}
             />
             <span
               className={cn(
                 "absolute h-[1.5px] w-4 bg-current transition-transform duration-200",
-                open ? "-rotate-45" : "translate-y-1.5"
+                open ? "-rotate-45" : "translate-y-1.5",
               )}
             />
           </motion.button>
@@ -299,7 +267,7 @@ export function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-x-0 top-[60px] sm:top-[64px] h-[calc(100svh-60px)] sm:h-[calc(100svh-64px)] z-50 overflow-y-auto bg-[var(--page)]/98 backdrop-blur-3xl border-b border-[var(--line)] shadow-2xl md:hidden"
+            className="fixed inset-x-0 top-[60px] sm:top-[64px] h-[calc(100svh-60px)] sm:h-[calc(100svh-64px)] z-50 overflow-y-auto bg-[var(--page)]/98 backdrop-blur-3xl shadow-2xl md:hidden"
           >
             <div className="flex flex-col justify-between h-full px-6 py-8">
               <motion.nav
@@ -333,8 +301,10 @@ export function Header() {
                       </div>
                       <span
                         className={cn(
-                          "flex h-7 w-7 items-center justify-center rounded-full border border-current/25 text-xs transition-transform duration-200 group-hover:translate-x-1",
-                          isActive ? "bg-[var(--flame)] text-[var(--page)] dark:bg-[#B39CFF] dark:text-[#0D0D0D] font-bold" : "text-[var(--ink)] opacity-70"
+                          "flex h-7 w-7 items-center justify-center rounded-full text-xs transition-transform duration-200 group-hover:translate-x-1",
+                          isActive
+                            ? "bg-[var(--flame)] text-[var(--page)] dark:bg-[#B39CFF] dark:text-[#0D0D0D] font-bold"
+                            : "text-[var(--ink)] bg-black/[0.04] dark:bg-white/[0.06]",
                         )}
                       >
                         ↗
@@ -343,10 +313,10 @@ export function Header() {
                   );
 
                   const className = cn(
-                    "group flex items-center justify-between rounded-xl border px-4 py-3.5 font-sans text-sm font-bold uppercase tracking-[0.14em] transition-colors duration-200",
+                    "group flex items-center justify-between rounded-xl px-4 py-3.5 font-sans text-sm font-bold uppercase tracking-[0.14em] transition-all duration-200 shadow-sm",
                     isActive
-                      ? "bg-[var(--ink)] text-[var(--page)] dark:bg-[#1C1C20] dark:text-[#B39CFF] dark:border-[#B39CFF] border-[var(--ink)]"
-                      : "border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:border-[#B39CFF]"
+                      ? "bg-neutral-900 text-white dark:bg-[#1C1C20] dark:text-[#B39CFF] shadow-md"
+                      : "bg-white/80 dark:bg-white/[0.04] text-neutral-800 dark:text-white hover:bg-white dark:hover:bg-white/[0.08]",
                   );
 
                   return (
@@ -354,7 +324,11 @@ export function Header() {
                       key={item.href}
                       variants={{
                         hidden: { opacity: 0, y: 14 },
-                        visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
+                        visible: {
+                          opacity: 1,
+                          y: 0,
+                          transition: { duration: 0.3, ease: "easeOut" },
+                        },
                       }}
                     >
                       {isRouterLink ? (
@@ -387,10 +361,23 @@ export function Header() {
               </motion.nav>
 
               {/* Bottom Mobile Quick Links */}
-              <div data-mobile-bottom="true" className="pt-6 border-t border-[var(--line)] flex flex-col gap-3">
+              <div
+                data-mobile-bottom="true"
+                className="pt-6 border-t border-[var(--line)] flex flex-col gap-3"
+              >
                 <div className="flex items-center justify-between text-xs text-[var(--muted)]">
-                  <span>Status: <strong className="text-[#1E90FF] dark:text-[#B39CFF]">Available for Work</strong></span>
-                  <a href="mailto:ayushsingh7360@gmail.com" className="text-[#1E90FF] dark:text-[#B39CFF] font-bold hover:underline">Email Me ↗</a>
+                  <span>
+                    Status:{" "}
+                    <strong className="text-[#1E90FF] dark:text-[#B39CFF]">
+                      Available for Work
+                    </strong>
+                  </span>
+                  <a
+                    href="mailto:ayushsingh7360@gmail.com"
+                    className="text-[#1E90FF] dark:text-[#B39CFF] font-bold hover:underline"
+                  >
+                    Email Me ↗
+                  </a>
                 </div>
               </div>
             </div>

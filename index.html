@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
   <meta charset="UTF-8" />
@@ -10,14 +10,13 @@
     content="Ayush Singh, Portfolio, Full Stack Developer, React, Next.js, TypeScript, Data Science, Power BI, Python, Freelancer, Creative Developer" />
   <meta name="author" content="Ayush Singh" />
   <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#0D0D0D" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#F7F5F5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0D0D0D" />
 
   <script>
     (function () {
       try {
-        var stored = localStorage.getItem('portfolio-theme');
-        if (stored === 'light') {
+        var session = sessionStorage.getItem('portfolio-theme');
+        if (session === 'light') {
           document.documentElement.classList.remove('dark');
         } else {
           document.documentElement.classList.add('dark');
@@ -75,6 +74,7 @@
 
   <title>Ayush Singh | Full Stack Developer & Creative Technologist</title>
   <link rel="icon" type="image/png" href="/images/tab.png">
+  <link rel="preload" as="image" href="/images/hero-poster.webp" type="image/webp" fetchpriority="high">
   <link rel="dns-prefetch" href="https://fonts.googleapis.com">
   <link rel="dns-prefetch" href="https://fonts.gstatic.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -9,12 +9,20 @@ function getInitialTheme(): Theme {
     return "dark";
   }
 
-  const stored = window.localStorage.getItem(storageKey);
-  if (stored === "light" || stored === "dark") {
-    return stored;
+  // Check sessionStorage first:
+  // Any user opening the portfolio in a new tab/browser will have null,
+  // guaranteeing dark mode opens by default.
+  // In-session manual toggles persist while browsing the site.
+  try {
+    const session = window.sessionStorage.getItem(storageKey);
+    if (session === "light" || session === "dark") {
+      return session;
+    }
+  } catch {
+    // Fallback safe
   }
 
-  // Dark mode is default as per design specification
+  // Default is strictly Dark Mode
   return "dark";
 }
 
@@ -23,7 +31,12 @@ export function useTheme() {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    window.localStorage.setItem(storageKey, theme);
+    try {
+      window.sessionStorage.setItem(storageKey, theme);
+      window.localStorage.setItem(storageKey, theme);
+    } catch {
+      // Storage quota safe
+    }
   }, [theme]);
 
   const toggleTheme = () => {
