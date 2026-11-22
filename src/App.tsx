@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { Preloader } from "./components/Loader";
+import { CustomCursor } from "./components/CustomCursor";
 import { Header } from "./components/Header";
 import { Hero } from "./sections/Hero";
 import { Projects } from "./sections/Projects";
@@ -15,6 +16,7 @@ const CommandShortcuts = lazy(() =>
 export default function App() {
   return (
     <div className="relative min-h-[100svh] overflow-x-clip bg-[var(--page)] text-[var(--ink)] transition-colors duration-300">
+      <CustomCursor />
       <Preloader />
       <Header />
       <main>

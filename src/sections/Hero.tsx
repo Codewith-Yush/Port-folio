@@ -60,7 +60,7 @@ const CAPABILITIES = [
 ];
 
 const chipClass =
-  "inline-flex items-center gap-2 rounded-full border border-black/[0.08] bg-[#F4F2F0]/80 text-neutral-800 shadow-sm hover:border-[#8C6BFF]/60 hover:bg-white hover:text-[#6941C6] dark:border-white/20 dark:bg-black/30 dark:text-white dark:shadow-none dark:hover:border-white/60 dark:hover:bg-white/15 px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] backdrop-blur-md transition-all duration-200";
+  "group inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 text-neutral-900 shadow-sm hover:border-[#8C6BFF]/60 hover:bg-white hover:text-[#6941C6] dark:border-white/15 dark:bg-black/40 dark:text-white/90 dark:shadow-none dark:hover:border-[#B39CFF]/60 dark:hover:bg-white/15 dark:hover:text-white px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] backdrop-blur-md transition-all duration-200";
 
 const GITHUB_PATH =
   "M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.933.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z";
@@ -101,20 +101,24 @@ function Magnetic({
   const rectRef = useRef<DOMRect | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 220, damping: 16, mass: 0.4 });
-  const sy = useSpring(y, { stiffness: 220, damping: 16, mass: 0.4 });
+  const sx = useSpring(x, { stiffness: 240, damping: 18, mass: 0.35 });
+  const sy = useSpring(y, { stiffness: 240, damping: 18, mass: 0.35 });
+
+  const onEnter = () => {
+    if (disabled || !ref.current) return;
+    rectRef.current = ref.current.getBoundingClientRect();
+  };
 
   const onMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (disabled || e.pointerType !== "mouse") return;
     const el = ref.current;
     if (!el) return;
-    if (!rectRef.current) {
-      rectRef.current = el.getBoundingClientRect();
-    }
-    const r = rectRef.current;
+    const r = rectRef.current ?? el.getBoundingClientRect();
+    rectRef.current = r;
     x.set((e.clientX - r.left - r.width / 2) * strength);
     y.set((e.clientY - r.top - r.height / 2) * strength);
   };
+
   const onLeave = () => {
     rectRef.current = null;
     x.set(0);
@@ -125,6 +129,7 @@ function Magnetic({
     <motion.div
       ref={ref}
       style={{ x: sx, y: sy }}
+      onPointerEnter={onEnter}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       className={className}
@@ -145,10 +150,10 @@ function SocialLinks({
     <nav aria-label="Social links" className={className}>
       {SOCIALS.map((s) => (
         <span key={s.label} className="hero-chip inline-flex">
-          <Magnetic strength={0.3} disabled={disabled} className="inline-flex">
+          <Magnetic strength={0.28} disabled={disabled} className="inline-flex">
             <motion.a
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
               className={chipClass}
               href={s.href}
               target="_blank"
@@ -162,7 +167,10 @@ function SocialLinks({
                 <path d={s.path} />
               </svg>
               <span>{s.label}</span>
-              <span className="opacity-50">↗</span>
+              <ArrowUpRight
+                className="h-3 w-3 opacity-45 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-90"
+                aria-hidden="true"
+              />
             </motion.a>
           </Magnetic>
         </span>
@@ -185,15 +193,15 @@ function RoleCycler({ paused }: { paused: boolean }) {
   }, [paused]);
 
   return (
-    <span className="relative inline-flex h-[1.5em] items-center overflow-hidden align-bottom">
+    <span className="relative inline-flex h-[1.45em] min-w-0 items-center overflow-hidden align-bottom">
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
           key={i}
           initial={{ y: "100%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "-100%", opacity: 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-block whitespace-nowrap font-semibold text-neutral-900 dark:text-[var(--ink)]"
+          transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+          className="inline-block truncate font-semibold text-neutral-900 dark:text-[var(--ink)]"
         >
           {ROLES[i]}
         </motion.span>
@@ -202,62 +210,90 @@ function RoleCycler({ paused }: { paused: boolean }) {
   );
 }
 
-/** Glass card with a subtle 3D tilt and a cursor-following spotlight. */
+/** Frosted glass card with subtle 3D tilt, specular top edge, and cursor spotlight. */
 function CapabilityCard({ reducedMotion }: { reducedMotion: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const rectRef = useRef<DOMRect | null>(null);
 
+  const onEnter = () => {
+    if (!ref.current || reducedMotion) return;
+    rectRef.current = ref.current.getBoundingClientRect();
+  };
+
   const onMove = (e: ReactPointerEvent<HTMLElement>) => {
     const el = ref.current;
     if (!el || e.pointerType !== "mouse" || reducedMotion) return;
-    if (!rectRef.current) {
-      rectRef.current = el.getBoundingClientRect();
-    }
-    const r = rectRef.current;
-    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
-    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    const r = rectRef.current ?? el.getBoundingClientRect();
+    rectRef.current = r;
+    const px = e.clientX - r.left;
+    const py = e.clientY - r.top;
+    const rx = ((py / r.height - 0.5) * -4).toFixed(2);
+    const ry = ((px / r.width - 0.5) * 4.5).toFixed(2);
+    el.style.setProperty("--mx", `${px}px`);
+    el.style.setProperty("--my", `${py}px`);
+    el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
   };
 
   const onLeave = () => {
     rectRef.current = null;
+    if (ref.current) {
+      ref.current.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)";
+    }
   };
 
   return (
-    <div className="hero-visual-card relative ml-auto hidden w-full max-w-[400px] lg:block">
+    <div className="hero-visual-card relative hidden w-full max-w-[385px] justify-self-end lg:block xl:max-w-[405px]">
       <aside
         ref={ref}
         aria-label="What I bring"
+        onPointerEnter={onEnter}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
-        className="hero-card relative overflow-hidden rounded-2xl border border-black/[0.12] bg-[#F7F5F5]/90 p-5 text-neutral-900 shadow-xl shadow-purple-950/[0.06] backdrop-blur-xl transition-colors duration-300 dark:border-white/15 dark:bg-black/25 dark:text-white dark:shadow-none"
+        className="hero-card relative overflow-hidden rounded-2xl border border-white/80 bg-white/80 p-5 text-neutral-900 shadow-[0_24px_60px_-16px_rgba(20,10,45,0.25)] backdrop-blur-xl transition-all duration-300 ease-out will-change-transform dark:border-white/15 dark:bg-[#0B0A10]/70 dark:text-white dark:shadow-[0_24px_70px_-20px_rgba(0,0,0,0.7)]"
       >
+        {/* top inner specular hairline */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#8C6BFF]/50 to-transparent dark:via-white/35"
+        />
+
         {/* spotlight that follows the cursor inside the card */}
         <div
           aria-hidden="true"
           className="hero-spot pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300"
           style={{
             background:
-              "radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(140,107,255,.18), transparent 70%)",
+              "radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), rgba(140,107,255,0.18), transparent 70%)",
           }}
         />
 
-        <div className="relative mb-1 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-700 dark:text-white/65">
-          <span>What I bring</span>
+        <div className="relative mb-1.5 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-600 dark:text-white/60">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#6941C6] dark:bg-[#B39CFF]" />
+            What I bring
+          </span>
           <span>01 — 03</span>
         </div>
-        <ul className="relative divide-y divide-black/[0.07] dark:divide-white/15">
+
+        <ul className="relative divide-y divide-black/10 dark:divide-white/10">
           {CAPABILITIES.map((c) => (
             <li
               key={c.n}
-              className="group -mx-2 grid grid-cols-[48px_1fr] gap-3 rounded-lg px-2 py-4 transition-colors duration-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.06]"
+              className="group -mx-2.5 grid grid-cols-[42px_1fr] items-start gap-3 rounded-xl px-2.5 py-3.5 transition-colors duration-200 hover:bg-black/5 dark:hover:bg-white/5"
             >
-              <span className="font-serif text-3xl italic leading-none text-[#6941C6] transition-transform duration-300 group-hover:translate-x-1 dark:text-[#B39CFF]">
+              <span className="pt-0.5 font-serif text-[25px] italic leading-none text-[#6941C6] transition-transform duration-300 group-hover:translate-x-1 dark:text-[#B39CFF]">
                 {c.n}
               </span>
               <div>
-                <h2 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white">
-                  {c.title}
-                </h2>
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="text-[15px] font-semibold tracking-tight text-neutral-900 dark:text-white">
+                    {c.title}
+                  </h2>
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 rounded-full bg-[#6941C6] opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-[#B39CFF]"
+                  />
+                </div>
                 <p className="mt-0.5 text-[13px] leading-relaxed text-neutral-700 dark:text-white/70">
                   {c.body}
                 </p>
@@ -265,6 +301,11 @@ function CapabilityCard({ reducedMotion }: { reducedMotion: boolean }) {
             </li>
           ))}
         </ul>
+
+        <div className="relative mt-1.5 flex items-center justify-between border-t border-black/10 pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-500 dark:border-white/10 dark:text-white/50">
+          <span>Engineering · Data · Craft</span>
+          <span>IST +5:30</span>
+        </div>
       </aside>
     </div>
   );
@@ -326,30 +367,26 @@ export function Hero() {
     let raf = 0;
     let inView = true;
     let sectionHeight = section.offsetHeight || window.innerHeight;
-    let sectionRect: DOMRect | null = null;
+    let sectionTop = section.offsetTop;
     const target = { x: 0, y: 0, s: 0 };
     const cur = { x: 0, y: 0, s: 0 };
     const glow = { x: 0, y: 0, tx: 0, ty: 0, o: 0, to: 0 };
 
-    const updateSectionRect = () => {
-      if (section) sectionRect = section.getBoundingClientRect();
+    const measure = () => {
+      sectionHeight = section.offsetHeight || window.innerHeight;
+      sectionTop = section.offsetTop;
     };
-    updateSectionRect();
 
     const io = new IntersectionObserver(
       ([entry]) => {
         inView = entry.isIntersecting;
-        if (inView) updateSectionRect();
+        if (inView) measure();
       },
       { threshold: 0.01 },
     );
     io.observe(section);
 
-    const onResize = () => {
-      sectionHeight = section.offsetHeight || window.innerHeight;
-      updateSectionRect();
-    };
-    window.addEventListener("resize", onResize, { passive: true });
+    window.addEventListener("resize", measure, { passive: true });
 
     const loop = () => {
       raf = 0;
@@ -360,15 +397,15 @@ export function Hero() {
       glow.y += (glow.ty - glow.y) * 0.14;
       glow.o += (glow.to - glow.o) * 0.1;
 
-      media.style.transform = `translate3d(${cur.x * -18}px, ${cur.y * -10 + cur.s * 70}px, 0) scale(${1.07 + cur.s * 0.05})`;
+      media.style.transform = `translate3d(${cur.x * -16}px, ${cur.y * -9 + cur.s * 64}px, 0) scale(${1.07 + cur.s * 0.05})`;
 
       if (spot) {
         spot.style.transform = `translate3d(${glow.x}px, ${glow.y}px, 0)`;
         spot.style.opacity = String(glow.o);
       }
       if (content) {
-        content.style.opacity = String(Math.max(0, 1 - cur.s * 0.9));
-        content.style.transform = `translate3d(0, ${cur.s * -36}px, 0)`;
+        content.style.opacity = String(Math.max(0, 1 - cur.s * 0.92));
+        content.style.transform = `translate3d(0, ${cur.s * -32}px, 0)`;
       }
 
       const settled =
@@ -390,14 +427,11 @@ export function Hero() {
       target.y = (e.clientY / window.innerHeight - 0.5) * 2;
 
       if (e.pointerType === "mouse") {
-        if (!sectionRect) updateSectionRect();
-        const r = sectionRect;
-        if (r) {
-          const inside = e.clientY >= r.top && e.clientY <= r.bottom;
-          glow.tx = e.clientX - r.left;
-          glow.ty = e.clientY - r.top;
-          glow.to = inside ? 1 : 0;
-        }
+        const localY = e.clientY + window.scrollY - sectionTop;
+        const inside = localY >= 0 && localY <= sectionHeight;
+        glow.tx = e.clientX;
+        glow.ty = localY;
+        glow.to = inside ? 1 : 0;
       }
       kick();
     };
@@ -407,7 +441,6 @@ export function Hero() {
         1,
         Math.max(0, window.scrollY / (sectionHeight || 1)),
       );
-      updateSectionRect();
       kick();
     };
 
@@ -416,7 +449,7 @@ export function Hero() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       io.disconnect();
-      window.removeEventListener("resize", onResize);
+      window.removeEventListener("resize", measure);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("scroll", onScroll);
       if (raf) cancelAnimationFrame(raf);
@@ -444,48 +477,48 @@ export function Hero() {
         return;
       }
 
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      const tl = gsap.timeline({ defaults: { ease: "power3.out", force3D: true } });
 
       tl.fromTo(
         ".hero-status",
         { y: 8, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6 },
+        { y: 0, opacity: 1, duration: 0.55 },
       )
         .fromTo(
           ".hero-name-line",
-          { yPercent: 110, opacity: 0 },
+          { yPercent: 108, opacity: 0 },
           {
             yPercent: 0,
             opacity: 1,
-            duration: 0.95,
+            duration: 0.9,
             stagger: 0.09,
             ease: "expo.out",
           },
-          "-=0.3",
+          "-=0.28",
         )
         .fromTo(
           ".hero-fade",
-          { y: 16, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.7, stagger: 0.1 },
-          "-=0.65",
+          { y: 14, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.65, stagger: 0.08 },
+          "-=0.62",
         )
         .fromTo(
           ".hero-chip",
           { y: 10, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.07 },
-          "-=0.5",
+          { y: 0, opacity: 1, duration: 0.45, stagger: 0.06 },
+          "-=0.45",
         )
         .fromTo(
           ".hero-line",
           { scaleX: 0 },
-          { scaleX: 1, duration: 1, ease: "power3.inOut" },
-          "-=0.8",
+          { scaleX: 1, duration: 0.9, ease: "power3.inOut" },
+          "-=0.75",
         )
         .fromTo(
           ".hero-visual-card",
-          { x: 36, opacity: 0 },
-          { x: 0, opacity: 1, duration: 1.05, ease: "expo.out" },
-          0.3,
+          { x: 28, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.95, ease: "expo.out" },
+          0.26,
         );
     },
     { scope: heroRef, dependencies: [reducedMotion] },
@@ -501,17 +534,17 @@ export function Hero() {
         @keyframes hero-ping { 0% { transform: scale(1); opacity: .6; } 80%,100% { transform: scale(2.6); opacity: 0; } }
         .hero-ping { animation: hero-ping 2.2s cubic-bezier(0,0,.2,1) infinite; }
 
-        /* light mode: soft pale halo so text stays readable over the bright video */
-        .hero-shadow { text-shadow: 0 1px 16px rgba(247,245,245,.9), 0 0 3px rgba(247,245,245,.7); }
-        .dark .hero-shadow { text-shadow: 0 2px 28px rgba(0,0,0,.6), 0 0 2px rgba(0,0,0,.35); }
+        /* light mode: soft halo so text stays crisp over the bright horizon */
+        .hero-shadow { text-shadow: 0 1px 14px rgba(247,245,245,.85), 0 0 2px rgba(247,245,245,.6); }
+        .dark .hero-shadow { text-shadow: 0 2px 28px rgba(0,0,0,.65), 0 0 2px rgba(0,0,0,.35); }
 
         .hero-grain {
-          position: absolute; inset: 0; opacity: .04; pointer-events: none;
+          position: absolute; inset: 0; opacity: .035; pointer-events: none;
           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
         }
 
         /* slow breathing glow that echoes the storm */
-        @keyframes hero-breathe { 0%,100% { opacity: .35; transform: scale(1); } 50% { opacity: .6; transform: scale(1.08); } }
+        @keyframes hero-breathe { 0%,100% { opacity: .35; transform: scale(1); } 50% { opacity: .55; transform: scale(1.06); } }
         .hero-breathe { animation: hero-breathe 7s ease-in-out infinite; will-change: transform, opacity; }
 
         /* light sweeping through the italic surname */
@@ -519,13 +552,13 @@ export function Hero() {
         .hero-shimmer { background-size: 220% auto; animation: hero-shimmer 6s ease-in-out infinite alternate; }
 
         /* hand-drawn underline under the key phrase of the headline */
-        @keyframes hero-underline { to { background-size: 100% 0.16em; } }
+        @keyframes hero-underline { to { background-size: 100% 0.14em; } }
         .hero-underline {
-          background-image: linear-gradient(90deg, #8C6BFF, #B39CFF);
-          background-repeat: no-repeat; background-position: 0 94%; background-size: 0 0.16em;
+          background-image: linear-gradient(90deg, #1E90FF, #7C3AED, #B39CFF);
+          background-repeat: no-repeat; background-position: 0 95%; background-size: 0 0.14em;
           padding-bottom: .06em;
           -webkit-box-decoration-break: clone; box-decoration-break: clone;
-          animation: hero-underline .9s cubic-bezier(.22,1,.36,1) 1.6s forwards;
+          animation: hero-underline .9s cubic-bezier(.22,1,.36,1) 1.4s forwards;
         }
 
         /* tech ticker */
@@ -536,7 +569,7 @@ export function Hero() {
 
         @media (prefers-reduced-motion: reduce) {
           .hero-ping, .hero-breathe, .hero-shimmer, .hero-marquee { animation: none; }
-          .hero-underline { animation: none; background-size: 100% 0.16em; }
+          .hero-underline { animation: none; background-size: 100% 0.14em; }
         }
       `}</style>
 
@@ -549,7 +582,7 @@ export function Hero() {
       >
         <video
           ref={videoRef}
-          className="h-full w-full object-cover transition-all duration-700 dark:opacity-90 opacity-80 filter saturate-[1.1] contrast-[1.02] dark:filter-none"
+          className="h-full w-full object-cover opacity-85 contrast-[1.02] saturate-[1.08] transition-all duration-700 dark:opacity-90 dark:filter-none"
           style={{ objectPosition: "50% 100%" }}
           autoPlay
           muted
@@ -572,95 +605,72 @@ export function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 transition-opacity duration-500"
       >
-        <div className="absolute inset-0 bg-black/40 lg:bg-transparent dark:block hidden" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/10 lg:hidden block dark:hidden" />
+        {/* Mobile readability tint */}
+        <div className="absolute inset-0 hidden bg-black/45 lg:hidden dark:block" />
+        <div className="absolute inset-0 block bg-gradient-to-b from-[#F7F5F5]/55 via-[#F7F5F5]/20 to-[#F7F5F5]/45 lg:hidden dark:hidden" />
 
-        {/* text side darkening (dark mode) */}
+        {/* Desktop directional scrim (dark) */}
         <div
-          className="absolute inset-0 hidden lg:block dark:block opacity-0 dark:opacity-100 transition-opacity duration-500"
+          className="absolute inset-0 hidden opacity-0 transition-opacity duration-500 lg:dark:block dark:opacity-100"
           style={{
             background:
-              "linear-gradient(to right, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 36%, rgba(0,0,0,.18) 62%, transparent 80%)",
-          }}
-        />
-        {/* text side soft contrast (light mode - natural, not flat white) */}
-        <div
-          className="absolute inset-0 hidden lg:block dark:hidden opacity-100 transition-opacity duration-500"
-          style={{
-            background:
-              "linear-gradient(to right, rgba(247,245,245,0.82) 0%, rgba(247,245,245,0.58) 40%, rgba(247,245,245,0.14) 66%, transparent 86%)",
+              "linear-gradient(100deg, rgba(6,6,10,0.82) 0%, rgba(6,6,10,0.55) 38%, rgba(6,6,10,0.14) 64%, transparent 84%), radial-gradient(58% 54% at 8% 72%, rgba(0,0,0,0.48), transparent 72%)",
           }}
         />
 
-        {/* extra pool behind the lower-left copy */}
+        {/* Desktop directional scrim (light - gentle fade so sky stays rich) */}
         <div
-          className="absolute inset-0 hidden lg:block dark:block opacity-0 dark:opacity-100 transition-opacity duration-500"
+          className="absolute inset-0 hidden opacity-100 transition-opacity duration-500 lg:block dark:hidden"
           style={{
             background:
-              "radial-gradient(60% 55% at 6% 72%, rgba(0,0,0,.55), transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute inset-0 hidden lg:block dark:hidden opacity-100 transition-opacity duration-500"
-          style={{
-            background:
-              "radial-gradient(65% 60% at 6% 72%, rgba(247,245,245,0.60), transparent 72%)",
+              "linear-gradient(100deg, rgba(247,245,245,0.74) 0%, rgba(247,245,245,0.48) 38%, rgba(247,245,245,0.1) 62%, transparent 82%), radial-gradient(60% 56% at 8% 70%, rgba(247,245,245,0.42), transparent 70%)",
           }}
         />
 
+        {/* Top header contrast */}
         <div
-          className="absolute inset-x-0 top-0 h-56 dark:block hidden"
+          className="absolute inset-x-0 top-0 hidden h-48 dark:block"
           style={{
-            background:
-              "linear-gradient(to bottom, rgba(0,0,0,.75), transparent)",
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.72), transparent)",
           }}
         />
         <div
-          className="absolute inset-x-0 top-0 h-48 block dark:hidden"
+          className="absolute inset-x-0 top-0 block h-36 dark:hidden"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(247,245,245,0.45), transparent)",
-          }}
-        />
-
-        <div
-          className="absolute inset-0 dark:block hidden"
-          style={{
-            background:
-              "radial-gradient(ellipse at 50% 55%, transparent 50%, rgba(0,0,0,.55) 100%)",
+              "linear-gradient(to bottom, rgba(247,245,245,0.52), transparent)",
           }}
         />
 
-        {/* violet bloom that slowly breathes, ties the video to the site accent */}
+        {/* Violet & electric-blue ambient blooms */}
         <div
-          className="hero-breathe absolute -right-[10%] top-[8%] h-[55vmax] w-[55vmax] rounded-full blur-3xl opacity-50 dark:opacity-60"
+          className="hero-breathe absolute -right-[10%] top-[6%] h-[50vmax] w-[50vmax] rounded-full opacity-40 blur-3xl dark:opacity-55"
           style={{
             background:
-              "radial-gradient(circle, rgba(179,156,255,.45), transparent 65%)",
+              "radial-gradient(circle, rgba(179,156,255,0.38), transparent 65%)",
+          }}
+        />
+        <div
+          className="absolute -left-[6%] bottom-[6%] h-[34vmax] w-[34vmax] rounded-full opacity-20 blur-3xl dark:opacity-15"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(30,144,255,0.25), transparent 65%)",
           }}
         />
 
-        {/* ambient electric blue bloom on bottom-left for color richness in light mode */}
-        <div
-          className="absolute -left-[5%] bottom-[5%] h-[38vmax] w-[38vmax] rounded-full blur-3xl opacity-25 dark:opacity-10 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(30,144,255,.3), transparent 65%)",
-          }}
-        />
-
-        {/* cursor spotlight (moved by the rAF loop, mouse only) */}
+        {/* Cursor spotlight (mouse only) */}
         <div
           ref={spotRef}
-          className="absolute left-0 top-0 -ml-[290px] -mt-[290px] h-[580px] w-[580px] rounded-full opacity-0 will-change-transform"
+          className="absolute left-0 top-0 -ml-[280px] -mt-[280px] h-[560px] w-[560px] rounded-full opacity-0 will-change-transform"
           style={{
             background:
-              "radial-gradient(circle, rgba(140,107,255,.22), rgba(140,107,255,.08) 40%, transparent 68%)",
+              "radial-gradient(circle, rgba(140,107,255,0.2), rgba(140,107,255,0.06) 42%, transparent 68%)",
           }}
         />
 
+        {/* Seamless bottom blend into next section */}
         <div
-          className="absolute inset-x-0 bottom-0 h-24"
+          className="absolute inset-x-0 bottom-0 h-20"
           style={{
             background: "linear-gradient(to bottom, transparent, var(--page))",
           }}
@@ -670,86 +680,89 @@ export function Hero() {
 
       <div
         ref={contentRef}
-        className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col justify-between px-6 pb-6 pt-20 will-change-transform sm:px-10 sm:pb-8 sm:pt-24 lg:px-16 lg:pt-24"
+        className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col justify-between px-5 pb-4 pt-[76px] will-change-transform sm:px-10 sm:pb-6 sm:pt-20 lg:px-16 lg:pb-6 lg:pt-[82px]"
       >
         {/* Status row */}
         <div
           data-ui="status"
-          className="hero-status flex flex-wrap items-center justify-between gap-2 border-b border-black/[0.08] dark:border-[var(--line)] py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-800 dark:text-[var(--muted)] sm:py-2.5 transition-colors duration-300"
+          className="hero-status flex flex-wrap items-center justify-between gap-2.5 border-b border-black/10 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-800 transition-colors duration-300 dark:border-[var(--line)] dark:text-[var(--muted)] sm:py-2.5 sm:text-[11px]"
         >
-          <div className="flex items-center gap-2.5">
-            <span className="relative flex h-2 w-2" aria-hidden="true">
-              <span className="hero-ping absolute inline-flex h-full w-full rounded-full bg-[#8C6BFF] dark:bg-[#B39CFF]" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#8C6BFF] dark:bg-[#B39CFF]" />
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true">
+              <span className="hero-ping absolute inline-flex h-full w-full rounded-full bg-[#6941C6] dark:bg-[#B39CFF]" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#6941C6] dark:bg-[#B39CFF]" />
             </span>
-            <span className="text-neutral-700 dark:text-[var(--muted)]">
+            <span className="shrink-0 text-neutral-700 dark:text-[var(--muted)]">
               Now
             </span>
-            <span aria-hidden="true" className="opacity-40">
+            <span aria-hidden="true" className="shrink-0 opacity-40">
               /
             </span>
             <RoleCycler paused={reducedMotion} />
           </div>
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:inline">[28.6139° N, 77.2090° E]</span>
-            <span className="rounded-sm border border-[#8C6BFF]/30 bg-[#8C6BFF]/10 text-[#6B46C1] dark:border-white/25 dark:bg-black/30 dark:text-[#B39CFF] px-2.5 py-0.5 font-semibold backdrop-blur-sm transition-colors duration-300">
-              OPEN TO ROLES
+          <div className="flex shrink-0 items-center gap-3">
+            <span className="hero-shadow hidden font-medium text-neutral-800 md:inline dark:text-white/65">
+              [28.6139° N, 77.2090° E]
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#6941C6]/25 bg-white/80 px-3 py-0.5 font-semibold text-[#5B21B6] shadow-sm backdrop-blur-md transition-colors duration-300 dark:border-[#B39CFF]/30 dark:bg-black/45 dark:text-[#B39CFF] dark:shadow-none">
+              Open to roles
             </span>
           </div>
         </div>
 
-        {/* Main grid: bottom padding reserves the foreground of the scene */}
-        <div className="grid flex-1 items-center gap-10 pb-[18svh] pt-10 sm:pt-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-12 lg:pb-[13svh] xl:gap-20">
-          <div className="relative z-10 flex flex-col items-start">
-            <p className="hero-fade hero-shadow mb-5 flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-800 dark:text-white/75 sm:mb-6 transition-colors duration-300">
-              <span className="h-px w-7 bg-[#7C5CFC] dark:bg-[#B39CFF]" />
+        {/* Main grid: compact proportions so the entire hero & bottom ticker stay above the fold */}
+        <div className="grid flex-1 items-center gap-8 py-4 sm:py-6 lg:grid-cols-[1.2fr_0.8fr] lg:gap-12 lg:py-4 xl:gap-16">
+          <div className="relative z-10 flex max-w-xl flex-col items-start">
+            <p className="hero-fade hero-shadow mb-3.5 flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-800 transition-colors duration-300 dark:text-white/75 sm:mb-4 sm:text-[11px]">
+              <span className="h-px w-7 bg-gradient-to-r from-[#1E90FF] to-[#6941C6] dark:to-[#B39CFF]" />
               Independent developer · New Delhi, India
             </p>
 
             <h1
               aria-label="Ayush Singh"
-              className="flex flex-col font-sans text-[clamp(3.8rem,8.4vw,8.2rem)] font-extrabold uppercase leading-[0.84] tracking-[-0.07em] drop-shadow-[0_4px_24px_rgba(0,0,0,0.08)] dark:drop-shadow-[0_8px_36px_rgba(0,0,0,0.55)] transition-all duration-300"
+              className="flex flex-col font-sans text-[clamp(3.1rem,6.2vw,6.1rem)] font-extrabold uppercase leading-[0.88] tracking-[-0.045em] drop-shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-300 dark:drop-shadow-[0_10px_38px_rgba(0,0,0,0.55)]"
             >
-              <span className="hero-name-line inline-block bg-gradient-to-b from-[#0F0F12] via-[#1C1C24] to-[#404048] dark:from-white dark:via-white dark:to-white/70 bg-clip-text pb-2 text-transparent">
+              <span className="hero-name-line inline-block bg-gradient-to-b from-[#0F0F12] via-[#1C1C24] to-[#3B3B45] bg-clip-text pb-1 text-transparent dark:from-white dark:via-white dark:to-white/75">
                 Ayush
               </span>
-              <span className="hero-name-line hero-shimmer inline-block bg-gradient-to-r from-[#6941C6] via-[#9E77ED] to-[#6941C6] dark:from-[#8C6BFF] dark:via-[#E2D8FF] dark:to-[#8C6BFF] bg-clip-text pb-2 pr-3 font-serif font-normal italic tracking-[-0.06em] text-transparent">
+              <span className="hero-name-line hero-shimmer inline-block bg-gradient-to-r from-[#4C1D95] via-[#7C3AED] to-[#5B21B6] bg-clip-text pb-1 pr-3 font-serif font-normal italic tracking-[-0.025em] text-transparent dark:from-[#8C6BFF] dark:via-[#E2D8FF] dark:to-[#8C6BFF]">
                 Singh
-                <span className="text-neutral-900 [-webkit-text-fill-color:currentColor] dark:text-white dark:[-webkit-text-fill-color:white]">
+                <span className="text-[#6D28D9] [-webkit-text-fill-color:currentColor] dark:text-[#B39CFF]">
                   .
                 </span>
               </span>
             </h1>
 
-            <p className="hero-fade hero-shadow mt-6 max-w-xl text-xl font-medium leading-snug tracking-[-0.025em] text-neutral-900 dark:text-white sm:mt-8 sm:text-2xl transition-colors duration-300">
+            <p className="hero-fade hero-shadow mt-4 max-w-lg text-lg font-medium leading-snug tracking-[-0.02em] text-neutral-900 transition-colors duration-300 dark:text-white sm:mt-5 sm:text-[21px]">
               I build{" "}
               <span className="hero-underline">
                 thoughtful digital products
               </span>
               , from the first interface to the systems behind it.
             </p>
-            {/* secondary copy only when the viewport is tall enough to afford it */}
-            <p className="hero-fade hero-shadow mt-3 hidden max-w-lg text-sm leading-relaxed text-neutral-800 dark:text-white/75 sm:text-base [@media(min-height:860px)]:block transition-colors duration-300">
+
+            {/* Secondary copy visible on 700px+ height viewports */}
+            <p className="hero-fade hero-shadow mt-2.5 hidden max-w-md text-sm leading-relaxed text-neutral-800 transition-colors duration-300 dark:text-white/75 sm:text-[15px] [@media(min-height:700px)]:block">
               Full stack developer, creative technologist, and data science
               student. I bring engineering, analytics, and design together to
               make useful things feel effortless.
             </p>
 
-            <div className="hero-fade mt-7 flex w-full flex-col gap-3.5 sm:mt-8 sm:w-auto sm:flex-row">
+            <div className="hero-fade mt-6 flex w-full flex-col gap-3 sm:mt-7 sm:w-auto sm:flex-row sm:items-center">
               <Magnetic
                 disabled={reducedMotion}
                 className="flex sm:inline-flex"
               >
                 <motion.a
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ scale: 1.025 }}
+                  whileTap={{ scale: 0.975 }}
                   href="#work"
                   onClick={(e) => {
                     e.preventDefault();
                     playClick();
                     scrollToSection("#work");
                   }}
-                  className="group relative inline-flex h-12 w-full items-center justify-between gap-5 overflow-hidden rounded-xl bg-[#141416] text-white shadow-[0_10px_30px_-8px_rgba(20,20,22,0.4)] hover:bg-black dark:bg-white dark:text-black dark:shadow-[0_10px_40px_-10px_rgba(179,156,255,0.6)] dark:hover:shadow-[0_14px_50px_-8px_rgba(179,156,255,0.9)] px-6 text-sm font-semibold transition-all duration-300 sm:w-auto sm:min-w-[210px]"
+                  className="group relative inline-flex h-12 w-full items-center justify-between gap-4 overflow-hidden rounded-xl bg-[#141416] pl-5 pr-2 text-sm font-semibold text-white shadow-[0_12px_32px_-8px_rgba(20,20,22,0.42)] transition-all duration-300 hover:bg-black dark:bg-white dark:text-black dark:shadow-[0_12px_40px_-10px_rgba(179,156,255,0.55)] dark:hover:shadow-[0_14px_48px_-8px_rgba(179,156,255,0.85)] sm:w-auto sm:min-w-[218px]"
                 >
                   {/* light sweep on hover */}
                   <span
@@ -757,7 +770,7 @@ export function Hero() {
                     className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 -translate-x-full skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[320%] dark:via-[#8C6BFF]/30"
                   />
                   <span className="relative">Explore Selected Work</span>
-                  <span className="relative inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-[#B39CFF] dark:bg-black dark:text-[#B39CFF]">
+                  <span className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/15 text-[#B39CFF] dark:bg-black dark:text-[#B39CFF]">
                     <ArrowDown className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-y-0.5" />
                   </span>
                 </motion.a>
@@ -768,16 +781,16 @@ export function Hero() {
                 className="flex sm:inline-flex"
               >
                 <motion.div
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ scale: 1.025 }}
+                  whileTap={{ scale: 0.975 }}
                   className="inline-flex w-full"
                 >
                   <Link
                     to="/resume"
-                    className="group inline-flex h-12 w-full items-center justify-between gap-4 rounded-xl border border-black/[0.12] bg-[#F4F2F0]/80 text-neutral-900 shadow-sm hover:bg-[#EAE7E4] dark:border-white/30 dark:bg-white/10 dark:text-white dark:shadow-none dark:hover:bg-white/20 px-6 text-sm font-medium backdrop-blur-md transition-colors duration-300 sm:min-w-[170px]"
+                    className="group inline-flex h-12 w-full items-center justify-between gap-4 rounded-xl border border-black/10 bg-white/80 pl-5 pr-2 text-sm font-medium text-neutral-900 shadow-sm backdrop-blur-md transition-colors duration-300 hover:bg-white dark:border-white/25 dark:bg-white/10 dark:text-white dark:shadow-none dark:hover:bg-white/20 sm:min-w-[172px]"
                   >
                     <span>View Résumé</span>
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-black/[0.06] text-[#6941C6] dark:bg-white/15 dark:text-[#B39CFF]">
+                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/5 text-[#6941C6] dark:bg-white/15 dark:text-[#B39CFF]">
                       <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </span>
                   </Link>
@@ -785,22 +798,21 @@ export function Hero() {
               </Magnetic>
             </div>
 
-            {/* mobile: socials sit under the buttons; desktop: they move to the bottom bar */}
+            {/* Mobile socials sit cleanly beneath the buttons */}
             <SocialLinks
-              className="mt-6 flex flex-wrap items-center gap-2.5 sm:hidden"
+              className="mt-5 flex flex-wrap items-center gap-2 sm:hidden"
               disabled
             />
           </div>
 
-          {/* Capabilities: slim, light glass so the storm stays visible (desktop only) */}
+          {/* Capabilities: crisp frosted 3D-tilting glass card (desktop only) */}
           <CapabilityCard reducedMotion={reducedMotion} />
         </div>
 
-        {/* Bottom bar: only the outer corners, so the centre of the scene stays clear */}
-        <div className="pt-2">
-          {/* tech ticker */}
+        {/* Bottom bar: tech marquee + availability + desktop socials */}
+        <div className="pt-1">
           <div
-            className="hero-fade relative mb-3 overflow-hidden"
+            className="hero-fade relative mb-2.5 overflow-hidden"
             aria-hidden="true"
             style={{
               maskImage:
@@ -813,24 +825,24 @@ export function Hero() {
               {[...TECH, ...TECH].map((t, k) => (
                 <span
                   key={`${t}-${k}`}
-                  className="hero-shadow inline-flex items-center gap-8 pr-8 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-800 dark:text-white/60"
+                  className="hero-shadow inline-flex items-center gap-8 pr-8 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-800 dark:text-white/65"
                 >
                   {t}
-                  <span className="h-1 w-1 rounded-full bg-[#8C6BFF] dark:bg-[#B39CFF]" />
+                  <span className="h-1 w-1 rounded-full bg-[#6941C6] dark:bg-[#B39CFF]" />
                 </span>
               ))}
             </div>
           </div>
 
-          <div className="hero-line h-px w-full origin-left bg-black/[0.08] dark:bg-white/20 transition-colors duration-300" />
-          <div className="hero-fade hero-shadow flex flex-col gap-3 pt-3 text-xs font-medium text-neutral-800 dark:text-white/75 sm:flex-row sm:items-center sm:justify-between sm:pt-3.5 transition-colors duration-300">
+          <div className="hero-line h-px w-full origin-left bg-black/10 transition-colors duration-300 dark:bg-white/20" />
+          <div className="hero-fade hero-shadow flex flex-col gap-3 pt-2.5 text-xs font-medium text-neutral-900 transition-colors duration-300 dark:text-white/80 sm:flex-row sm:items-center sm:justify-between sm:pt-3">
             <span className="inline-flex items-center gap-2.5">
               <span
                 className="relative flex h-2 w-2 shrink-0"
                 aria-hidden="true"
               >
-                <span className="hero-ping absolute inline-flex h-full w-full rounded-full bg-[#8C6BFF] dark:bg-[#B39CFF]" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#8C6BFF] dark:bg-[#B39CFF]" />
+                <span className="hero-ping absolute inline-flex h-full w-full rounded-full bg-[#6941C6] dark:bg-[#B39CFF]" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#6941C6] dark:bg-[#B39CFF]" />
               </span>
               Available for select freelance &amp; full-time engagements
             </span>
@@ -845,4 +857,4 @@ export function Hero() {
   );
 }
 
-export default Hero;
+export default Hero;  

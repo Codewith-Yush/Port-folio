@@ -1,14 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import { Container } from "../components/Container";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { useMagnetic } from "../hooks/useMagnetic";
 import { GooeyTextReveal } from "../components/ui/gooey-text-reveal";
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const CONTACT_EMAIL = "ayushsingh7360@gmail.com";
 const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY as string | undefined;
@@ -142,44 +137,12 @@ export function Contact() {
     };
   }, []);
 
-  /* Scroll reveal */
-  useGSAP(
-    () => {
-      if (reducedMotion) return;
-      gsap.fromTo(
-        ".contact-reveal",
-        { y: 28, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "power3.out",
-          scrollTrigger: { trigger: sectionRef.current, start: "top 80%", once: true },
-        },
-      );
-    },
-    { scope: sectionRef, dependencies: [reducedMotion] }
-  );
-
   /* Move focus to the confirmation so screen-reader users hear it */
   useEffect(() => {
     if (phase === "success") {
       successRef.current?.focus();
     }
   }, [phase]);
-
-  useGSAP(
-    () => {
-      if (phase !== "success" || reducedMotion || !successRef.current) return;
-      gsap.fromTo(
-        successRef.current,
-        { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
-      );
-    },
-    { scope: sectionRef, dependencies: [phase, reducedMotion] }
-  );
 
   const handleCopyEmail = async () => {
     try {
@@ -280,7 +243,13 @@ export function Contact() {
 
         <div className="flex flex-col items-start gap-8 lg:flex-row lg:gap-12 xl:gap-16">
           {/* Left: intro + details */}
-          <div className="flex w-full flex-col gap-6 lg:w-[45%]">
+          <motion.div
+            initial={reducedMotion ? false : { opacity: 0, y: 24 }}
+            whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="flex w-full flex-col gap-6 lg:w-[45%]"
+          >
             <div>
               <GooeyTextReveal
                 mode="scroll"
@@ -294,13 +263,13 @@ export function Contact() {
                   Let&rsquo;s engineer something resilient.
                 </h2>
               </GooeyTextReveal>
-              <p className="contact-reveal mt-3 max-w-md text-sm font-normal leading-relaxed text-[var(--muted)] sm:mt-4 sm:text-base">
+              <p className="mt-3 max-w-md text-sm font-normal leading-relaxed text-[var(--muted)] sm:mt-4 sm:text-base">
                 Whether you have an upcoming project, a freelance contract, or an architectural
                 data challenge, my inbox is always open.
               </p>
             </div>
 
-            <dl className="contact-reveal divide-y divide-[var(--line)] border-y border-[var(--line)] font-mono text-xs">
+            <dl className="divide-y divide-[var(--line)] border-y border-[var(--line)] font-mono text-xs">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2.5 sm:py-3">
                 <dt className="uppercase tracking-[0.18em] text-[var(--muted)]">
                   [DIRECT EMAIL]
@@ -345,14 +314,20 @@ export function Contact() {
               </div>
             </dl>
 
-            <div className="contact-reveal flex flex-wrap gap-2 sm:gap-2.5">
+            <div className="flex flex-wrap gap-2 sm:gap-2.5">
               <SocialButton href="https://linkedin.com/in/ayush-singh-643a4b25a" label="LinkedIn" />
               <SocialButton href="https://github.com/codewith-Yush" label="GitHub" />
             </div>
-          </div>
+          </motion.div>
 
           {/* Right: form / confirmation */}
-          <div className="contact-reveal w-full lg:w-[55%]">
+          <motion.div
+            initial={reducedMotion ? false : { opacity: 0, y: 24 }}
+            whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full lg:w-[55%]"
+          >
             <AnimatePresence mode="wait">
               {phase === "success" ? (
                 <motion.div
@@ -503,7 +478,7 @@ export function Contact() {
                 </motion.form>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
       </Container>
     </section>

@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import {
   ArrowUpRight,
   ArrowUp,
@@ -19,8 +16,6 @@ import { navItems, personalInfo } from "../data/portfolio";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { playClick, playSuccess } from "../utils/soundEffects";
 import { scrollToSection } from "../utils/scrollToSection";
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const EMAIL = personalInfo.email || "ayushsingh7360@gmail.com";
 const FIRST_NAME = "AYUSH";
@@ -198,27 +193,6 @@ export function Footer() {
   const [scrambledFirst, setScrambledFirst] = useState(FIRST_NAME);
   const [scrambledLast, setScrambledLast] = useState(LAST_NAME);
 
-  // Scroll entrance animation
-  useGSAP(
-    () => {
-      if (reducedMotion) return;
-      gsap.utils.toArray<HTMLElement>(".ft-reveal").forEach((el) => {
-        gsap.fromTo(
-          el,
-          { y: 20, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.7,
-            ease: "power3.out",
-            scrollTrigger: { trigger: el, start: "top 92%", once: true },
-          }
-        );
-      });
-    },
-    { scope: footerRef, dependencies: [reducedMotion] }
-  );
-
   // Tactile ASCII Decryption Effect on Hover
   const handleScrambleStart = useCallback(() => {
     if (reducedMotion || isDecoding) return;
@@ -328,7 +302,13 @@ export function Footer() {
 
       <Container className="relative z-10 pt-12 pb-10 sm:pt-16 sm:pb-14">
         {/* ── 1. ARCHITECTURAL 4-COLUMN BENTO / COLOPHON ── */}
-        <div className="ft-reveal grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-12 lg:gap-8 pb-10 sm:pb-14 border-b border-[var(--line)]">
+        <motion.div
+          initial={reducedMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-30px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-12 lg:gap-8 pb-10 sm:pb-14 border-b border-[var(--line)]"
+        >
           {/* Column 1: Identity & Transmission Protocol (4 cols) */}
           <div className="flex flex-col justify-between gap-6 lg:col-span-4">
             <div className="flex flex-col gap-4">
@@ -503,11 +483,15 @@ export function Footer() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* ── 2. THE MONUMENTAL SIGNATURE EXPERIENCE ── */}
-        <section
-          className="ft-reveal group relative isolate mt-10 overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:mt-12 sm:p-10 md:p-12 transition-all duration-500 hover:border-[#B39CFF]/40 shadow-sm"
+        <motion.section
+          initial={reducedMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-30px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="group relative isolate mt-10 overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:mt-12 sm:p-10 md:p-12 transition-all duration-500 hover:border-[#B39CFF]/40 shadow-sm"
           onMouseEnter={handleScrambleStart}
           onTouchStart={handleScrambleStart}
           aria-label="Ayush Singh Monumental Signature"
@@ -564,7 +548,7 @@ export function Footer() {
               </div>
             ))}
           </div>
-        </section>
+        </motion.section>
 
         {/* ── 3. BOTTOM UTILITY & BACK-TO-TOP BAR ── */}
         <div className="mt-12 flex flex-col items-start justify-between gap-6 border-t border-[var(--line)] pt-8 text-xs text-[var(--muted)] sm:flex-row sm:items-center">

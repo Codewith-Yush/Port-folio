@@ -6,8 +6,7 @@ import {
   useRef,
   useState,
   startTransition,
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
   type RefObject,
 } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -16,9 +15,12 @@ import {
   AnimatePresence,
   animate,
   useInView,
+  useMotionValue,
+  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
+  type MotionValue,
 } from "framer-motion";
 import {
   ArrowUpRight,
@@ -27,7 +29,6 @@ import {
   ChevronRight,
   ArrowLeft,
   Layers,
-  Sparkles,
   TrendingUp,
 } from "lucide-react";
 import { cn } from "../utils/cn";
@@ -38,56 +39,50 @@ import { Container } from "../components/Container";
 import { playTab, playClick } from "../utils/soundEffects";
 
 /* ========================================================================== */
-/*  Styles (kept in this file so there is no separate CSS import to resolve)  */
-/*  All motion below is transform / opacity only → runs on the compositor.    */
+/*  Styles — transform / opacity only. No 3D, no blur filters.                */
 /* ========================================================================== */
 
 const STYLES = `
-.prj-item {
-  opacity: 0;
-  transform: translate3d(0, 40px, 0) scale(0.985);
-  transition:
-    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: calc(min(var(--i, 0), 3) * 80ms);
-  will-change: opacity, transform;
+@keyframes prj-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
 }
-.prj-item[data-in="true"] {
-  opacity: 1;
-  transform: none;
-  will-change: auto;
+.prj-marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: prj-marquee 52s linear infinite;
 }
 
-/* Image parallax: scroll-driven CSS animation (no JS, no per-frame work on the main thread).
-   Browsers without support simply show the image slightly zoomed and still. */
-.prj-img { transform: scale(1.08); }
-@supports (animation-timeline: view()) {
-  .prj-img {
-    animation: prj-parallax linear both;
-    animation-timeline: view();
-    animation-range: cover 0% cover 100%;
-  }
+@keyframes prj-list-in {
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
-@keyframes prj-parallax {
-  from { transform: translate3d(0, -7%, 0) scale(1.16); }
-  to   { transform: translate3d(0, 7%, 0)  scale(1.16); }
+.prj-list-in { animation: prj-list-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+.prj-outline { color: transparent; -webkit-text-stroke: 1px var(--line); }
+.prj-outline-accent { color: transparent; -webkit-text-stroke: 1px #B39CFF; }
+@media (min-width: 768px) {
+  .prj-outline-accent { -webkit-text-stroke-width: 1.5px; }
 }
 
-.prj-frame { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
-
-@keyframes prj-list-in { from { opacity: 0; } to { opacity: 1; } }
-.prj-list { animation: prj-list-in 0.35s ease-out; }
+.prj-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.prj-underline:hover { background-size: 100% 1px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .prj-item { opacity: 1; transform: none; transition: none; will-change: auto; }
-  .prj-img  { animation: none !important; transform: none; }
-  .prj-list { animation: none; }
-  .prj-frame { transition: none; }
+  .prj-marquee-track { animation: none; }
+  .prj-list-in { animation: none; }
 }
 `;
 
 /* ========================================================================== */
-/*  Design System Configuration (Aligned with DESIGN.md)                      */
+/*  Config                                                                    */
 /* ========================================================================== */
 
 type FilterCategory = "all" | "web" | "data" | "design";
@@ -96,7 +91,7 @@ type Category = Exclude<FilterCategory, "all">;
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 const FILTERS: { key: FilterCategory; label: string }[] = [
-  { key: "all", label: "All Projects" },
+  { key: "all", label: "All" },
   { key: "web", label: "Web Systems" },
   { key: "data", label: "Data & ML" },
   { key: "design", label: "Visual Direction" },
@@ -104,33 +99,27 @@ const FILTERS: { key: FilterCategory; label: string }[] = [
 
 const CATEGORY_META: Record<
   Category,
-  {
-    label: string;
-    badge: string;
-    accentColor: string;
-    badgeClass: string;
-    dotColor: string;
-  }
+  { label: string; badge: string; accentColor: string; badgeClass: string; dotColor: string }
 > = {
   web: {
     label: "Web Architecture",
     badge: "Web System",
     accentColor: "#1E90FF",
-    badgeClass: "text-[#1E90FF] bg-[#1E90FF]/10 border-[#1E90FF]/30",
+    badgeClass: "text-[#1677D9] dark:text-[#1E90FF] bg-[#1E90FF]/10 border-[#1E90FF]/30",
     dotColor: "bg-[#1E90FF]",
   },
   data: {
     label: "Data Intelligence",
     badge: "Data & ML",
     accentColor: "#B39CFF",
-    badgeClass: "text-[#B39CFF] bg-[#B39CFF]/10 border-[#B39CFF]/30",
+    badgeClass: "text-[#7654D6] dark:text-[#B39CFF] bg-[#B39CFF]/10 border-[#B39CFF]/30",
     dotColor: "bg-[#B39CFF]",
   },
   design: {
     label: "Visual Direction",
     badge: "Brand Identity",
     accentColor: "#B39CFF",
-    badgeClass: "text-[#B39CFF] bg-[#B39CFF]/10 border-[#B39CFF]/30",
+    badgeClass: "text-[#7654D6] dark:text-[#B39CFF] bg-[#B39CFF]/10 border-[#B39CFF]/30",
     dotColor: "bg-[#B39CFF]",
   },
 };
@@ -173,8 +162,7 @@ const pad = (n: number) => String(n).padStart(2, "0");
 const getDomainUrl = (p: Project) => {
   if (p.link) {
     try {
-      const url = new URL(p.link);
-      return url.hostname.replace(/^www\./, "");
+      return new URL(p.link).hostname.replace(/^www\./, "");
     } catch {
       return p.link;
     }
@@ -183,6 +171,27 @@ const getDomainUrl = (p: Project) => {
   if (p.github) return "github.com/repository";
   return "system.internal";
 };
+
+function jumpMotionValue(mv: MotionValue<number>, value: number) {
+  const withJump = mv as MotionValue<number> & { jump?: (v: number) => void };
+  if (typeof withJump.jump === "function") {
+    withJump.jump(value);
+  } else {
+    mv.set(value);
+  }
+}
+
+function useIsDesktop() {
+  const [desktop, setDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px) and (pointer: fine)");
+    const on = () => setDesktop(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return desktop;
+}
 
 /* ------------------------------ Metric parsing ---------------------------- */
 function parseMetric(value: string) {
@@ -208,7 +217,6 @@ const fmt = (p: Parsed, v: number) =>
       })
     : v.toFixed(p.decimals);
 
-/** Counts the leading number up once it scrolls into view. */
 function CountUp({
   value,
   disabled,
@@ -219,7 +227,7 @@ function CountUp({
   rootRef?: RefObject<Element | null>;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { root: rootRef, once: true, amount: 0.5 });
+  const inView = useInView(ref, { root: rootRef, once: true, amount: 0.4 });
   const parsed = useMemo(() => parseMetric(value), [value]);
 
   useEffect(() => {
@@ -242,358 +250,698 @@ function CountUp({
   return <span ref={ref}>{initial}</span>;
 }
 
+/** Masked word-by-word reveal. */
+function SplitWords({
+  text,
+  reduced,
+  className,
+  delay = 0,
+  inView = true,
+}: {
+  text: string;
+  reduced: boolean;
+  className?: string;
+  delay?: number;
+  inView?: boolean;
+}) {
+  const words = useMemo(() => text.split(" "), [text]);
+
+  return (
+    <span className={className} aria-label={text}>
+      {words.map((w, i) => (
+        <span
+          key={`${w}-${i}`}
+          aria-hidden="true"
+          className="inline-block overflow-hidden pb-[0.14em] align-bottom"
+        >
+          <motion.span
+            className="inline-block"
+            initial={reduced ? false : { y: "112%" }}
+            animate={inView ? undefined : { y: "0%" }}
+            whileInView={inView ? { y: "0%" } : undefined}
+            viewport={inView ? { once: true, amount: 0.25 } : undefined}
+            transition={{ duration: 0.85, ease: EASE, delay: delay + i * 0.05 }}
+          >
+            {w}
+            {"\u00A0"}
+          </motion.span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function Reveal({
+  children,
+  delay = 0,
+  reduced,
+  rootRef,
+  className,
+}: {
+  children: ReactNode;
+  delay?: number;
+  reduced: boolean;
+  rootRef?: RefObject<Element | null>;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={reduced ? false : { opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15, root: rootRef }}
+      transition={{ duration: 0.7, ease: EASE, delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function ProjectPicture({
+  src,
+  alt,
+  eager = false,
+  className,
+}: {
+  src: string;
+  alt: string;
+  eager?: boolean;
+  className?: string;
+}) {
+  const isWebp = /\.webp$/i.test(src);
+
+  return (
+    <picture className="block h-full w-full">
+      {isWebp && (
+        <>
+          <source srcSet={src.replace(/\.webp$/i, ".avif")} type="image/avif" />
+          <source srcSet={src} type="image/webp" />
+        </>
+      )}
+      <img
+        src={src}
+        alt={alt}
+        width={1200}
+        height={750}
+        loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? "high" : "auto"}
+        decoding="async"
+        draggable={false}
+        className={className}
+      />
+    </picture>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
-/*  Project Card                                                              */
-/*  - one-time IntersectionObserver reveal (no scroll listeners per card)     */
-/*  - image parallax handled by CSS scroll-driven animation                   */
-/*  - spotlight + tilt move via transform only, throttled with rAF            */
+/*  Big outlined marquee                                                      */
 /* -------------------------------------------------------------------------- */
-const ProjectCard = memo(function ProjectCard({
+function BigMarquee({ words }: { words: string[] }) {
+  // 4 copies (2 per -50% cycle) avoids gaps on ultrawide 4K/5K viewports.
+  const row = useMemo(() => [...words, ...words, ...words, ...words], [words]);
+
+  return (
+    <div
+      aria-hidden="true"
+      className="overflow-hidden border-y border-[var(--line)] py-5 sm:py-7"
+    >
+      <div className="prj-marquee-track">
+        {row.map((w, i) => (
+          <span
+            key={`${w}-${i}`}
+            className="flex shrink-0 items-center gap-8 pr-8 font-sans text-[clamp(2.5rem,7vw,6rem)] font-bold uppercase leading-none tracking-tight"
+          >
+            <span className={i % 2 === 0 ? "prj-outline" : "text-[var(--ink)]"}>{w}</span>
+            <span className="font-serif italic text-[#B39CFF]">✦</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Project panel (used in the horizontal track, single desktop & mobile)     */
+/* -------------------------------------------------------------------------- */
+const ProjectPanel = memo(function ProjectPanel({
   project,
   index,
   total,
   reduced,
+  desktop,
+  enableParallax,
+  progress,
   onOpen,
 }: {
   project: Project;
   index: number;
   total: number;
   reduced: boolean;
+  desktop: boolean;
+  enableParallax: boolean;
+  progress: MotionValue<number>;
   onOpen: (index: number) => void;
 }) {
-  const itemRef = useRef<HTMLDivElement>(null);
-  const articleRef = useRef<HTMLElement>(null);
-  const frameRef = useRef<HTMLDivElement>(null);
-  const spotRef = useRef<HTMLDivElement>(null);
-  const raf = useRef(0);
-  const ptr = useRef({ x: 0, y: 0 });
-
-  // Reveal once when entering the viewport
-  useEffect(() => {
-    const el = itemRef.current;
-    if (!el) return;
-    if (reduced || typeof IntersectionObserver === "undefined") {
-      el.dataset.in = "true";
-      return;
-    }
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.dataset.in = "true";
-          io.disconnect();
-        }
-      },
-      { threshold: 0.08, rootMargin: "0px 0px -10% 0px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [reduced]);
-
-  useEffect(
-    () => () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
-    },
-    [],
-  );
-
-  const rectRef = useRef<DOMRect | null>(null);
-
-  const apply = useCallback(() => {
-    raf.current = 0;
-    const art = articleRef.current;
-    const frame = frameRef.current;
-    const spot = spotRef.current;
-    if (!art || !frame || !spot) return;
-    const r = (rectRef.current ||= art.getBoundingClientRect());
-    const x = ptr.current.x - r.left;
-    const y = ptr.current.y - r.top;
-    spot.style.transform = `translate3d(${x - 280}px, ${y - 280}px, 0)`;
-    const nx = x / r.width - 0.5;
-    const ny = y / r.height - 0.5;
-    frame.style.transform = `perspective(1400px) rotateX(${(-ny * 4).toFixed(2)}deg) rotateY(${(nx * 5).toFixed(2)}deg)`;
-  }, []);
-
-  const handlePointerMove = (e: ReactPointerEvent<HTMLElement>) => {
-    if (reduced || e.pointerType !== "mouse") return;
-    ptr.current.x = e.clientX;
-    ptr.current.y = e.clientY;
-    if (!raf.current) raf.current = requestAnimationFrame(apply);
-  };
-
-  const handlePointerLeave = () => {
-    rectRef.current = null;
-    if (frameRef.current) {
-      frameRef.current.style.transform = "perspective(1400px) rotateX(0deg) rotateY(0deg)";
-    }
-  };
-
   const meta = CATEGORY_META[getCategory(project)];
   const domainUrl = getDomainUrl(project);
-  const isEven = index % 2 === 1;
+  const denom = Math.max(1, total - 1);
+
+  // Bounded percentage parallax paired with scale: 1.14 (7% overhang each side)
+  // prevents exposing container edges on any viewport width or list length.
+  const imgX = useTransform(progress, (v) => {
+    const pct = Math.max(-5.5, Math.min(5.5, (v - index / denom) * -9));
+    return `${pct}%`;
+  });
+  const ghostX = useTransform(progress, (v) => (v - index / denom) * -140);
+
   const open = () => onOpen(index);
 
   return (
-    <div
-      ref={itemRef}
-      className="prj-item relative mb-10 sm:mb-14 lg:mb-16 last:mb-0"
-      style={{ "--i": index } as CSSProperties}
+    <article
+      className={cn(
+        "relative isolate shrink-0",
+        desktop
+          ? enableParallax
+            ? "h-[clamp(460px,66vh,660px)] w-[78vw] max-w-[1320px]"
+            : "h-[clamp(460px,66vh,660px)] w-full"
+          : "mb-14 w-full last:mb-0",
+      )}
     >
-      <article
-        ref={articleRef}
-        onPointerMove={handlePointerMove}
-        onPointerLeave={handlePointerLeave}
-        className="group relative isolate overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-7 md:p-8 lg:p-9 xl:p-10 transition-[border-color] duration-300 hover:border-[#B39CFF]/40 shadow-xl dark:bg-[#141416]"
+      {/* ghost index */}
+      <motion.span
+        aria-hidden="true"
+        style={enableParallax && !reduced ? { x: ghostX } : undefined}
+        className="prj-outline pointer-events-none absolute -top-[5vh] right-[2%] -z-10 select-none font-serif text-[clamp(7.5rem,20vw,19rem)] italic leading-none opacity-80"
       >
-        {/* Cursor spotlight: fixed-size gradient moved with transform (no repaint) */}
-        <div
-          ref={spotRef}
-          aria-hidden="true"
-          className="pointer-events-none absolute left-0 top-0 -z-10 h-[560px] w-[560px] rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          style={{
-            background: "radial-gradient(circle, rgba(179,156,255,0.12), transparent 68%)",
-            willChange: "transform",
-          }}
-        />
+        {pad(index + 1)}
+      </motion.span>
 
-        {/* Oversized editorial index number */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-4 right-6 -z-10 select-none font-serif text-[7rem] font-normal italic leading-none text-[var(--ink)]/[0.045] sm:text-[9rem] lg:text-[11rem]"
-        >
-          {pad(index + 1)}
-        </span>
-
-        {/* Accent hairline */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#B39CFF]/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-        <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-12">
-          {/* Text Column */}
-          <div
+      <div
+        className={cn(
+          "grid h-full gap-6",
+          desktop ? "grid-cols-12 gap-8 xl:gap-10" : "grid-cols-1",
+        )}
+      >
+        {/* IMAGE */}
+        <div className={cn("relative", desktop ? "col-span-7 h-full" : "")}>
+          <motion.div
+            initial={reduced ? false : { opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.85, ease: EASE }}
+            onClick={open}
+            data-cursor={desktop ? "View" : undefined}
+            role="button"
+            tabIndex={0}
+            aria-label={`Open case study: ${project.title}`}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                open();
+              }
+            }}
             className={cn(
-              "flex flex-col justify-between space-y-4 sm:space-y-5 lg:col-span-6",
-              isEven ? "lg:order-2" : "lg:order-1",
+              "group/image relative isolate w-full cursor-pointer overflow-hidden rounded-[20px] border border-[var(--line)] bg-neutral-950 outline-none focus-visible:ring-2 focus-visible:ring-[#B39CFF]",
+              desktop ? "h-full" : "aspect-[4/3] sm:aspect-[16/10]",
             )}
           >
-            <div>
-              <div className="mb-4 flex flex-wrap items-center gap-3">
-                <span className="font-mono text-xs font-bold text-[#B39CFF]">
-                  {pad(index + 1)} / {pad(total)}
-                </span>
+            <motion.div
+              style={
+                enableParallax && !reduced
+                  ? { x: imgX, scale: 1.14, willChange: "transform" }
+                  : undefined
+              }
+              className="absolute inset-0"
+            >
+              <div className="h-full w-full transition-transform duration-700 ease-out group-hover/image:scale-[1.04]">
+                <ProjectPicture
+                  src={project.image}
+                  alt={project.title}
+                  eager={index < 2}
+                  className="h-full w-full object-cover object-top"
+                />
+              </div>
+            </motion.div>
 
+            {/* Scrim for guaranteed legibility without mix-blend artifacts */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/25" />
+
+            {/* top meta */}
+            <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4 font-mono text-[11px] uppercase tracking-widest text-white/90 sm:p-5">
+              <span className="flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", meta.dotColor)} />
+                {meta.label}
+              </span>
+              <span className="rounded-full border border-white/15 bg-black/35 px-3 py-1">
+                {project.year}
+              </span>
+            </div>
+
+            {/* overlay title */}
+            <h3 className="absolute bottom-4 left-4 right-4 font-sans text-[clamp(1.85rem,4.2vw,4.25rem)] font-bold leading-[0.95] tracking-tight text-white drop-shadow-sm sm:bottom-6 sm:left-6 sm:right-6">
+              <SplitWords text={project.title} reduced={reduced} />
+            </h3>
+          </motion.div>
+        </div>
+
+        {/* TEXT */}
+        <div
+          className={cn(
+            "flex flex-col justify-between gap-4 xl:gap-6",
+            desktop ? "col-span-5 py-0.5" : "",
+          )}
+        >
+          <div>
+            <div className="mb-3 flex items-center gap-3 font-mono text-xs text-[var(--muted)] xl:mb-5">
+              <span className="font-bold text-[#7654D6] dark:text-[#B39CFF]">
+                {pad(index + 1)} / {pad(total)}
+              </span>
+              <span className="h-px flex-1 bg-[var(--line)]" />
+              <span className="truncate">{project.role}</span>
+            </div>
+
+            <p className="text-sm leading-relaxed text-[var(--ink)] sm:text-base xl:text-lg">
+              {project.description}
+            </p>
+
+            <div className="mt-4 flex flex-wrap gap-1.5 xl:mt-5">
+              {project.stack.map((t) => (
                 <span
+                  key={t}
+                  className="rounded-full border border-[var(--line)] px-2.5 py-0.5 font-mono text-[11px] text-[var(--muted)] transition-colors duration-200 hover:border-[#B39CFF]/60 hover:text-[var(--ink)] xl:px-3 xl:py-1"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {project.metrics.length > 0 && (
+            <dl className="grid grid-cols-2 border-y border-[var(--line)]">
+              {project.metrics.slice(0, 4).map((m, i) => (
+                <div
+                  key={m.label}
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-xs font-semibold uppercase tracking-wider",
-                    meta.badgeClass,
+                    "py-2.5 xl:py-3.5",
+                    i % 2 === 0 ? "pr-4" : "border-l border-[var(--line)] pl-4",
+                    i > 1 && "border-t border-[var(--line)]",
                   )}
                 >
-                  <span className={cn("h-1.5 w-1.5 rounded-full", meta.dotColor)} />
-                  {meta.label}
-                </span>
-
-                {index === 0 && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#B39CFF]/40 bg-[#B39CFF]/10 px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-[#B39CFF]">
-                    <Sparkles className="h-3 w-3" />
-                    Featured
-                  </span>
-                )}
-
-                <span className="font-mono text-xs text-[var(--muted)]">
-                  {project.year} • {project.role}
-                </span>
-              </div>
-
-              <h3
-                onClick={open}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    open();
-                  }
-                }}
-                className="group/title inline-flex cursor-pointer items-center gap-2 font-sans text-2xl font-bold tracking-tight text-[var(--ink)] transition-colors duration-200 hover:text-[#B39CFF] sm:text-3xl lg:text-4xl"
-              >
-                <span>{project.title}</span>
-                <ArrowUpRight className="h-6 w-6 text-[var(--muted)] transition-transform duration-300 group-hover/title:-translate-y-1 group-hover/title:translate-x-1 group-hover/title:text-[#B39CFF]" />
-              </h3>
-
-              <p className="mt-2.5 text-xs leading-relaxed text-[var(--muted)] sm:text-sm">
-                {project.description}
-              </p>
-
-              {project.metrics.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {project.metrics.map((m) => (
-                    <div
-                      key={m.label}
-                      className="inline-flex items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface-strong)] px-3.5 py-1.5 font-mono text-xs text-[var(--ink)]"
-                    >
-                      <Sparkles className="h-3.5 w-3.5 text-[#B39CFF]" />
-                      <span className="font-bold text-[#B39CFF]">
-                        <CountUp value={m.value} disabled={reduced} />
-                      </span>
-                      <span className="text-[var(--muted)]">{m.label}</span>
-                    </div>
-                  ))}
+                  <dd className="font-sans text-2xl font-bold tabular-nums tracking-tight text-[var(--ink)] xl:text-4xl">
+                    <CountUp value={m.value} disabled={reduced} />
+                  </dd>
+                  <dt className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[var(--muted)] xl:mt-1">
+                    {m.label}
+                  </dt>
                 </div>
-              )}
+              ))}
+            </dl>
+          )}
 
-              <div className="mt-5 flex flex-wrap gap-1.5">
-                {project.stack.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-1 font-mono text-xs text-[var(--muted)] transition-colors duration-200 hover:border-[#1E90FF]/40 hover:text-[var(--ink)]"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 border-t border-[var(--line)] pt-4">
-              {project.galleryLink ? (
-                <Link
-                  to={project.galleryLink}
-                  onClick={() => playClick()}
-                  className="btn-neo-base btn-neo-primary inline-flex h-11 items-center gap-2 px-5 text-xs font-bold"
-                >
-                  <span>Exhibition Showcase</span>
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
-              ) : project.link ? (
-                <a
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => playClick()}
-                  className="btn-neo-base btn-neo-primary inline-flex h-11 items-center gap-2 px-5 text-xs font-bold"
-                >
-                  <span>Launch Live Demo</span>
-                  <ArrowUpRight className="h-4 w-4" />
-                </a>
-              ) : null}
-
-              {project.github && (
-                <a
-                  href={project.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => playClick()}
-                  className="btn-neo-base btn-neo-secondary inline-flex h-11 items-center gap-2 px-4 text-xs font-semibold"
-                >
-                  <GithubIcon className="h-4 w-4 text-[var(--muted)]" />
-                  <span>Source Code</span>
-                </a>
-              )}
-
-              <button
-                type="button"
-                onClick={() => {
-                  playClick();
-                  open();
-                }}
-                className="btn-neo-base btn-neo-secondary inline-flex h-11 items-center gap-2 px-4 text-xs font-semibold"
+          <div className="flex flex-wrap items-center gap-2.5 xl:gap-3">
+            {project.galleryLink ? (
+              <Link
+                to={project.galleryLink}
+                onClick={() => playClick()}
+                className="btn-neo-base btn-neo-primary inline-flex h-10 items-center gap-2 px-4 text-xs font-bold xl:h-11 xl:px-5"
               >
-                <span>Case Study</span>
-                <ArrowRight className="h-4 w-4 text-[var(--muted)]" />
-              </button>
-            </div>
-          </div>
+                <span>Exhibition Showcase</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            ) : project.link ? (
+              <a
+                href={project.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => playClick()}
+                className="btn-neo-base btn-neo-primary inline-flex h-10 items-center gap-2 px-4 text-xs font-bold xl:h-11 xl:px-5"
+              >
+                <span>Launch Live</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </a>
+            ) : null}
 
-          {/* Image Column */}
-          <div className={cn("relative lg:col-span-6", isEven ? "lg:order-1" : "lg:order-2")}>
-            {/* soft category glow behind the frame (static gradient, no blur filter) */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -inset-8 -z-10"
-              style={{
-                background: `radial-gradient(55% 55% at 50% 50%, ${meta.accentColor}2e, transparent 72%)`,
-              }}
-            />
+            {project.github && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => playClick()}
+                className="btn-neo-base btn-neo-secondary inline-flex h-10 items-center gap-2 px-3.5 text-xs font-semibold xl:h-11 xl:px-4"
+              >
+                <GithubIcon className="h-4 w-4 text-[var(--muted)]" />
+                <span>Source</span>
+              </a>
+            )}
 
-            <div
-              ref={frameRef}
-              className="prj-frame overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] shadow-lg group-hover:will-change-transform"
+            <button
+              type="button"
+              onClick={open}
+              className="prj-underline ml-1 inline-flex items-center gap-1.5 pb-0.5 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--ink)]"
             >
-              <div className="flex h-10 items-center justify-between border-b border-[var(--line)] bg-[var(--surface-strong)] px-4">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500/70" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
-                </div>
-
-                <div className="flex items-center gap-1.5 rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 py-0.5 font-mono text-[11px] text-[var(--muted)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#1E90FF]" />
-                  <span>{domainUrl}</span>
-                </div>
-
-                <span className="hidden font-mono text-[10px] uppercase tracking-wider text-[var(--muted)] sm:inline">
-                  Verified Production
-                </span>
-              </div>
-
-              <div
-                onClick={() => {
-                  playClick();
-                  open();
-                }}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    open();
-                  }
-                }}
-                className="group/image relative aspect-[16/10] w-full cursor-pointer overflow-hidden bg-neutral-950 outline-none"
-              >
-                {/* hover zoom lives on its own wrapper so it never fights the parallax transform */}
-                <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover/image:scale-[1.05]">
-                  <picture className="h-full w-full block">
-                    <source srcSet={project.image.replace(/\.webp$/i, ".avif")} type="image/avif" />
-                    <source srcSet={project.image} type="image/webp" />
-                    <img
-                    src={project.image}
-                    alt={project.title}
-                    width={1200}
-                    height={750}
-                    loading={index === 0 ? "eager" : "lazy"}
-                    fetchPriority={index === 0 ? "high" : "auto"}
-                    decoding="async"
-                    draggable={false}
-                    className="prj-img h-full w-full object-cover object-top"
-                  />
-                </picture>
-
-                </div>
-
-                {project.metrics.length > 0 && (
-                  <div className="absolute right-4 top-4 z-10 hidden items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3.5 py-1.5 font-mono text-xs text-[#F4F4F6] shadow-lg sm:flex">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF]" />
-                    <span>
-                      {project.metrics[0].value} {project.metrics[0].label}
-                    </span>
-                  </div>
-                )}
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover/image:opacity-100" />
-
-                <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full border border-white/20 bg-black/80 px-4 py-2 font-mono text-xs font-semibold text-white transition-all duration-300 group-hover/image:translate-y-0 group-hover/image:opacity-100 sm:translate-y-2 sm:opacity-0">
-                  <span>View Case Study</span>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-[#B39CFF]" />
-                </div>
-              </div>
-            </div>
+              <span>Case Study</span>
+              <ArrowRight className="h-3.5 w-3.5 text-[#7654D6] dark:text-[#B39CFF]" />
+            </button>
           </div>
+
+          <span className="sr-only">{domainUrl}</span>
         </div>
-      </article>
-    </div>
+      </div>
+    </article>
   );
 });
 
 /* -------------------------------------------------------------------------- */
-/*  Case Study Modal Overlay                                                  */
+/*  Pinned horizontal gallery (desktop) / vertical list (mobile & single)     */
+/* -------------------------------------------------------------------------- */
+function Gallery({
+  list,
+  reduced,
+  desktop,
+  onOpen,
+}: {
+  list: Project[];
+  reduced: boolean;
+  desktop: boolean;
+  onOpen: (i: number) => void;
+}) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const pinned = desktop && !reduced && list.length > 1;
+
+  const { scrollYProgress } = useScroll({
+    target: wrapRef,
+    offset: ["start start", "end end"],
+  });
+
+  const maxX = useMotionValue(0);
+  useEffect(() => {
+    if (!pinned) return;
+    const el = trackRef.current;
+    if (!el) return;
+    const measure = () => maxX.set(Math.max(0, el.scrollWidth - window.innerWidth));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [list, pinned, maxX]);
+
+  const x = useTransform([scrollYProgress, maxX], ([p, m]: number[]) => -p * m);
+  const barScale = useSpring(scrollYProgress, { stiffness: 220, damping: 32 });
+
+  const [active, setActive] = useState(0);
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    if (!pinned) return;
+    const n = Math.max(0, list.length - 1);
+    const i = Math.min(n, Math.max(0, Math.round(v * n)));
+    setActive((prev) => (prev === i ? prev : i));
+  });
+
+  useEffect(() => {
+    setActive(0);
+  }, [list]);
+
+  // Preload next panel's screenshot ahead of scroll
+  useEffect(() => {
+    if (!pinned) return;
+    const nextImg = list[active + 1]?.image;
+    if (!nextImg) return;
+    const img = new Image();
+    img.decoding = "async";
+    img.src = nextImg;
+  }, [active, list, pinned]);
+
+  const jump = (i: number) => {
+    const clamped = Math.max(0, Math.min(list.length - 1, i));
+    playTab();
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const n = Math.max(1, list.length - 1);
+    const range = wrap.offsetHeight - window.innerHeight;
+    const top = wrap.getBoundingClientRect().top + window.scrollY + (clamped / n) * range;
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
+  if (!pinned) {
+    return (
+      <div className="prj-list-in mt-10">
+        {list.map((p, i) => (
+          <ProjectPanel
+            key={p.title}
+            project={p}
+            index={i}
+            total={list.length}
+            reduced={reduced}
+            desktop={desktop}
+            enableParallax={false}
+            progress={scrollYProgress}
+            onOpen={onOpen}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={wrapRef}
+      className="prj-list-in relative"
+      style={{ height: `${list.length * 85 + 20}vh` }}
+    >
+      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
+        <motion.div
+          ref={trackRef}
+          style={{ x, willChange: "transform" }}
+          className="flex items-center gap-[5vw] px-[max(8vw,calc(50vw-660px))] pb-16 pt-4"
+        >
+          {list.map((p, i) => (
+            <ProjectPanel
+              key={p.title}
+              project={p}
+              index={i}
+              total={list.length}
+              reduced={reduced}
+              desktop
+              enableParallax
+              progress={scrollYProgress}
+              onOpen={onOpen}
+            />
+          ))}
+        </motion.div>
+
+        {/* HUD */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10">
+          <Container>
+            <div className="flex items-end justify-between gap-8 pb-5 xl:pb-6">
+              <div className="min-w-0 max-w-[260px]">
+                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--muted)]">
+                  Now viewing
+                </span>
+                <div className="relative h-7 overflow-hidden">
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={active}
+                      initial={{ y: "100%" }}
+                      animate={{ y: "0%" }}
+                      exit={{ y: "-100%" }}
+                      transition={{ duration: 0.4, ease: EASE }}
+                      className="truncate font-sans text-lg font-bold tracking-tight text-[var(--ink)] xl:text-xl"
+                    >
+                      {list[active]?.title}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              <div className="pointer-events-auto flex flex-1 items-center gap-4">
+                <div className="relative h-px flex-1 bg-[var(--line)]">
+                  <motion.div
+                    style={{ scaleX: barScale }}
+                    className="absolute inset-0 origin-left bg-[#B39CFF]"
+                  />
+                  {list.map((p, i) => (
+                    <button
+                      key={p.title}
+                      type="button"
+                      aria-label={`Go to ${p.title}`}
+                      aria-current={i === active ? "step" : undefined}
+                      onClick={() => jump(i)}
+                      style={{ left: `${(i / Math.max(1, list.length - 1)) * 100}%` }}
+                      className="group/dot absolute top-1/2 grid h-7 w-7 -translate-x-1/2 -translate-y-1/2 place-items-center outline-none"
+                    >
+                      <span
+                        className={cn(
+                          "h-2.5 w-2.5 rounded-full border transition-[transform,background-color,border-color,box-shadow] duration-300",
+                          i === active
+                            ? "scale-125 border-[#B39CFF] bg-[#B39CFF] ring-4 ring-[#B39CFF]/25"
+                            : i < active
+                              ? "border-[#B39CFF] bg-[#B39CFF]"
+                              : "border-[var(--line)] bg-[var(--page)] group-hover/dot:border-[#B39CFF]",
+                        )}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pointer-events-auto flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    disabled={active === 0}
+                    onClick={() => jump(active - 1)}
+                    aria-label="Previous project in gallery"
+                    className="grid h-7 w-7 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-colors hover:border-[var(--ink)] hover:text-[var(--ink)] disabled:pointer-events-none disabled:opacity-30"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={active === list.length - 1}
+                    onClick={() => jump(active + 1)}
+                    aria-label="Next project in gallery"
+                    className="grid h-7 w-7 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-colors hover:border-[var(--ink)] hover:text-[var(--ink)] disabled:pointer-events-none disabled:opacity-30"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                <div className="font-mono text-sm tabular-nums text-[var(--muted)]">
+                  <span className="text-xl font-bold text-[var(--ink)] xl:text-2xl">
+                    {pad(active + 1)}
+                  </span>
+                  <span className="mx-1">/</span>
+                  {pad(list.length)}
+                </div>
+              </div>
+            </div>
+          </Container>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Archive index with cursor-following preview                               */
+/* -------------------------------------------------------------------------- */
+function Archive({
+  list,
+  desktop,
+  reduced,
+  onOpen,
+}: {
+  list: Project[];
+  desktop: boolean;
+  reduced: boolean;
+  onOpen: (i: number) => void;
+}) {
+  const [hover, setHover] = useState<number | null>(null);
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const px = useSpring(mx, { stiffness: 280, damping: 32, mass: 0.45 });
+  const py = useSpring(my, { stiffness: 280, damping: 32, mass: 0.45 });
+
+  const handleRowEnter = (i: number, clientX: number, clientY: number) => {
+    if (!desktop) return;
+    if (hover === null) {
+      jumpMotionValue(mx, clientX);
+      jumpMotionValue(my, clientY);
+      jumpMotionValue(px, clientX);
+      jumpMotionValue(py, clientY);
+    }
+    setHover(i);
+  };
+
+  return (
+    <div
+      onPointerMove={(e) => {
+        if (!desktop) return;
+        mx.set(e.clientX);
+        my.set(e.clientY);
+      }}
+      onPointerLeave={() => setHover(null)}
+      className="relative"
+    >
+      <ul>
+        {list.map((p, i) => {
+          const meta = CATEGORY_META[getCategory(p)];
+          const dim = hover !== null && hover !== i;
+          return (
+            <li key={p.title} className="border-b border-[var(--line)] first:border-t">
+              <button
+                type="button"
+                onClick={() => {
+                  setHover(null);
+                  onOpen(i);
+                }}
+                onPointerEnter={(e) => handleRowEnter(i, e.clientX, e.clientY)}
+                className={cn(
+                  "group grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 py-5 text-left transition-opacity duration-300 sm:gap-8 sm:py-7",
+                  dim ? "opacity-30" : "opacity-100",
+                )}
+              >
+                <span className="font-mono text-xs tabular-nums text-[#7654D6] dark:text-[#B39CFF]">
+                  {pad(i + 1)}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate font-sans text-[clamp(1.75rem,5.2vw,4.5rem)] font-bold leading-none tracking-tight text-[var(--ink)] transition-transform duration-500 ease-out group-hover:translate-x-3">
+                    {p.title}
+                  </span>
+                  <span className="mt-2 block font-mono text-[11px] uppercase tracking-wider text-[var(--muted)] sm:hidden">
+                    {meta.badge} • {p.year}
+                  </span>
+                </span>
+                <span className="flex items-center gap-6 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
+                  <span className="hidden md:inline">{meta.badge}</span>
+                  <span className="hidden sm:inline">{p.year}</span>
+                  <span className="grid h-10 w-10 place-items-center rounded-full border border-[var(--line)] transition-colors duration-300 group-hover:border-[#B39CFF] group-hover:bg-[#B39CFF] group-hover:text-black">
+                    <ArrowUpRight className="h-4 w-4" />
+                  </span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      {desktop && !reduced && (
+        <motion.div
+          aria-hidden="true"
+          style={{ x: px, y: py, willChange: "transform" }}
+          className="pointer-events-none fixed left-0 top-0 z-40"
+        >
+          <AnimatePresence>
+            {hover !== null && list[hover] && (
+              <motion.div
+                key={list[hover].title}
+                initial={{ opacity: 0, scale: 0.88 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.28, ease: EASE }}
+                className="-ml-[150px] -mt-[100px] h-[200px] w-[300px] overflow-hidden rounded-2xl border border-[var(--line)] bg-neutral-950 shadow-2xl"
+              >
+                <ProjectPicture
+                  src={list[hover].image}
+                  alt=""
+                  eager
+                  className="h-full w-full object-cover object-top"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Case Study Overlay                                                        */
 /* -------------------------------------------------------------------------- */
 function CaseStudy({
   project,
@@ -633,7 +981,7 @@ function CaseStudy({
     const prevPad = document.body.style.paddingRight;
     document.body.style.overflow = "hidden";
     if (sb > 0) document.body.style.paddingRight = `${sb}px`;
-    closeRef.current?.focus();
+    closeRef.current?.focus({ preventScroll: true });
 
     const onKey = (e: KeyboardEvent) => {
       const { index: i, onClose: close, onGo: go } = latest.current;
@@ -666,11 +1014,13 @@ function CaseStudy({
     };
   }, []);
 
+  // Instant reset so smooth scrolling never fights newly swapped project content
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
   }, [project.title]);
 
-  // Warm the next project's image so "Next" feels instant
   useEffect(() => {
     if (!nextImage) return;
     const img = new Image();
@@ -689,10 +1039,10 @@ function CaseStudy({
       aria-modal="true"
       aria-label={project.title}
       data-lenis-prevent
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.28, ease: EASE }}
+      initial={reduced ? { opacity: 0 } : { clipPath: "inset(100% 0% 0% 0%)" }}
+      animate={reduced ? { opacity: 1 } : { clipPath: "inset(0% 0% 0% 0%)" }}
+      exit={reduced ? { opacity: 0 } : { clipPath: "inset(0% 0% 100% 0%)" }}
+      transition={{ duration: 0.65, ease: EASE }}
       className="fixed inset-0 z-[100] bg-[var(--page)] text-[var(--ink)]"
     >
       <motion.div
@@ -702,7 +1052,6 @@ function CaseStudy({
       />
 
       <div ref={scrollRef} data-lenis-prevent className="h-full overflow-y-auto overscroll-contain">
-        {/* Sticky bar: solid background (no backdrop blur over scrolling content) */}
         <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--page)]/95">
           <Container>
             <div className="flex h-16 items-center justify-between">
@@ -751,6 +1100,7 @@ function CaseStudy({
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => playClick()}
                     className="btn-neo-base btn-neo-primary inline-flex h-9 items-center gap-2 px-4 text-xs font-bold"
                   >
                     <span>Launch Live</span>
@@ -760,6 +1110,7 @@ function CaseStudy({
                   <button
                     type="button"
                     onClick={() => {
+                      playClick();
                       onClose();
                       navigate(project.galleryLink!);
                     }}
@@ -768,6 +1119,17 @@ function CaseStudy({
                     <span>Exhibition</span>
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </button>
+                ) : project.github ? (
+                  <a
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => playClick()}
+                    className="btn-neo-base btn-neo-secondary inline-flex h-9 items-center gap-2 px-4 text-xs font-bold"
+                  >
+                    <GithubIcon className="h-3.5 w-3.5" />
+                    <span>Source</span>
+                  </a>
                 ) : null}
               </div>
             </div>
@@ -775,7 +1137,13 @@ function CaseStudy({
         </header>
 
         <Container>
-          <div key={project.title} className="py-10 sm:py-14">
+          <motion.div
+            key={project.title}
+            initial={reduced ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="py-10 sm:py-14"
+          >
             <div className="pb-8">
               <div className="mb-4 flex flex-wrap items-center gap-3 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
                 <span
@@ -790,42 +1158,48 @@ function CaseStudy({
                 <span className="text-[var(--line)]">•</span>
                 <span>{project.year}</span>
                 <span className="text-[var(--line)]">•</span>
-                <span>{domainUrl}</span>
+                <span className="truncate">{domainUrl}</span>
               </div>
 
-              <h1 className="font-sans text-4xl font-bold tracking-tight text-[var(--ink)] sm:text-5xl md:text-6xl">
-                {project.title}
+              <h1 className="font-sans text-5xl font-bold leading-[0.95] tracking-tight text-[var(--ink)] sm:text-6xl md:text-8xl">
+                <SplitWords text={project.title} reduced={reduced} delay={0.12} inView={false} />
               </h1>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-2xl">
-              <div className="flex h-11 items-center justify-between border-b border-[var(--line)] bg-[var(--surface-strong)] px-4">
-                <div className="flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full bg-red-500/80" />
-                  <span className="h-3 w-3 rounded-full bg-amber-500/80" />
-                  <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
+            <Reveal reduced={reduced} rootRef={scrollRef}>
+              <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-2xl">
+                <div className="flex h-11 items-center justify-between border-b border-[var(--line)] bg-[var(--surface-strong)] px-4">
+                  <div className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full bg-red-500/80" />
+                    <span className="h-3 w-3 rounded-full bg-amber-500/80" />
+                    <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
+                  </div>
+                  <div className="flex max-w-[190px] items-center gap-1.5 truncate rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 py-1 font-mono text-xs text-[var(--muted)] sm:max-w-xs">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#1E90FF]" />
+                    <span className="truncate">https://{domainUrl}</span>
+                  </div>
+                  <div className="hidden font-mono text-xs text-[var(--muted)] sm:block">
+                    Case Study
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 py-1 font-mono text-xs text-[var(--muted)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#1E90FF]" />
-                  <span>https://{domainUrl}</span>
-                </div>
-                <div className="hidden font-mono text-xs text-[var(--muted)] sm:block">
-                  Verified Case Study
-                </div>
-              </div>
 
-              <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-950 sm:aspect-[21/9]">
-                <motion.img
-                  src={project.image}
-                  alt={project.title}
-                  width={1600}
-                  height={900}
-                  decoding="async"
-                  style={{ y: reduced ? 0 : heroY, scale: reduced ? 1 : 1.15, willChange: "transform" }}
-                  className="h-full w-full object-cover object-top"
-                />
+                <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-950 sm:aspect-[21/9]">
+                  <motion.img
+                    src={project.image}
+                    alt={project.title}
+                    width={1600}
+                    height={900}
+                    decoding="async"
+                    style={{
+                      y: reduced ? 0 : heroY,
+                      scale: reduced ? 1 : 1.12,
+                      willChange: "transform",
+                    }}
+                    className="h-full w-full object-cover object-top"
+                  />
+                </div>
               </div>
-            </div>
+            </Reveal>
 
             <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16">
               <aside className="lg:col-span-4">
@@ -856,7 +1230,7 @@ function CaseStudy({
                       {project.stack.map((t) => (
                         <span
                           key={t}
-                          className="rounded-md border border-[var(--line)] bg-[var(--surface-strong)] px-2.5 py-1 font-mono text-xs font-medium text-[var(--ink)]"
+                          className="rounded-full border border-[var(--line)] bg-[var(--surface-strong)] px-2.5 py-1 font-mono text-xs font-medium text-[var(--ink)]"
                         >
                           {t}
                         </span>
@@ -869,6 +1243,7 @@ function CaseStudy({
                       <button
                         type="button"
                         onClick={() => {
+                          playClick();
                           onClose();
                           navigate(project.galleryLink!);
                         }}
@@ -882,6 +1257,7 @@ function CaseStudy({
                         href={project.link}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => playClick()}
                         className="btn-neo-base btn-neo-primary flex h-11 w-full items-center justify-between px-5 text-xs font-bold"
                       >
                         <span>Launch Live Demo</span>
@@ -894,6 +1270,7 @@ function CaseStudy({
                         href={project.github}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => playClick()}
                         className="btn-neo-base btn-neo-secondary flex h-11 w-full items-center justify-between px-5 text-xs font-semibold"
                       >
                         <span className="flex items-center gap-2">
@@ -908,66 +1285,76 @@ function CaseStudy({
               </aside>
 
               <div className="space-y-12 lg:col-span-8">
-                <div>
-                  <h2 className="mb-3 font-mono text-xs font-bold uppercase tracking-wider text-[#B39CFF]">
+                <Reveal reduced={reduced} rootRef={scrollRef}>
+                  <h2 className="mb-3 font-mono text-xs font-bold uppercase tracking-wider text-[#7654D6] dark:text-[#B39CFF]">
                     Mission & Impact
                   </h2>
                   <p className="text-xl font-medium leading-relaxed tracking-tight text-[var(--ink)] sm:text-2xl">
                     {project.description}
                   </p>
-                </div>
+                </Reveal>
 
-                <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
-                  <h3 className="mb-6 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
-                    <TrendingUp className="h-4 w-4 text-[#B39CFF]" />
-                    <span>Key Performance Indicators</span>
-                  </h3>
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
-                    {project.metrics.map((m) => (
-                      <div key={m.label} className="border-l-2 border-[#B39CFF] pl-4">
-                        <div className="font-sans text-4xl font-bold tabular-nums tracking-tight text-[var(--ink)] sm:text-5xl">
-                          <CountUp value={m.value} disabled={reduced} rootRef={scrollRef} />
-                        </div>
-                        <div className="mt-1.5 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
-                          {m.label}
-                        </div>
+                {project.metrics.length > 0 && (
+                  <Reveal reduced={reduced} rootRef={scrollRef}>
+                    <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
+                      <h3 className="mb-6 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+                        <TrendingUp className="h-4 w-4 text-[#7654D6] dark:text-[#B39CFF]" />
+                        <span>Key Performance Indicators</span>
+                      </h3>
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
+                        {project.metrics.map((m) => (
+                          <div key={m.label} className="border-l-2 border-[#B39CFF] pl-4">
+                            <div className="font-sans text-4xl font-bold tabular-nums tracking-tight text-[var(--ink)] sm:text-5xl">
+                              <CountUp value={m.value} disabled={reduced} rootRef={scrollRef} />
+                            </div>
+                            <div className="mt-1.5 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
+                              {m.label}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  </Reveal>
+                )}
 
-                <div>
+                <Reveal reduced={reduced} rootRef={scrollRef}>
                   <h3 className="mb-3 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
                     Engineering Architecture
                   </h3>
                   <p className="text-base leading-relaxed text-[var(--muted)] sm:text-lg">
                     {project.impact}
                   </p>
-                </div>
+                </Reveal>
 
                 <div>
-                  <h3 className="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
-                    Core Deliverables
-                  </h3>
+                  <Reveal reduced={reduced} rootRef={scrollRef}>
+                    <h3 className="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+                      Core Deliverables
+                    </h3>
+                  </Reveal>
                   <div className="space-y-3">
                     {project.features.map((f, i) => (
-                      <div
+                      <Reveal
                         key={f}
-                        className="flex items-start gap-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 transition-[border-color] duration-200 hover:border-[#B39CFF]/40"
+                        reduced={reduced}
+                        rootRef={scrollRef}
+                        delay={Math.min(i, 3) * 0.05}
                       >
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--surface-strong)] font-mono text-xs font-bold text-[#B39CFF]">
-                          {pad(i + 1)}
-                        </span>
-                        <p className="text-sm font-medium leading-relaxed text-[var(--ink)] sm:text-base">
-                          {f}
-                        </p>
-                      </div>
+                        <div className="flex items-start gap-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-[#B39CFF]/40">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--surface-strong)] font-mono text-xs font-bold text-[#7654D6] dark:text-[#B39CFF]">
+                            {pad(i + 1)}
+                          </span>
+                          <p className="text-sm font-medium leading-relaxed text-[var(--ink)] sm:text-base">
+                            {f}
+                          </p>
+                        </div>
+                      </Reveal>
                     ))}
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </Container>
 
         {total > 1 && (
@@ -980,10 +1367,12 @@ function CaseStudy({
               >
                 <div>
                   <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
-                    <span>Next Project</span>
-                    <ArrowUpRight className="h-3.5 w-3.5 text-[#B39CFF] transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
+                    <span>
+                      Next Project ({pad(((index + 1) % total) + 1)} / {pad(total)})
+                    </span>
+                    <ArrowUpRight className="h-3.5 w-3.5 text-[#7654D6] transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 dark:text-[#B39CFF]" />
                   </span>
-                  <span className="mt-2 block font-sans text-3xl font-bold tracking-tight text-[var(--ink)] transition-colors duration-200 group-hover:text-[#B39CFF] sm:text-4xl md:text-5xl">
+                  <span className="mt-2 block font-sans text-3xl font-bold tracking-tight text-[var(--ink)] transition-colors duration-200 group-hover:text-[#7654D6] dark:group-hover:text-[#B39CFF] sm:text-4xl md:text-6xl">
                     {nextTitle}
                   </span>
                 </div>
@@ -1001,11 +1390,15 @@ function CaseStudy({
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Main Projects Section Component                                           */
+/*  Main Section                                                              */
 /* -------------------------------------------------------------------------- */
+const MARQUEE_WORDS = ["Web Systems", "Data & ML", "Visual Direction", "Brand Identity"];
+
 export function Projects() {
   const reduced = usePrefersReducedMotion();
+  const desktop = useIsDesktop();
   const sectionRef = useRef<HTMLElement>(null);
+  const headRef = useRef<HTMLDivElement>(null);
 
   const [filter, setFilter] = useState<FilterCategory>("all");
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -1020,87 +1413,102 @@ export function Projects() {
     [],
   );
 
-  // Section-wide scroll progress (tiny bar, transform only)
-  const { scrollYProgress: sectionScroll } = useScroll({
-    target: sectionRef,
-    offset: ["start 20%", "end 80%"],
+  // headline: the two lines drift in opposite directions as you scroll past
+  const { scrollYProgress: headScroll } = useScroll({
+    target: headRef,
+    offset: ["start end", "end start"],
   });
-  const progressSpring = useSpring(sectionScroll, { stiffness: 220, damping: 28 });
+  const line1X = useTransform(headScroll, [0, 1], ["14%", "-14%"]);
+  const line2X = useTransform(headScroll, [0, 1], ["-14%", "14%"]);
 
-  // Stable handlers so memoised cards don't re-render
   const openCase = useCallback((idx: number) => {
     playClick();
     setOpenIndex(idx);
   }, []);
 
-  const goTo = (i: number) => {
-    const n = list.length;
-    const target = ((i % n) + n) % n;
-    playTab();
-    setOpenIndex(target);
-  };
+  const goTo = useCallback(
+    (i: number) => {
+      const n = list.length;
+      if (!n) return;
+      const target = ((i % n) + n) % n;
+      playTab();
+      setOpenIndex(target);
+    },
+    [list.length],
+  );
 
-  const closeCase = () => {
+  const closeCase = useCallback(() => {
     playTab();
     setOpenIndex(null);
-  };
+  }, []);
 
   const changeFilter = (key: FilterCategory) => {
     if (key === filter) return;
     playTab();
     startTransition(() => {
+      setOpenIndex(null);
       setFilter(key);
     });
   };
 
   const openProject = openIndex !== null ? list[openIndex] : undefined;
   const nextProject = openIndex !== null ? list[(openIndex + 1) % list.length] : undefined;
+  const usePinnedDesktop = desktop && !reduced && list.length > 1;
 
   return (
     <section
       ref={sectionRef}
       id="work"
-      className="relative scroll-mt-16 bg-[var(--page)] pt-12 pb-16 transition-colors duration-500 sm:scroll-mt-20 sm:pt-16 sm:pb-20 lg:scroll-mt-24 lg:pt-16 lg:pb-24 xl:pt-20 xl:pb-28"
+      className="relative scroll-mt-16 bg-[var(--page)] pt-14 transition-colors duration-500 sm:scroll-mt-20 sm:pt-20 lg:scroll-mt-24"
     >
       <style>{STYLES}</style>
 
-      <Container>
-        {/* Section Architectural Header */}
-        <div className="flex flex-col justify-between gap-4 border-b border-[var(--line)] pb-4 sm:flex-row sm:items-end sm:pb-5">
-          <div>
-            <div className="mb-2.5 flex items-center gap-2.5 font-mono text-xs uppercase tracking-widest text-[var(--muted)]">
+      {/* ───────────── Intro ───────────── */}
+      <div ref={headRef} className="overflow-hidden">
+        <Container>
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-4 font-mono text-xs uppercase tracking-widest text-[var(--muted)]">
+            <span className="flex items-center gap-2.5">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#B39CFF] opacity-75" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#B39CFF] opacity-75 motion-reduce:animate-none" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B39CFF]" />
               </span>
-              <span className="font-bold text-[var(--ink)]">[02 // SELECTED WORK & SYSTEMS]</span>
-            </div>
-
-            <h2 className="font-sans text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-4xl md:text-5xl">
-              Featured{" "}
-              <span className="font-serif font-normal italic tracking-normal text-[#7654D6] dark:text-[#B39CFF]">
-                Projects
-              </span>
-            </h2>
-          </div>
-
-          <div className="flex flex-col gap-2 sm:items-end sm:text-right">
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#B39CFF]">
-              [INDEX ARCHIVE // 04 PRODUCTION CASE STUDIES]
+              <span className="font-bold text-[var(--ink)]">[02 // Selected Work & Systems]</span>
             </span>
-            <p className="max-w-md text-xs leading-relaxed text-[var(--muted)] sm:text-sm">
-              Scalable web architectures, predictive business intelligence pipelines, and bespoke brand design systems built with precision.
-            </p>
+            <span>Index — {pad(projects.length)} case studies</span>
           </div>
+        </Container>
+
+        <div className="select-none font-sans font-bold uppercase leading-[0.82] tracking-tighter">
+          <motion.div
+            style={reduced ? undefined : { x: line1X, willChange: "transform" }}
+            className="whitespace-nowrap text-[clamp(4.5rem,17vw,16rem)] text-[var(--ink)]"
+          >
+            Selected
+          </motion.div>
+          <motion.div
+            style={reduced ? undefined : { x: line2X, willChange: "transform" }}
+            className="flex items-baseline justify-end gap-[2vw] whitespace-nowrap pr-[4vw] text-[clamp(4.5rem,17vw,16rem)]"
+          >
+            <span className="mb-[1.5vw] hidden max-w-[22ch] self-end text-right font-mono text-xs font-normal normal-case leading-relaxed tracking-normal text-[var(--muted)] md:block">
+              Scalable web architectures, predictive intelligence pipelines and bespoke brand
+              systems — built with precision.
+            </span>
+            <span className="prj-outline-accent font-serif font-normal italic normal-case tracking-normal">
+              Work
+            </span>
+          </motion.div>
         </div>
 
-        {/* Filter bar: sticky, solid background (no blur → no per-frame repaint) */}
-        <div className="sticky top-[60px] z-20 mt-4 flex flex-col justify-between gap-3 border-b border-[var(--line)] bg-[var(--page)]/95 pb-3 pt-2 sm:top-[64px] sm:mt-5 sm:flex-row sm:items-center">
+        {/* Filters */}
+        <Container>
           <div
             role="group"
             aria-label="Filter project categories"
-            className="flex flex-wrap items-center gap-x-6 gap-y-2 sm:gap-x-8"
+            className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-[var(--line)] pt-5"
           >
+            <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-[var(--muted)]">
+              Filter
+            </span>
             {FILTERS.map(({ key, label }) => {
               const on = filter === key;
               return (
@@ -1110,42 +1518,36 @@ export function Projects() {
                   aria-pressed={on}
                   onClick={() => changeFilter(key)}
                   className={cn(
-                    "relative pb-2 font-mono text-xs font-semibold uppercase tracking-wider transition-colors duration-200",
-                    on ? "font-bold text-[var(--ink)]" : "text-[var(--muted)] hover:text-[#B39CFF]",
+                    "relative pb-1.5 font-sans text-base font-semibold tracking-tight transition-colors duration-200 sm:text-lg",
+                    on ? "text-[var(--ink)]" : "text-[var(--muted)] hover:text-[var(--ink)]",
                   )}
                 >
-                  <span>{label}</span>
-                  <span className="ml-1.5 font-mono text-xs font-bold tabular-nums text-[#B39CFF]">
-                    [{pad(counts[key])}]
-                  </span>
-
+                  {label}
+                  <sup className="ml-1 font-mono text-[10px] font-bold tabular-nums text-[#7654D6] dark:text-[#B39CFF]">
+                    {pad(counts[key])}
+                  </sup>
                   {on && (
                     <motion.span
-                      layoutId="activeFilterPill"
+                      layoutId="activeFilterLine"
                       aria-hidden="true"
-                      className="absolute inset-x-0 -bottom-2 h-[2px] bg-[#B39CFF]"
-                      transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                      className="absolute inset-x-0 bottom-0 h-[2px] bg-[#B39CFF]"
+                      transition={
+                        reduced
+                          ? { duration: 0 }
+                          : { type: "spring", stiffness: 420, damping: 34 }
+                      }
                     />
-
                   )}
                 </button>
               );
             })}
           </div>
+        </Container>
+      </div>
 
-          <div className="hidden items-center gap-3 font-mono text-xs text-[var(--muted)] sm:flex">
-            <span className="text-[11px] uppercase tracking-wider">Scroll Track</span>
-            <div className="h-1.5 w-24 overflow-hidden rounded-full border border-[var(--line)] bg-[var(--surface-strong)]">
-              <motion.div
-                style={{ scaleX: progressSpring }}
-                className="h-full w-full origin-left bg-[#B39CFF]"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Project Cards */}
-        {list.length === 0 ? (
+      {/* ───────────── Gallery ───────────── */}
+      {list.length === 0 ? (
+        <Container>
           <div className="my-10 rounded-2xl border border-dashed border-[var(--line)] p-8 py-20 text-center sm:my-16 sm:py-24">
             <Layers className="mx-auto mb-3 h-8 w-8 text-[var(--muted)] opacity-60" />
             <p className="font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
@@ -1159,52 +1561,73 @@ export function Projects() {
               Reset to All Projects
             </button>
           </div>
-        ) : (
-          /* keyed by filter: a clean remount + short fade instead of heavy layout animations */
-          <div key={filter} className="prj-list mt-8 sm:mt-12">
-            {list.map((project, idx) => (
-              <ProjectCard
-                key={project.title}
-                project={project}
-                index={idx}
-                total={list.length}
-                reduced={reduced}
-                onOpen={openCase}
-              />
-            ))}
-          </div>
-        )}
+        </Container>
+      ) : usePinnedDesktop ? (
+        <Gallery key={`${filter}-d`} list={list} reduced={reduced} desktop onOpen={openCase} />
+      ) : (
+        <Container>
+          <Gallery
+            key={`${filter}-${desktop ? "s" : "m"}`}
+            list={list}
+            reduced={reduced}
+            desktop={desktop}
+            onOpen={openCase}
+          />
+        </Container>
+      )}
 
-        {/* Section Bottom Footer */}
-        <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--line)] pt-6 font-mono text-xs text-[var(--muted)] sm:mt-24">
-          <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF]" />
-            <span>Ayush Singh — Portfolio Edition 2026</span>
-          </div>
+      {/* ───────────── Marquee ───────────── */}
+      <div className="mt-16 sm:mt-24">
+        <BigMarquee words={MARQUEE_WORDS} />
+      </div>
 
-          <div className="flex items-center gap-4">
-            <Link
-              to="/canva-gallery"
-              onClick={() => playClick()}
-              className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors duration-200 hover:text-[#B39CFF] hover:underline"
-            >
-              <span>Canva Exhibition Gallery</span>
-              <ArrowUpRight className="h-3.5 w-3.5 text-[#B39CFF]" />
-            </Link>
-            <span className="text-[var(--line)]">|</span>
-            <Link
-              to="/resume"
-              onClick={() => playClick()}
-              className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors duration-200 hover:text-[#B39CFF] hover:underline"
-            >
-              <span>Verified Résumé</span>
-              <ArrowUpRight className="h-3.5 w-3.5 text-[#B39CFF]" />
-            </Link>
-          </div>
-        </div>
-      </Container>
+      {/* ───────────── Archive ───────────── */}
+      {list.length > 0 && (
+        <Container>
+          <div className="pb-16 pt-16 sm:pb-20 sm:pt-24">
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+              <h3 className="font-sans text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-5xl">
+                Full{" "}
+                <span className="font-serif font-normal italic text-[#7654D6] dark:text-[#B39CFF]">
+                  Archive
+                </span>
+              </h3>
+              <span className="font-mono text-xs uppercase tracking-widest text-[var(--muted)]">
+                {desktop ? "Hover to preview • Click to open" : "Tap to open"}
+              </span>
+            </div>
+            <Archive list={list} desktop={desktop} reduced={reduced} onOpen={openCase} />
 
-      {/* Case Study Fullscreen Modal */}
+            <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--line)] pt-6 font-mono text-xs text-[var(--muted)]">
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF]" />
+                <span>Ayush Singh — Portfolio Edition 2026</span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/canva-gallery"
+                  onClick={() => playClick()}
+                  className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors duration-200 hover:text-[#7654D6] hover:underline dark:hover:text-[#B39CFF]"
+                >
+                  <span>Canva Exhibition Gallery</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-[#7654D6] dark:text-[#B39CFF]" />
+                </Link>
+                <span className="text-[var(--line)]">|</span>
+                <Link
+                  to="/resume"
+                  onClick={() => playClick()}
+                  className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors duration-200 hover:text-[#7654D6] hover:underline dark:hover:text-[#B39CFF]"
+                >
+                  <span>Verified Résumé</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-[#7654D6] dark:text-[#B39CFF]" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </Container>
+      )}
+
       <AnimatePresence>
         {openProject && openIndex !== null && nextProject && typeof document !== "undefined" && (
           <CaseStudy
@@ -1222,3 +1645,4 @@ export function Projects() {
     </section>
   );
 }
+

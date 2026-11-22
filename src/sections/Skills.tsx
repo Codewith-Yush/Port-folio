@@ -1,71 +1,16 @@
-import { useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import { motion } from "framer-motion";
 import { Container } from "../components/Container";
 import { SectionHeading } from "../components/SectionHeading";
 import { SkillMeter } from "../components/SkillMeter";
 import { skillGroups } from "../data/portfolio";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
-
 export function Skills() {
   const reducedMotion = usePrefersReducedMotion();
-
-  const sectionRef = useRef<HTMLElement>(null);
-  const headingRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      if (reducedMotion) return;
-
-      if (headingRef.current) {
-        gsap.fromTo(
-          headingRef.current,
-          { y: 24, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.7,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: headingRef.current,
-              start: "top 85%",
-              once: true,
-            },
-          }
-        );
-      }
-
-      const cards = gridRef.current?.querySelectorAll(".skills-card");
-      if (cards && cards.length > 0) {
-        gsap.fromTo(
-          cards,
-          { y: 32, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.6,
-            stagger: 0.1,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: gridRef.current,
-              start: "top 85%",
-              once: true,
-            },
-          }
-        );
-      }
-    },
-    { scope: sectionRef, dependencies: [reducedMotion] }
-  );
 
   return (
     <section
       id="skills"
-      ref={sectionRef}
       className="relative flex min-h-[100svh] flex-col justify-center scroll-mt-16 overflow-hidden bg-[var(--page)] py-12 text-[var(--ink)] transition-colors duration-300 sm:scroll-mt-20 sm:py-14 md:scroll-mt-24 lg:py-12 xl:py-16"
     >
       <Container className="relative z-10 my-auto">
@@ -78,22 +23,30 @@ export function Skills() {
           <span className="hidden sm:inline text-[#1E90FF]">[PRODUCTION &amp; INTELLIGENCE STACK]</span>
         </div>
 
-        <div ref={headingRef}>
+        <motion.div
+          initial={reducedMotion ? false : { opacity: 0, y: 24 }}
+          whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
           <SectionHeading
             title="Technical Systems & Architecture"
             copy="Core engineering disciplines across scalable frontend architectures, analytical Power BI data pipelines, and creative design systems."
           />
-        </div>
+        </motion.div>
 
         {/* Minimal Brutalist Responsive Skills Grid */}
         <div
-          ref={gridRef}
           className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-5 xl:gap-6"
           aria-label="Skill Categories"
         >
           {skillGroups.map((group, gIdx) => (
-            <article
+            <motion.article
               key={group.title}
+              initial={reducedMotion ? false : { opacity: 0, y: 32 }}
+              whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, delay: gIdx * 0.08, ease: "easeOut" }}
               className="skills-card group relative flex flex-col justify-between rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 transition-all duration-300 hover:border-[#B39CFF]/50 hover:shadow-[0_12px_30px_-15px_rgba(179,156,255,0.15)] sm:p-6 lg:p-5 xl:p-6"
             >
               {/* Corner crosshair stamp */}
@@ -122,7 +75,7 @@ export function Skills() {
                   ))}
                 </div>
               </div>
-            </article>
+            </motion.article>
           ))}
         </div>
       </Container>

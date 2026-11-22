@@ -103,12 +103,16 @@ export function useActiveSection(hrefs: string[]) {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleResize, { passive: true });
+    window.addEventListener("preloader:done", handleResize);
+    window.addEventListener("preloader:exit", handleResize);
 
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
       if (resizeTimer !== null) clearTimeout(resizeTimer);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("preloader:done", handleResize);
+      window.removeEventListener("preloader:exit", handleResize);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hrefsKey]);
