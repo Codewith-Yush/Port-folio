@@ -1,35 +1,48 @@
 import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
+import { ArrowUpRight, X } from "lucide-react";
 import { navItems } from "../data/portfolio";
 import { useActiveSection } from "../hooks/useActiveSection";
+import { useMagnetic } from "../hooks/useMagnetic";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { cn } from "../utils/cn";
-import { Container } from "./Container";
 import { ThemeToggle } from "./ThemeToggle";
 import { SoundToggle } from "./SoundToggle";
 import { playClick } from "../utils/soundEffects";
 import { scrollToSection } from "../utils/scrollToSection";
 
+/** Minimalist geometric "A" architectural monogram for Ayush */
+function BrandMark({ className = "h-7 w-7" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 36 36" className={cn("fill-none stroke-current", className)} aria-hidden="true">
+      <rect x="2" y="2" width="32" height="32" rx="2.5" strokeWidth="2.4" />
+      <path d="M11 26L18 10L25 26" strokeWidth="2.6" strokeLinecap="square" strokeLinejoin="miter" />
+      <path d="M13.5 21H22.5" strokeWidth="2.4" strokeLinecap="square" />
+    </svg>
+  );
+}
+
 export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
+  const talkMagnetic = useMagnetic<HTMLAnchorElement>(0.2, reducedMotion);
 
-  const hrefs = useMemo(() => navItems.map((item) => item.href), []);
+  const hrefs = useMemo(
+    () => navItems.filter((i) => i.href.startsWith("#")).map((item) => item.href),
+    [],
+  );
   const activeHref = useActiveSection(hrefs);
   const [optimisticHref, setOptimisticHref] = useState<string | null>(null);
 
-  // Clear optimistic active href when active section is updated by scroll
   useEffect(() => {
     setOptimisticHref(null);
   }, [activeHref]);
 
   const effectiveActiveHref = optimisticHref ?? activeHref;
 
-  // Smooth spring scroll progress bar with Framer Motion
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -39,7 +52,6 @@ export function Header() {
 
   const closeMenu = () => setOpen(false);
 
-  // Smooth scroll click handler for navbar links
   const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     playClick();
@@ -50,7 +62,6 @@ export function Header() {
       return;
     }
 
-    // If navigating to hash anchor from another route, navigate to "/#target"
     if (location.pathname !== "/") {
       navigate("/" + (href === "#hero" ? "" : href));
       return;
@@ -60,36 +71,6 @@ export function Header() {
     scrollToSection(href);
   };
 
-  // Scroll handler (rAF-throttled): blur/border state triggers promptly on scroll
-  useEffect(() => {
-    let frame = 0;
-
-    const update = () => {
-      const y = window.scrollY;
-      const scrolled = y > 20;
-      setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
-    };
-
-    update();
-
-    const schedule = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        update();
-      });
-    };
-
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-    };
-  }, []);
-
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -109,281 +90,199 @@ export function Header() {
   }, [open]);
 
   return (
-    <motion.header
-      initial={reducedMotion ? false : { y: -70, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        isScrolled
-          ? "bg-[#F7F5F5]/85 dark:bg-[#0D0D0D]/85 backdrop-blur-2xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] py-2.5 sm:py-3"
-          : "bg-gradient-to-b from-[#F7F5F5]/75 dark:from-black/65 via-[#F7F5F5]/25 dark:via-black/20 to-transparent py-3.5 sm:py-4",
-      )}
-    >
-      {/* Precision Architectural Scroll Progress Bar */}
-      <motion.div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#1E90FF] via-[#B39CFF] to-[#7654D6] origin-left z-50 opacity-90 shadow-[0_0_8px_rgba(179,156,255,0.5)]"
-        style={{ scaleX: reducedMotion ? 1 : scaleX }}
-      />
+    <>
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-[var(--site-margin)] pt-4 sm:pt-7">
+        {/* Precision Scroll Progress Hairline */}
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none fixed top-0 left-0 right-0 h-[2px] origin-left bg-[var(--ink)] opacity-75"
+          style={{ scaleX: reducedMotion ? 1 : scaleX }}
+        />
 
-      <Container className="flex items-center justify-between gap-4">
-        {/* Brand Logo with Status Beacon & Coordinates */}
-        <motion.a
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          href="#hero"
-          onClick={(e) => handleNavClick(e, "#hero")}
-          className="group flex items-center gap-3 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] transition-opacity duration-200"
-          aria-label="Ayush Singh Portfolio Home"
-        >
-          <span className="relative flex h-2.5 w-2.5 items-center justify-center">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1E90FF]/60 dark:bg-[#B39CFF]/60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]" />
-          </span>
-          <span className="font-sans font-extrabold tracking-tight text-sm sm:text-base text-neutral-900 dark:text-white drop-shadow-[0_1px_4px_rgba(255,255,255,0.4)] dark:drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] transition-colors duration-200">
-            Ayush Singh
-          </span>
-          <span className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-600 dark:text-neutral-400 lg:inline-block bg-black/[0.04] dark:bg-white/[0.06] px-2.5 py-0.5 rounded-full backdrop-blur-sm transition-colors duration-200">
-            SYS // 2026
-          </span>
-        </motion.a>
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: Geometric Mark + Ayush (always high-contrast over both #f2ede4 and #252525) */}
+          <Link
+            to="/"
+            onClick={(e) => {
+              if (location.pathname === "/") {
+                e.preventDefault();
+                playClick();
+                scrollToSection("#hero");
+              } else {
+                playClick();
+              }
+            }}
+            aria-label="Ayush Portfolio Home"
+            className="pointer-events-auto group inline-flex h-[34px] items-center gap-2 rounded-[2.5px] border border-[#252525]/15 bg-[#f2ede4]/90 px-2.5 text-[#252525] shadow-sm backdrop-blur-md transition-colors duration-200 hover:border-[#252525]/40 hover:bg-[#f2ede4] sm:h-[35px] sm:px-3"
+          >
+            <BrandMark className="h-5 w-5 transition-transform duration-300 group-hover:scale-105" />
+            <span className="font-display text-[13px] font-bold uppercase tracking-[0.12em]">
+              Ayush
+            </span>
+          </Link>
 
-        {/* Modern Borderless Frosted Glass Navigation Dock (Desktop) */}
-        <nav className="hidden items-center gap-1 rounded-full p-1.5 transition-all duration-300 md:flex relative bg-white/90 dark:bg-[#141416]/90 backdrop-blur-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
-          {navItems.map((item) => {
-            const isRouterLink = item.href.startsWith("/");
-            const isActive = isRouterLink
-              ? location.pathname === item.href
-              : effectiveActiveHref === item.href;
+          {/* Right: Talk to Ayush + Menu (always high-contrast over both #f2ede4 and #252525) */}
+          <div className="pointer-events-auto flex items-center gap-2">
+            <a
+              ref={talkMagnetic.ref}
+              onMouseMove={talkMagnetic.onMouseMove}
+              onMouseLeave={talkMagnetic.onMouseLeave}
+              href="/#contact"
+              onClick={(e) => handleNavClick(e, "#contact")}
+              className="inline-flex h-[34px] items-center gap-2 rounded-[2.5px] border border-[#f2ede4]/25 bg-[#252525] px-3.5 text-[13px] font-semibold text-[#f2ede4] shadow-sm transition-opacity duration-200 hover:opacity-85 will-change-transform sm:h-[35px]"
+            >
+              <ArrowUpRight className="h-3.5 w-3.5" />
+              <span>Talk to Ayush</span>
+            </a>
 
-            const linkContent = (
-              <>
-                {isActive && (
-                  <motion.div
-                    layoutId="navPillIndicator"
-                    className="absolute inset-0 rounded-full bg-neutral-900 text-white dark:bg-[#B39CFF] dark:text-[#0D0D0D] shadow-[0_2px_8px_rgba(0,0,0,0.18)] dark:shadow-[0_0_14px_rgba(179,156,255,0.45)]"
-                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                  />
-                )}
-                <span className="relative z-10">{item.label}</span>
-              </>
-            );
+            <button
+              type="button"
+              onClick={() => {
+                playClick();
+                setOpen((v) => !v);
+              }}
+              aria-expanded={open}
+              aria-controls="site-menu-drawer"
+              aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+              className="inline-flex h-[34px] items-center justify-center rounded-[2.5px] border border-[#252525]/20 bg-[#f2ede4] px-3.5 text-[13px] font-semibold text-[#252525] shadow-sm transition-colors duration-200 hover:bg-[#e9e2d5] sm:h-[35px]"
+            >
+              {open ? "Close" : "Menu"}
+            </button>
+          </div>
+        </div>
+      </header>
 
-            const linkClass = cn(
-              "relative z-10 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-all duration-150 select-none",
-              isActive
-                ? "text-white dark:text-[#0D0D0D] font-bold"
-                : "text-neutral-600 hover:text-neutral-950 dark:text-white/70 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06]",
-            );
+      {/* Slide-Over Navigation Drawer matching jeppesen.dev */}
+      <AnimatePresence>
+        {open && (
+          <div className="fixed inset-0 z-50 flex justify-end">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={closeMenu}
+              className="fixed inset-0 bg-black/35 backdrop-blur-[6px]"
+              aria-hidden="true"
+            />
 
-            if (isRouterLink) {
-              return (
-                <Link
-                  key={item.href}
-                  to={item.href}
+            {/* Drawer Panel: clamp(24rem, 40vw, 48rem) on desktop, 100vw on mobile */}
+            <motion.aside
+              id="site-menu-drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Site Navigation"
+              initial={reducedMotion ? { opacity: 0 } : { x: "100%" }}
+              animate={reducedMotion ? { opacity: 1 } : { x: 0 }}
+              exit={reducedMotion ? { opacity: 0 } : { x: "100%" }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-10 flex h-full w-full flex-col justify-between border-l border-[var(--line)] bg-[var(--page)] p-[var(--site-margin)] text-[var(--ink)] shadow-2xl sm:w-[clamp(24rem,40vw,48rem)]"
+            >
+              {/* Top Bar */}
+              <div className="flex items-center justify-between border-b border-[var(--line)] pb-5">
+                <span className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
+                  Navigation
+                </span>
+                <button
+                  type="button"
                   onClick={() => {
                     playClick();
                     closeMenu();
                   }}
-                  data-nav-item="true"
-                  aria-current={isActive ? "page" : undefined}
-                  className={linkClass}
+                  aria-label="Close menu"
+                  className="inline-flex h-[34px] items-center gap-1.5 rounded-[2.5px] border border-[var(--line)] bg-[var(--surface)] px-3 text-xs font-semibold text-[var(--ink)] transition-colors hover:border-[var(--ink)]"
                 >
-                  {linkContent}
-                </Link>
-              );
-            }
+                  <span>Close</span>
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
 
-            return (
-              <a
-                key={item.href}
-                href={item.href}
-                onClick={(e) => handleNavClick(e, item.href)}
-                data-nav-item="true"
-                aria-current={isActive ? "page" : undefined}
-                className={linkClass}
-              >
-                {linkContent}
-              </a>
-            );
-          })}
-        </nav>
-
-        {/* Right Tools (Sound Toggle + Theme Toggle + Mobile Hamburger) */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          <SoundToggle />
-          <ThemeToggle />
-
-          {/* Mobile Hamburger Button */}
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            type="button"
-            onClick={() => {
-              playClick();
-              setOpen((v) => !v);
-            }}
-            aria-expanded={open}
-            aria-controls="mobile-navigation"
-            aria-label="Toggle navigation menu"
-            className={cn(
-              "group relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 md:hidden",
-              "bg-white/90 dark:bg-[#141416]/90 backdrop-blur-xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.35)] text-neutral-800 dark:text-neutral-200 hover:scale-105 active:scale-95",
-              open &&
-                "!bg-[#1E90FF] dark:!bg-[#B39CFF] !text-white dark:!text-[#0D0D0D]",
-            )}
-          >
-            <span
-              className={cn(
-                "absolute h-[1.5px] w-4 bg-current transition-transform duration-200",
-                open ? "rotate-45" : "-translate-y-1.5",
-              )}
-            />
-            <span
-              className={cn(
-                "absolute h-[1.5px] w-4 bg-current transition-all duration-200",
-                open ? "opacity-0 scale-0" : "opacity-100",
-              )}
-            />
-            <span
-              className={cn(
-                "absolute h-[1.5px] w-4 bg-current transition-transform duration-200",
-                open ? "-rotate-45" : "translate-y-1.5",
-              )}
-            />
-          </motion.button>
-        </div>
-      </Container>
-
-      {/* Mobile Slide-Over Fullscreen Menu with Framer Motion AnimatePresence */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            id="mobile-navigation"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Mobile Navigation Menu"
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-x-0 top-[60px] sm:top-[64px] h-[calc(100svh-60px)] sm:h-[calc(100svh-64px)] z-50 overflow-y-auto bg-[var(--page)]/98 backdrop-blur-3xl shadow-2xl md:hidden"
-          >
-            <div className="flex flex-col justify-between h-full px-6 py-8">
-              <motion.nav
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: {
-                    opacity: 1,
-                    transition: { staggerChildren: 0.05, delayChildren: 0.05 },
-                  },
-                }}
-                className="flex flex-col gap-3"
-              >
-                <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--muted)] mb-2">
-                  [INDEX // DIRECTORY]
-                </span>
-                {navItems.map((item, nIdx) => {
+              {/* Navigation Links */}
+              <nav className="my-auto flex flex-col gap-1.5 py-6" aria-label="Primary">
+                {navItems.map((item, idx) => {
                   const isRouterLink = item.href.startsWith("/");
                   const isActive = isRouterLink
                     ? location.pathname === item.href
-                    : effectiveActiveHref === item.href;
+                    : location.pathname === "/" && effectiveActiveHref === item.href;
 
-                  const content = (
+                  const inner = (
                     <>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-baseline gap-4">
                         <span className="font-mono text-xs tabular-nums text-[var(--muted)]">
-                          0{nIdx + 1}
+                          0{idx + 1}
                         </span>
-                        <span>{item.label}</span>
+                        <span className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+                          {item.label}
+                        </span>
                       </div>
-                      <span
-                        className={cn(
-                          "flex h-7 w-7 items-center justify-center rounded-full text-xs transition-transform duration-200 group-hover:translate-x-1",
-                          isActive
-                            ? "bg-[var(--flame)] text-[var(--page)] dark:bg-[#B39CFF] dark:text-[#0D0D0D] font-bold"
-                            : "text-[var(--ink)] bg-black/[0.04] dark:bg-white/[0.06]",
-                        )}
-                      >
-                        ↗
-                      </span>
+                      <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--ink)]" />
                     </>
                   );
 
-                  const className = cn(
-                    "group flex items-center justify-between rounded-xl px-4 py-3.5 font-sans text-sm font-bold uppercase tracking-[0.14em] transition-all duration-200 shadow-sm",
+                  const linkCls = cn(
+                    "group flex items-center justify-between rounded-[4px] px-3.5 py-2.5 transition-colors duration-200",
                     isActive
-                      ? "bg-neutral-900 text-white dark:bg-[#1C1C20] dark:text-[#B39CFF] shadow-md"
-                      : "bg-white/80 dark:bg-white/[0.04] text-neutral-800 dark:text-white hover:bg-white dark:hover:bg-white/[0.08]",
+                      ? "bg-[var(--surface-strong)] text-[var(--ink)]"
+                      : "text-[var(--ink)] hover:bg-[var(--surface)]",
                   );
+
+                  if (isRouterLink) {
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        onClick={() => {
+                          playClick();
+                          closeMenu();
+                        }}
+                        aria-current={isActive ? "page" : undefined}
+                        className={linkCls}
+                      >
+                        {inner}
+                      </Link>
+                    );
+                  }
 
                   return (
-                    <motion.div
+                    <a
                       key={item.href}
-                      variants={{
-                        hidden: { opacity: 0, y: 14 },
-                        visible: {
-                          opacity: 1,
-                          y: 0,
-                          transition: { duration: 0.3, ease: "easeOut" },
-                        },
-                      }}
+                      href={item.href}
+                      onClick={(e) => handleNavClick(e, item.href)}
+                      aria-current={isActive ? "page" : undefined}
+                      className={linkCls}
                     >
-                      {isRouterLink ? (
-                        <Link
-                          to={item.href}
-                          onClick={() => {
-                            playClick();
-                            closeMenu();
-                          }}
-                          data-mobile-link="true"
-                          aria-current={isActive ? "page" : undefined}
-                          className={className}
-                        >
-                          {content}
-                        </Link>
-                      ) : (
-                        <a
-                          href={item.href}
-                          onClick={(e) => handleNavClick(e, item.href)}
-                          data-mobile-link="true"
-                          aria-current={isActive ? "page" : undefined}
-                          className={className}
-                        >
-                          {content}
-                        </a>
-                      )}
-                    </motion.div>
+                      {inner}
+                    </a>
                   );
                 })}
-              </motion.nav>
+              </nav>
 
-              {/* Bottom Mobile Quick Links */}
-              <div
-                data-mobile-bottom="true"
-                className="pt-6 border-t border-[var(--line)] flex flex-col gap-3"
-              >
-                <div className="flex items-center justify-between text-xs text-[var(--muted)]">
-                  <span>
-                    Status:{" "}
-                    <strong className="text-[#1E90FF] dark:text-[#B39CFF]">
-                      Available for Work
-                    </strong>
+              {/* Drawer Footer: Theme, Sound & Contact */}
+              <div className="flex flex-col gap-4 border-t border-[var(--line)] pt-5">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs uppercase tracking-[0.14em] text-[var(--muted)]">
+                    Preferences
                   </span>
+                  <div className="flex items-center gap-2">
+                    <SoundToggle />
+                    <ThemeToggle />
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--muted)]">
+                  <span>New Delhi, India (IST)</span>
                   <a
                     href="mailto:ayushsingh7360@gmail.com"
-                    className="text-[#1E90FF] dark:text-[#B39CFF] font-bold hover:underline"
+                    className="font-semibold text-[var(--ink)] underline underline-offset-4 hover:opacity-75"
                   >
-                    Email Me ↗
+                    ayushsingh7360@gmail.com
                   </a>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.aside>
+          </div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </>
   );
 }

@@ -55,7 +55,7 @@ export function SoundToggle() {
             className="flex items-center justify-center"
           >
             {enabled ? (
-              <Volume2 className="h-4 w-4 text-[#1E90FF] dark:text-[#B39CFF] transition-colors" />
+              <Volume2 className="h-4 w-4 text-[var(--ink)] dark:text-[var(--ink)] transition-colors" />
             ) : (
               <VolumeX className="h-4 w-4 text-[var(--muted)] group-hover:text-[var(--ink)]" />
             )}
@@ -64,7 +64,7 @@ export function SoundToggle() {
       </div>
       {enabled && (
         <span className="absolute -top-1 -right-1 flex h-2 w-2">
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--ink)] dark:bg-[var(--ink)]" />
         </span>
       )}
     </motion.button>

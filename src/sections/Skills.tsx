@@ -1,84 +1,125 @@
+import { useRef } from "react";
 import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import { Container } from "../components/Container";
-import { SectionHeading } from "../components/SectionHeading";
 import { SkillMeter } from "../components/SkillMeter";
 import { skillGroups } from "../data/portfolio";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
 export function Skills() {
   const reducedMotion = usePrefersReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const surfaceRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      if (reducedMotion || !sectionRef.current || !surfaceRef.current) return;
+      gsap.fromTo(
+        surfaceRef.current,
+        { clipPath: "inset(2.5% 2.5% 0% 2.5% round 8px)" },
+        {
+          clipPath: "inset(0% 0% 0% 0% round 0px)",
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 92%",
+            end: "top 30%",
+            scrub: true,
+          },
+        },
+      );
+    },
+    { scope: sectionRef, dependencies: [reducedMotion] },
+  );
 
   return (
     <section
+      ref={sectionRef}
       id="skills"
-      className="relative flex min-h-[100svh] flex-col justify-center scroll-mt-16 overflow-hidden bg-[var(--page)] py-12 text-[var(--ink)] transition-colors duration-300 sm:scroll-mt-20 sm:py-14 md:scroll-mt-24 lg:py-12 xl:py-16"
+      style={
+        {
+          "--page": "#252525",
+          "--surface": "#1e1e1e",
+          "--surface-strong": "#2f2f2f",
+          "--ink": "#f2ede4",
+          "--muted": "#a3a3a3",
+          "--line": "rgba(242, 237, 228, 0.16)",
+        } as React.CSSProperties
+      }
+      className="relative scroll-mt-16 overflow-hidden bg-[var(--page)] text-[#f2ede4] sm:scroll-mt-20 md:scroll-mt-24"
     >
-      <Container className="relative z-10 my-auto">
-        {/* Architectural Sub-Bar */}
-        <div className="mb-4 flex items-center justify-between border-b border-[var(--line)] pb-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-6 sm:pb-3 sm:text-[11px]">
-          <div className="flex items-center gap-2.5">
-            <span className="h-2 w-2 rounded-full bg-[#B39CFF]" aria-hidden="true" />
-            <span className="font-semibold text-[var(--ink)]">[03 // CAPABILITIES & ARCHITECTURE]</span>
+      <div
+        ref={surfaceRef}
+        className="flex min-h-[100svh] flex-col justify-center bg-[#252525] py-[var(--section-high)] will-change-transform"
+      >
+        <Container className="relative z-10 my-auto">
+          {/* Editorial 12-Col Header matching jeppesen.dev */}
+          <div className="grid grid-cols-12 gap-[var(--gutter)] border-b border-[var(--line)] pb-8">
+            <div className="col-span-12 lg:col-span-8">
+              <p className="mb-3 font-mono text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
+                Capabilities
+              </p>
+              <motion.h2
+                initial={reducedMotion ? false : { opacity: 0, y: 18 }}
+                whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: "some" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="font-display text-[clamp(2rem,4.4vw,4.25rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-[var(--ink)]"
+              >
+                Technical systems &amp; architecture.
+              </motion.h2>
+            </div>
+            <div className="col-span-12 flex items-end lg:col-span-4 lg:justify-end">
+              <p className="max-w-[38ch] text-sm leading-relaxed text-[var(--muted)] sm:text-base lg:text-right">
+                Scalable frontend engineering, Power BI data pipelines, and creative design systems.
+              </p>
+            </div>
           </div>
-          <span className="hidden sm:inline text-[#1E90FF]">[PRODUCTION &amp; INTELLIGENCE STACK]</span>
-        </div>
 
-        <motion.div
-          initial={reducedMotion ? false : { opacity: 0, y: 24 }}
-          whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <SectionHeading
-            title="Technical Systems & Architecture"
-            copy="Core engineering disciplines across scalable frontend architectures, analytical Power BI data pipelines, and creative design systems."
-          />
-        </motion.div>
-
-        {/* Minimal Brutalist Responsive Skills Grid */}
-        <div
-          className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-5 xl:gap-6"
-          aria-label="Skill Categories"
-        >
-          {skillGroups.map((group, gIdx) => (
-            <motion.article
-              key={group.title}
-              initial={reducedMotion ? false : { opacity: 0, y: 32 }}
-              whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.5, delay: gIdx * 0.08, ease: "easeOut" }}
-              className="skills-card group relative flex flex-col justify-between rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 transition-all duration-300 hover:border-[#B39CFF]/50 hover:shadow-[0_12px_30px_-15px_rgba(179,156,255,0.15)] sm:p-6 lg:p-5 xl:p-6"
-            >
-              {/* Corner crosshair stamp */}
-              <span className="brutal-corner-cross left-3 top-2.5 text-[#B39CFF]">+</span>
-              <span className="brutal-corner-cross right-3 top-2.5 font-mono text-[10px] text-[#1E90FF] font-semibold">
-                0{gIdx + 1}
-              </span>
-
-              <div>
-                <div className="mb-2 flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]">
-                  <span className="text-[#1E90FF] font-medium">[{group.category}]</span>
+          {/* Balanced 3-Column Editorial Grid matching jeppesen.dev 20px gutter & 4px radius */}
+          <div
+            className="mt-10 grid grid-cols-1 gap-[var(--gutter)] md:grid-cols-3"
+            aria-label="Skill Categories"
+          >
+            {skillGroups.map((group, gIdx) => (
+              <motion.article
+                key={group.title}
+                initial={reducedMotion ? false : { opacity: 0, y: 24 }}
+                whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: "some" }}
+                transition={{ duration: 0.55, delay: gIdx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col justify-between rounded-[4px] border border-[var(--line)] bg-[#1e1e1e]/75 p-6 transition-colors duration-300 hover:border-[#f2ede4]/40 sm:p-7"
+              >
+                <div>
+                  <div className="mb-4 flex items-center justify-between border-b border-[var(--line)] pb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
+                    <span>{group.category}</span>
+                    <span className="tabular-nums text-[var(--ink)]">0{gIdx + 1}</span>
+                  </div>
+                  <h3 className="mb-6 font-display text-xl font-semibold tracking-tight text-[var(--ink)] sm:text-2xl">
+                    {group.title}
+                  </h3>
+                  <div className="grid gap-4">
+                    {group.skills.map((skill, sIdx) => (
+                      <SkillMeter
+                        key={skill.name}
+                        name={skill.name}
+                        level={skill.level}
+                        tier={skill.tier}
+                        tags={skill.tags}
+                        index={sIdx}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <h3 className="mb-4 font-sans text-lg font-bold tracking-tight text-[var(--ink)] sm:mb-5 sm:text-xl">
-                  {group.title}
-                </h3>
-                <div className="grid gap-3 lg:gap-3 xl:gap-3.5">
-                  {group.skills.map((skill, sIdx) => (
-                    <SkillMeter
-                      key={skill.name}
-                      name={skill.name}
-                      level={skill.level}
-                      tier={skill.tier}
-                      tags={skill.tags}
-                      index={sIdx}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.article>
-          ))}
-        </div>
-      </Container>
+              </motion.article>
+            ))}
+          </div>
+        </Container>
+      </div>
     </section>
   );
 }

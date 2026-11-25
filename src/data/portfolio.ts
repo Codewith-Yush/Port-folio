@@ -41,7 +41,7 @@ export type Service = {
 };
 
 export const personalInfo = {
-  name: "Ayush Singh",
+  name: "Ayush",
   title: "Full Stack Developer & Creative Technologist",
   headline:
     "Full Stack Developer, Creative Technologist & Data Science (Power BI)",
@@ -56,7 +56,9 @@ export const personalInfo = {
 };
 
 export const navItems = [
-  { label: "Work", href: "#work" },
+  { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
+  { label: "Projects", href: "/projects" },
   { label: "Skills", href: "#skills" },
   { label: "Services", href: "#services" },
   { label: "Gallery", href: "/canva-gallery" },

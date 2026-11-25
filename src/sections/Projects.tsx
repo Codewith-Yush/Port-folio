@@ -1,36 +1,25 @@
 import {
-  memo,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
   startTransition,
-  type ReactNode,
   type RefObject,
 } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   motion,
   AnimatePresence,
   animate,
   useInView,
   useMotionValue,
-  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import {
-  ArrowUpRight,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  ArrowLeft,
-  Layers,
-  TrendingUp,
-} from "lucide-react";
+import { ArrowUpRight, ArrowRight, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { cn } from "../utils/cn";
 import { projects, type Project } from "../data/portfolio";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
@@ -39,50 +28,7 @@ import { Container } from "../components/Container";
 import { playTab, playClick } from "../utils/soundEffects";
 
 /* ========================================================================== */
-/*  Styles — transform / opacity only. No 3D, no blur filters.                */
-/* ========================================================================== */
-
-const STYLES = `
-@keyframes prj-marquee {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-50%, 0, 0); }
-}
-.prj-marquee-track {
-  display: flex;
-  width: max-content;
-  will-change: transform;
-  animation: prj-marquee 52s linear infinite;
-}
-
-@keyframes prj-list-in {
-  from { opacity: 0; transform: translate3d(0, 16px, 0); }
-  to   { opacity: 1; transform: translate3d(0, 0, 0); }
-}
-.prj-list-in { animation: prj-list-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
-
-.prj-outline { color: transparent; -webkit-text-stroke: 1px var(--line); }
-.prj-outline-accent { color: transparent; -webkit-text-stroke: 1px #B39CFF; }
-@media (min-width: 768px) {
-  .prj-outline-accent { -webkit-text-stroke-width: 1.5px; }
-}
-
-.prj-underline {
-  background-image: linear-gradient(currentColor, currentColor);
-  background-size: 0% 1px;
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  transition: background-size 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.prj-underline:hover { background-size: 100% 1px; }
-
-@media (prefers-reduced-motion: reduce) {
-  .prj-marquee-track { animation: none; }
-  .prj-list-in { animation: none; }
-}
-`;
-
-/* ========================================================================== */
-/*  Config                                                                    */
+/*  Tokens                                                                    */
 /* ========================================================================== */
 
 type FilterCategory = "all" | "web" | "data" | "design";
@@ -90,38 +36,19 @@ type Category = Exclude<FilterCategory, "all">;
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
+const ACCENT_TEXT = "text-[var(--ink)]";
+
 const FILTERS: { key: FilterCategory; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "web", label: "Web Systems" },
+  { key: "all", label: "All work" },
+  { key: "web", label: "Web" },
   { key: "data", label: "Data & ML" },
-  { key: "design", label: "Visual Direction" },
+  { key: "design", label: "Brand & design" },
 ];
 
-const CATEGORY_META: Record<
-  Category,
-  { label: string; badge: string; accentColor: string; badgeClass: string; dotColor: string }
-> = {
-  web: {
-    label: "Web Architecture",
-    badge: "Web System",
-    accentColor: "#1E90FF",
-    badgeClass: "text-[#1677D9] dark:text-[#1E90FF] bg-[#1E90FF]/10 border-[#1E90FF]/30",
-    dotColor: "bg-[#1E90FF]",
-  },
-  data: {
-    label: "Data Intelligence",
-    badge: "Data & ML",
-    accentColor: "#B39CFF",
-    badgeClass: "text-[#7654D6] dark:text-[#B39CFF] bg-[#B39CFF]/10 border-[#B39CFF]/30",
-    dotColor: "bg-[#B39CFF]",
-  },
-  design: {
-    label: "Visual Direction",
-    badge: "Brand Identity",
-    accentColor: "#B39CFF",
-    badgeClass: "text-[#7654D6] dark:text-[#B39CFF] bg-[#B39CFF]/10 border-[#B39CFF]/30",
-    dotColor: "bg-[#B39CFF]",
-  },
+const CATEGORY_LABEL: Record<Category, string> = {
+  web: "Web system",
+  data: "Data & ML",
+  design: "Brand identity",
 };
 
 const GithubIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
@@ -130,6 +57,7 @@ const GithubIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
   </svg>
 );
 
+/* ------------------------------ Categorisation ---------------------------- */
 const isDesignProject = (p: Project) =>
   p.category === "design" ||
   Boolean(p.galleryLink) ||
@@ -159,26 +87,10 @@ const matches = (p: Project, key: FilterCategory) =>
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-const getDomainUrl = (p: Project) => {
-  if (p.link) {
-    try {
-      return new URL(p.link).hostname.replace(/^www\./, "");
-    } catch {
-      return p.link;
-    }
-  }
-  if (p.galleryLink) return "canva.com/gallery";
-  if (p.github) return "github.com/repository";
-  return "system.internal";
-};
-
 function jumpMotionValue(mv: MotionValue<number>, value: number) {
   const withJump = mv as MotionValue<number> & { jump?: (v: number) => void };
-  if (typeof withJump.jump === "function") {
-    withJump.jump(value);
-  } else {
-    mv.set(value);
-  }
+  if (typeof withJump.jump === "function") withJump.jump(value);
+  else mv.set(value);
 }
 
 function useIsDesktop() {
@@ -227,17 +139,16 @@ function CountUp({
   rootRef?: RefObject<Element | null>;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { root: rootRef, once: true, amount: 0.4 });
+  const inView = useInView(ref, { root: rootRef, once: true, amount: "some" });
   const parsed = useMemo(() => parseMetric(value), [value]);
 
   useEffect(() => {
     if (disabled || !inView || !parsed) return;
     const controls = animate(0, parsed.target, {
-      duration: 1.4,
+      duration: 1.2,
       ease: EASE,
       onUpdate: (v) => {
-        if (ref.current)
-          ref.current.textContent = `${parsed.prefix}${fmt(parsed, v)}${parsed.suffix}`;
+        if (ref.current) ref.current.textContent = `${parsed.prefix}${fmt(parsed, v)}${parsed.suffix}`;
       },
       onComplete: () => {
         if (ref.current) ref.current.textContent = value;
@@ -248,73 +159,6 @@ function CountUp({
 
   const initial = !disabled && parsed ? `${parsed.prefix}${fmt(parsed, 0)}${parsed.suffix}` : value;
   return <span ref={ref}>{initial}</span>;
-}
-
-/** Masked word-by-word reveal. */
-function SplitWords({
-  text,
-  reduced,
-  className,
-  delay = 0,
-  inView = true,
-}: {
-  text: string;
-  reduced: boolean;
-  className?: string;
-  delay?: number;
-  inView?: boolean;
-}) {
-  const words = useMemo(() => text.split(" "), [text]);
-
-  return (
-    <span className={className} aria-label={text}>
-      {words.map((w, i) => (
-        <span
-          key={`${w}-${i}`}
-          aria-hidden="true"
-          className="inline-block overflow-hidden pb-[0.14em] align-bottom"
-        >
-          <motion.span
-            className="inline-block"
-            initial={reduced ? false : { y: "112%" }}
-            animate={inView ? undefined : { y: "0%" }}
-            whileInView={inView ? { y: "0%" } : undefined}
-            viewport={inView ? { once: true, amount: 0.25 } : undefined}
-            transition={{ duration: 0.85, ease: EASE, delay: delay + i * 0.05 }}
-          >
-            {w}
-            {"\u00A0"}
-          </motion.span>
-        </span>
-      ))}
-    </span>
-  );
-}
-
-function Reveal({
-  children,
-  delay = 0,
-  reduced,
-  rootRef,
-  className,
-}: {
-  children: ReactNode;
-  delay?: number;
-  reduced: boolean;
-  rootRef?: RefObject<Element | null>;
-  className?: string;
-}) {
-  return (
-    <motion.div
-      className={className}
-      initial={reduced ? false : { opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.15, root: rootRef }}
-      transition={{ duration: 0.7, ease: EASE, delay }}
-    >
-      {children}
-    </motion.div>
-  );
 }
 
 function ProjectPicture({
@@ -329,7 +173,6 @@ function ProjectPicture({
   className?: string;
 }) {
   const isWebp = /\.webp$/i.test(src);
-
   return (
     <picture className="block h-full w-full">
       {isWebp && (
@@ -353,482 +196,308 @@ function ProjectPicture({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Big outlined marquee                                                      */
-/* -------------------------------------------------------------------------- */
-function BigMarquee({ words }: { words: string[] }) {
-  // 4 copies (2 per -50% cycle) avoids gaps on ultrawide 4K/5K viewports.
-  const row = useMemo(() => [...words, ...words, ...words, ...words], [words]);
+/* ========================================================================== */
+/*  Heading: one orchestrated line-by-line reveal                             */
+/* ========================================================================== */
 
+function RevealLine({
+  children,
+  delay = 0,
+  reduced,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  reduced: boolean;
+}) {
+  return (
+    <span className="block overflow-hidden pb-[0.12em]">
+      <motion.span
+        className="block"
+        initial={reduced ? false : { y: "110%" }}
+        whileInView={{ y: "0%" }}
+        viewport={{ once: true, amount: "some" }}
+        transition={{ duration: 0.9, ease: EASE, delay }}
+      >
+        {children}
+      </motion.span>
+    </span>
+  );
+}
+
+/* ========================================================================== */
+/*  Filter: segmented control with a sliding pill                             */
+/* ========================================================================== */
+
+function FilterBar({
+  filter,
+  counts,
+  reduced,
+  onChange,
+}: {
+  filter: FilterCategory;
+  counts: Record<FilterCategory, number>;
+  reduced: boolean;
+  onChange: (k: FilterCategory) => void;
+}) {
   return (
     <div
-      aria-hidden="true"
-      className="overflow-hidden border-y border-[var(--line)] py-5 sm:py-7"
+      role="group"
+      aria-label="Filter projects"
+      className="inline-flex max-w-full gap-1 overflow-x-auto rounded-[4px] border border-[var(--line)] bg-[var(--surface)] p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
-      <div className="prj-marquee-track">
-        {row.map((w, i) => (
-          <span
-            key={`${w}-${i}`}
-            className="flex shrink-0 items-center gap-8 pr-8 font-sans text-[clamp(2.5rem,7vw,6rem)] font-bold uppercase leading-none tracking-tight"
+      {FILTERS.map(({ key, label }) => {
+        const on = filter === key;
+        return (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={on}
+            onClick={() => onChange(key)}
+            className={cn(
+              "relative shrink-0 rounded-[2.5px] px-4 py-2 text-sm font-medium outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[#5b5b5b]",
+              on ? "text-[var(--page)]" : "text-[var(--muted)] hover:text-[var(--ink)]",
+            )}
           >
-            <span className={i % 2 === 0 ? "prj-outline" : "text-[var(--ink)]"}>{w}</span>
-            <span className="font-serif italic text-[#B39CFF]">✦</span>
-          </span>
-        ))}
-      </div>
+            {on && (
+              <motion.span
+                layoutId="projects-filter-pill"
+                aria-hidden="true"
+                className="absolute inset-0 rounded-[2.5px] bg-[var(--ink)]"
+                transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 460, damping: 36 }}
+              />
+            )}
+            <span className="relative flex items-center gap-1.5">
+              {label}
+              <span className={cn("text-xs tabular-nums", on ? "opacity-60" : "opacity-50")}>
+                {counts[key]}
+              </span>
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Project panel (used in the horizontal track, single desktop & mobile)     */
-/* -------------------------------------------------------------------------- */
-const ProjectPanel = memo(function ProjectPanel({
+/* ========================================================================== */
+/*  Featured panel (stacks on scroll)                                         */
+/* ========================================================================== */
+
+function FeaturedPanel({
   project,
   index,
   total,
-  reduced,
-  desktop,
-  enableParallax,
   progress,
+  stack,
+  reduced,
   onOpen,
 }: {
   project: Project;
   index: number;
   total: number;
-  reduced: boolean;
-  desktop: boolean;
-  enableParallax: boolean;
   progress: MotionValue<number>;
-  onOpen: (index: number) => void;
+  stack: boolean;
+  reduced: boolean;
+  onOpen: (i: number) => void;
 }) {
-  const meta = CATEGORY_META[getCategory(project)];
-  const domainUrl = getDomainUrl(project);
-  const denom = Math.max(1, total - 1);
+  const category = getCategory(project);
+  const isLast = index === total - 1;
+  const start = index / total;
 
-  // Bounded percentage parallax paired with scale: 1.14 (7% overhang each side)
-  // prevents exposing container edges on any viewport width or list length.
-  const imgX = useTransform(progress, (v) => {
-    const pct = Math.max(-5.5, Math.min(5.5, (v - index / denom) * -9));
-    return `${pct}%`;
-  });
-  const ghostX = useTransform(progress, (v) => (v - index / denom) * -140);
+  // Scroll-linked: previous panels recede as the next one slides over them.
+  const scale = useTransform(progress, [start, 1], [1, isLast ? 1 : 1 - (total - 1 - index) * 0.025 - 0.03]);
+  const veil = useTransform(progress, [start, 1], [0, isLast ? 0 : 0.55]);
+  const imgY = useTransform(progress, [start, 1], [0, -16]);
 
-  const open = () => onOpen(index);
+  const liveHref = project.galleryLink ?? project.link;
 
   return (
-    <article
-      className={cn(
-        "relative isolate shrink-0",
-        desktop
-          ? enableParallax
-            ? "h-[clamp(460px,66vh,660px)] w-[78vw] max-w-[1320px]"
-            : "h-[clamp(460px,66vh,660px)] w-full"
-          : "mb-14 w-full last:mb-0",
-      )}
+    <motion.div
+      initial={reduced ? false : { opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.6, ease: EASE }}
+      style={stack ? { position: "sticky", top: `${6 + index * 0.75}rem` } : undefined}
+      className="will-change-transform"
     >
-      {/* ghost index */}
-      <motion.span
-        aria-hidden="true"
-        style={enableParallax && !reduced ? { x: ghostX } : undefined}
-        className="prj-outline pointer-events-none absolute -top-[5vh] right-[2%] -z-10 select-none font-serif text-[clamp(7.5rem,20vw,19rem)] italic leading-none opacity-80"
+      <motion.article
+        style={stack ? { scale, transformOrigin: "50% 0%" } : undefined}
+        className="relative overflow-hidden rounded-[4px] border border-[var(--line)] bg-[var(--surface)] p-4 shadow-[0_30px_80px_-40px_rgba(0,0,0,0.45)] md:p-10"
       >
-        {pad(index + 1)}
-      </motion.span>
-
-      <div
-        className={cn(
-          "grid h-full gap-6",
-          desktop ? "grid-cols-12 gap-8 xl:gap-10" : "grid-cols-1",
-        )}
-      >
-        {/* IMAGE */}
-        <div className={cn("relative", desktop ? "col-span-7 h-full" : "")}>
-          <motion.div
-            initial={reduced ? false : { opacity: 0, scale: 0.96 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.85, ease: EASE }}
-            onClick={open}
-            data-cursor={desktop ? "View" : undefined}
-            role="button"
-            tabIndex={0}
+        <div className="grid grid-cols-1 gap-[var(--gutter)] lg:grid-cols-12">
+          {/* Media (3:2 aspect ratio, 4px radius matching jeppesen.dev) */}
+          <button
+            type="button"
+            onClick={() => onOpen(index)}
+            data-cursor="View"
             aria-label={`Open case study: ${project.title}`}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                open();
-              }
-            }}
-            className={cn(
-              "group/image relative isolate w-full cursor-pointer overflow-hidden rounded-[20px] border border-[var(--line)] bg-neutral-950 outline-none focus-visible:ring-2 focus-visible:ring-[#B39CFF]",
-              desktop ? "h-full" : "aspect-[4/3] sm:aspect-[16/10]",
-            )}
+            className="group relative flex aspect-[3/2] items-center justify-center overflow-hidden rounded-[4px] bg-[#1e1e1e] p-5 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#5b5b5b] sm:p-8 lg:col-span-7"
           >
-            <motion.div
-              style={
-                enableParallax && !reduced
-                  ? { x: imgX, scale: 1.14, willChange: "transform" }
-                  : undefined
-              }
-              className="absolute inset-0"
-            >
-              <div className="h-full w-full transition-transform duration-700 ease-out group-hover/image:scale-[1.04]">
+            <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[4px] border border-white/10 bg-[#141414] shadow-[0_24px_50px_-16px_rgba(0,0,0,0.65)] transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]">
+              <div className="flex h-6 shrink-0 items-center justify-between border-b border-white/10 bg-[#1a1a1a] px-3">
+                <div className="flex items-center gap-1.5" aria-hidden="true">
+                  <span className="h-2 w-2 rounded-full bg-white/25" />
+                  <span className="h-2 w-2 rounded-full bg-white/15" />
+                  <span className="h-2 w-2 rounded-full bg-white/10" />
+                </div>
+                <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/45">
+                  {CATEGORY_LABEL[category]} · {project.year}
+                </span>
+              </div>
+              <motion.div
+                style={stack ? { y: imgY } : undefined}
+                className="min-h-0 flex-1 will-change-transform"
+              >
                 <ProjectPicture
                   src={project.image}
                   alt={project.title}
                   eager={index < 2}
-                  className="h-full w-full object-cover object-top"
+                  className="h-full w-full object-contain object-center"
                 />
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
+          </button>
 
-            {/* Scrim for guaranteed legibility without mix-blend artifacts */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/25" />
-
-            {/* top meta */}
-            <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4 font-mono text-[11px] uppercase tracking-widest text-white/90 sm:p-5">
-              <span className="flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", meta.dotColor)} />
-                {meta.label}
-              </span>
-              <span className="rounded-full border border-white/15 bg-black/35 px-3 py-1">
+          {/* Details */}
+          <div className="flex flex-col justify-between gap-6 pt-1 lg:col-span-5 lg:py-2">
+            <div>
+              <p className="flex items-center gap-2 text-sm text-[var(--muted)]">
+                <span className={cn("h-1.5 w-1.5 rounded-full bg-current", ACCENT_TEXT)} />
+                {CATEGORY_LABEL[category]}
+                <span aria-hidden="true" className="opacity-40">/</span>
                 {project.year}
-              </span>
+              </p>
+
+              <h3 className="mt-4 text-3xl font-semibold leading-[1.05] tracking-tight text-[var(--ink)] sm:text-4xl xl:text-5xl">
+                {project.title}
+              </h3>
+
+              <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-[var(--muted)]">
+                {project.description}
+              </p>
+
+              {project.metrics.length > 0 && (
+                <dl className="mt-8 grid grid-cols-2 gap-6 border-t border-[var(--line)] pt-6">
+                  {project.metrics.slice(0, 2).map((m) => (
+                    <div key={m.label}>
+                      <dt className="order-2 mt-1 text-sm text-[var(--muted)]">{m.label}</dt>
+                      <dd className="text-3xl font-semibold tabular-nums tracking-tight text-[var(--ink)] sm:text-4xl">
+                        <CountUp value={m.value} disabled={reduced} />
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
             </div>
 
-            {/* overlay title */}
-            <h3 className="absolute bottom-4 left-4 right-4 font-sans text-[clamp(1.85rem,4.2vw,4.25rem)] font-bold leading-[0.95] tracking-tight text-white drop-shadow-sm sm:bottom-6 sm:left-6 sm:right-6">
-              <SplitWords text={project.title} reduced={reduced} />
-            </h3>
-          </motion.div>
-        </div>
+            <div className="space-y-6">
+              <ul className="flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-[var(--muted)]">
+                {project.stack.slice(0, 6).map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
 
-        {/* TEXT */}
-        <div
-          className={cn(
-            "flex flex-col justify-between gap-4 xl:gap-6",
-            desktop ? "col-span-5 py-0.5" : "",
-          )}
-        >
-          <div>
-            <div className="mb-3 flex items-center gap-3 font-mono text-xs text-[var(--muted)] xl:mb-5">
-              <span className="font-bold text-[#7654D6] dark:text-[#B39CFF]">
-                {pad(index + 1)} / {pad(total)}
-              </span>
-              <span className="h-px flex-1 bg-[var(--line)]" />
-              <span className="truncate">{project.role}</span>
-            </div>
-
-            <p className="text-sm leading-relaxed text-[var(--ink)] sm:text-base xl:text-lg">
-              {project.description}
-            </p>
-
-            <div className="mt-4 flex flex-wrap gap-1.5 xl:mt-5">
-              {project.stack.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-full border border-[var(--line)] px-2.5 py-0.5 font-mono text-[11px] text-[var(--muted)] transition-colors duration-200 hover:border-[#B39CFF]/60 hover:text-[var(--ink)] xl:px-3 xl:py-1"
+              <div className="flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => onOpen(index)}
+                  className="group/cta inline-flex h-[46px] items-center gap-2 rounded-[4px] bg-[var(--ink)] px-5 text-sm font-medium text-[var(--page)] outline-none transition-transform duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#5b5b5b] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
                 >
-                  {t}
-                </span>
-              ))}
+                  Read the case study
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/cta:translate-x-0.5" />
+                </button>
+
+                {project.galleryLink ? (
+                  <Link
+                    to={project.galleryLink}
+                    onClick={() => playClick()}
+                    className="inline-flex h-[35px] items-center gap-1.5 rounded-[2.5px] border border-[var(--line)] px-3.5 text-xs font-semibold text-[var(--ink)] outline-none transition-colors hover:border-[var(--ink)] focus-visible:ring-2 focus-visible:ring-[#5b5b5b]"
+                  >
+                    Open gallery
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </Link>
+                ) : liveHref ? (
+                  <a
+                    href={liveHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => playClick()}
+                    className="inline-flex h-[35px] items-center gap-1.5 rounded-[2.5px] border border-[var(--line)] px-3.5 text-xs font-semibold text-[var(--ink)] outline-none transition-colors hover:border-[var(--ink)] focus-visible:ring-2 focus-visible:ring-[#5b5b5b]"
+                  >
+                    Live site
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </a>
+                ) : null}
+
+                {project.github && (
+                  <a
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => playClick()}
+                    aria-label={`${project.title} source code on GitHub`}
+                    className="grid h-[35px] w-[35px] place-items-center rounded-[2.5px] border border-[var(--line)] text-[var(--muted)] outline-none transition-colors hover:border-[var(--ink)] hover:text-[var(--ink)] focus-visible:ring-2 focus-visible:ring-[#5b5b5b]"
+                  >
+                    <GithubIcon />
+                  </a>
+                )}
+              </div>
             </div>
           </div>
-
-          {project.metrics.length > 0 && (
-            <dl className="grid grid-cols-2 border-y border-[var(--line)]">
-              {project.metrics.slice(0, 4).map((m, i) => (
-                <div
-                  key={m.label}
-                  className={cn(
-                    "py-2.5 xl:py-3.5",
-                    i % 2 === 0 ? "pr-4" : "border-l border-[var(--line)] pl-4",
-                    i > 1 && "border-t border-[var(--line)]",
-                  )}
-                >
-                  <dd className="font-sans text-2xl font-bold tabular-nums tracking-tight text-[var(--ink)] xl:text-4xl">
-                    <CountUp value={m.value} disabled={reduced} />
-                  </dd>
-                  <dt className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[var(--muted)] xl:mt-1">
-                    {m.label}
-                  </dt>
-                </div>
-              ))}
-            </dl>
-          )}
-
-          <div className="flex flex-wrap items-center gap-2.5 xl:gap-3">
-            {project.galleryLink ? (
-              <Link
-                to={project.galleryLink}
-                onClick={() => playClick()}
-                className="btn-neo-base btn-neo-primary inline-flex h-10 items-center gap-2 px-4 text-xs font-bold xl:h-11 xl:px-5"
-              >
-                <span>Exhibition Showcase</span>
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            ) : project.link ? (
-              <a
-                href={project.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => playClick()}
-                className="btn-neo-base btn-neo-primary inline-flex h-10 items-center gap-2 px-4 text-xs font-bold xl:h-11 xl:px-5"
-              >
-                <span>Launch Live</span>
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
-            ) : null}
-
-            {project.github && (
-              <a
-                href={project.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => playClick()}
-                className="btn-neo-base btn-neo-secondary inline-flex h-10 items-center gap-2 px-3.5 text-xs font-semibold xl:h-11 xl:px-4"
-              >
-                <GithubIcon className="h-4 w-4 text-[var(--muted)]" />
-                <span>Source</span>
-              </a>
-            )}
-
-            <button
-              type="button"
-              onClick={open}
-              className="prj-underline ml-1 inline-flex items-center gap-1.5 pb-0.5 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--ink)]"
-            >
-              <span>Case Study</span>
-              <ArrowRight className="h-3.5 w-3.5 text-[#7654D6] dark:text-[#B39CFF]" />
-            </button>
-          </div>
-
-          <span className="sr-only">{domainUrl}</span>
         </div>
-      </div>
-    </article>
+
+        {/* Recede veil for stacked panels */}
+        {stack && (
+          <motion.div
+            aria-hidden="true"
+            style={{ opacity: veil }}
+            className="pointer-events-none absolute inset-0 rounded-[4px] bg-[var(--page)]"
+          />
+        )}
+      </motion.article>
+    </motion.div>
   );
-});
+}
 
-/* -------------------------------------------------------------------------- */
-/*  Pinned horizontal gallery (desktop) / vertical list (mobile & single)     */
-/* -------------------------------------------------------------------------- */
-function Gallery({
+function FeaturedStack({
   list,
-  reduced,
   desktop,
+  reduced,
   onOpen,
 }: {
   list: Project[];
-  reduced: boolean;
   desktop: boolean;
+  reduced: boolean;
   onOpen: (i: number) => void;
 }) {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const pinned = desktop && !reduced && list.length > 1;
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const stack = desktop && !reduced && list.length > 1;
 
-  const { scrollYProgress } = useScroll({
-    target: wrapRef,
-    offset: ["start start", "end end"],
-  });
-
-  const maxX = useMotionValue(0);
-  useEffect(() => {
-    if (!pinned) return;
-    const el = trackRef.current;
-    if (!el) return;
-    const measure = () => maxX.set(Math.max(0, el.scrollWidth - window.innerWidth));
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    window.addEventListener("resize", measure);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", measure);
-    };
-  }, [list, pinned, maxX]);
-
-  const x = useTransform([scrollYProgress, maxX], ([p, m]: number[]) => -p * m);
-  const barScale = useSpring(scrollYProgress, { stiffness: 220, damping: 32 });
-
-  const [active, setActive] = useState(0);
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    if (!pinned) return;
-    const n = Math.max(0, list.length - 1);
-    const i = Math.min(n, Math.max(0, Math.round(v * n)));
-    setActive((prev) => (prev === i ? prev : i));
-  });
-
-  useEffect(() => {
-    setActive(0);
-  }, [list]);
-
-  // Preload next panel's screenshot ahead of scroll
-  useEffect(() => {
-    if (!pinned) return;
-    const nextImg = list[active + 1]?.image;
-    if (!nextImg) return;
-    const img = new Image();
-    img.decoding = "async";
-    img.src = nextImg;
-  }, [active, list, pinned]);
-
-  const jump = (i: number) => {
-    const clamped = Math.max(0, Math.min(list.length - 1, i));
-    playTab();
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    const n = Math.max(1, list.length - 1);
-    const range = wrap.offsetHeight - window.innerHeight;
-    const top = wrap.getBoundingClientRect().top + window.scrollY + (clamped / n) * range;
-    window.scrollTo({ top, behavior: "smooth" });
-  };
-
-  if (!pinned) {
-    return (
-      <div className="prj-list-in mt-10">
-        {list.map((p, i) => (
-          <ProjectPanel
-            key={p.title}
-            project={p}
+  return (
+    <Container>
+      <div ref={ref} className={cn("flex flex-col gap-6", stack && "lg:gap-[16vh]")}>
+        {list.map((project, i) => (
+          <FeaturedPanel
+            key={project.title}
+            project={project}
             index={i}
             total={list.length}
-            reduced={reduced}
-            desktop={desktop}
-            enableParallax={false}
             progress={scrollYProgress}
+            stack={stack}
+            reduced={reduced}
             onOpen={onOpen}
           />
         ))}
       </div>
-    );
-  }
-
-  return (
-    <div
-      ref={wrapRef}
-      className="prj-list-in relative"
-      style={{ height: `${list.length * 85 + 20}vh` }}
-    >
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        <motion.div
-          ref={trackRef}
-          style={{ x, willChange: "transform" }}
-          className="flex items-center gap-[5vw] px-[max(8vw,calc(50vw-660px))] pb-16 pt-4"
-        >
-          {list.map((p, i) => (
-            <ProjectPanel
-              key={p.title}
-              project={p}
-              index={i}
-              total={list.length}
-              reduced={reduced}
-              desktop
-              enableParallax
-              progress={scrollYProgress}
-              onOpen={onOpen}
-            />
-          ))}
-        </motion.div>
-
-        {/* HUD */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10">
-          <Container>
-            <div className="flex items-end justify-between gap-8 pb-5 xl:pb-6">
-              <div className="min-w-0 max-w-[260px]">
-                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--muted)]">
-                  Now viewing
-                </span>
-                <div className="relative h-7 overflow-hidden">
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
-                      key={active}
-                      initial={{ y: "100%" }}
-                      animate={{ y: "0%" }}
-                      exit={{ y: "-100%" }}
-                      transition={{ duration: 0.4, ease: EASE }}
-                      className="truncate font-sans text-lg font-bold tracking-tight text-[var(--ink)] xl:text-xl"
-                    >
-                      {list[active]?.title}
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-              </div>
-
-              <div className="pointer-events-auto flex flex-1 items-center gap-4">
-                <div className="relative h-px flex-1 bg-[var(--line)]">
-                  <motion.div
-                    style={{ scaleX: barScale }}
-                    className="absolute inset-0 origin-left bg-[#B39CFF]"
-                  />
-                  {list.map((p, i) => (
-                    <button
-                      key={p.title}
-                      type="button"
-                      aria-label={`Go to ${p.title}`}
-                      aria-current={i === active ? "step" : undefined}
-                      onClick={() => jump(i)}
-                      style={{ left: `${(i / Math.max(1, list.length - 1)) * 100}%` }}
-                      className="group/dot absolute top-1/2 grid h-7 w-7 -translate-x-1/2 -translate-y-1/2 place-items-center outline-none"
-                    >
-                      <span
-                        className={cn(
-                          "h-2.5 w-2.5 rounded-full border transition-[transform,background-color,border-color,box-shadow] duration-300",
-                          i === active
-                            ? "scale-125 border-[#B39CFF] bg-[#B39CFF] ring-4 ring-[#B39CFF]/25"
-                            : i < active
-                              ? "border-[#B39CFF] bg-[#B39CFF]"
-                              : "border-[var(--line)] bg-[var(--page)] group-hover/dot:border-[#B39CFF]",
-                        )}
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pointer-events-auto flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    disabled={active === 0}
-                    onClick={() => jump(active - 1)}
-                    aria-label="Previous project in gallery"
-                    className="grid h-7 w-7 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-colors hover:border-[var(--ink)] hover:text-[var(--ink)] disabled:pointer-events-none disabled:opacity-30"
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    disabled={active === list.length - 1}
-                    onClick={() => jump(active + 1)}
-                    aria-label="Next project in gallery"
-                    className="grid h-7 w-7 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-colors hover:border-[var(--ink)] hover:text-[var(--ink)] disabled:pointer-events-none disabled:opacity-30"
-                  >
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-
-                <div className="font-mono text-sm tabular-nums text-[var(--muted)]">
-                  <span className="text-xl font-bold text-[var(--ink)] xl:text-2xl">
-                    {pad(active + 1)}
-                  </span>
-                  <span className="mx-1">/</span>
-                  {pad(list.length)}
-                </div>
-              </div>
-            </div>
-          </Container>
-        </div>
-      </div>
-    </div>
+    </Container>
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Archive index with cursor-following preview                               */
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
+/*  Archive: quiet index with a cursor-following preview                      */
+/* ========================================================================== */
+
 function Archive({
   list,
   desktop,
@@ -843,16 +512,16 @@ function Archive({
   const [hover, setHover] = useState<number | null>(null);
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const px = useSpring(mx, { stiffness: 280, damping: 32, mass: 0.45 });
-  const py = useSpring(my, { stiffness: 280, damping: 32, mass: 0.45 });
+  const px = useSpring(mx, { stiffness: 300, damping: 34, mass: 0.5 });
+  const py = useSpring(my, { stiffness: 300, damping: 34, mass: 0.5 });
 
-  const handleRowEnter = (i: number, clientX: number, clientY: number) => {
+  const handleEnter = (i: number, x: number, y: number) => {
     if (!desktop) return;
     if (hover === null) {
-      jumpMotionValue(mx, clientX);
-      jumpMotionValue(my, clientY);
-      jumpMotionValue(px, clientX);
-      jumpMotionValue(py, clientY);
+      jumpMotionValue(mx, x);
+      jumpMotionValue(my, y);
+      jumpMotionValue(px, x);
+      jumpMotionValue(py, y);
     }
     setHover(i);
   };
@@ -867,41 +536,32 @@ function Archive({
       onPointerLeave={() => setHover(null)}
       className="relative"
     >
-      <ul>
+      <ul className="border-t border-[var(--line)]">
         {list.map((p, i) => {
-          const meta = CATEGORY_META[getCategory(p)];
           const dim = hover !== null && hover !== i;
           return (
-            <li key={p.title} className="border-b border-[var(--line)] first:border-t">
+            <li key={p.title} className="border-b border-[var(--line)]">
               <button
                 type="button"
                 onClick={() => {
                   setHover(null);
                   onOpen(i);
                 }}
-                onPointerEnter={(e) => handleRowEnter(i, e.clientX, e.clientY)}
+                onPointerEnter={(e) => handleEnter(i, e.clientX, e.clientY)}
                 className={cn(
-                  "group grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 py-5 text-left transition-opacity duration-300 sm:gap-8 sm:py-7",
-                  dim ? "opacity-30" : "opacity-100",
+                  "group grid w-full grid-cols-[1fr_auto] items-center gap-6 py-5 text-left outline-none transition-opacity duration-300 focus-visible:bg-[var(--surface)] sm:grid-cols-[1fr_10rem_4rem_auto] sm:py-6",
+                  dim ? "opacity-35" : "opacity-100",
                 )}
               >
-                <span className="font-mono text-xs tabular-nums text-[#7654D6] dark:text-[#B39CFF]">
-                  {pad(i + 1)}
+                <span className="truncate text-2xl font-medium tracking-tight text-[var(--ink)] transition-transform duration-500 ease-out group-hover:translate-x-2 sm:text-4xl">
+                  {p.title}
                 </span>
-                <span className="min-w-0">
-                  <span className="block truncate font-sans text-[clamp(1.75rem,5.2vw,4.5rem)] font-bold leading-none tracking-tight text-[var(--ink)] transition-transform duration-500 ease-out group-hover:translate-x-3">
-                    {p.title}
-                  </span>
-                  <span className="mt-2 block font-mono text-[11px] uppercase tracking-wider text-[var(--muted)] sm:hidden">
-                    {meta.badge} • {p.year}
-                  </span>
+                <span className="hidden text-sm text-[var(--muted)] sm:block">
+                  {CATEGORY_LABEL[getCategory(p)]}
                 </span>
-                <span className="flex items-center gap-6 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
-                  <span className="hidden md:inline">{meta.badge}</span>
-                  <span className="hidden sm:inline">{p.year}</span>
-                  <span className="grid h-10 w-10 place-items-center rounded-full border border-[var(--line)] transition-colors duration-300 group-hover:border-[#B39CFF] group-hover:bg-[#B39CFF] group-hover:text-black">
-                    <ArrowUpRight className="h-4 w-4" />
-                  </span>
+                <span className="hidden text-sm tabular-nums text-[var(--muted)] sm:block">{p.year}</span>
+                <span className="grid h-10 w-10 place-items-center rounded-full border border-[var(--line)] text-[var(--ink)] transition-colors duration-300 group-hover:border-[var(--ink)] group-hover:bg-[var(--ink)] group-hover:text-[var(--page)]">
+                  <ArrowUpRight className="h-4 w-4" />
                 </span>
               </button>
             </li>
@@ -912,18 +572,18 @@ function Archive({
       {desktop && !reduced && (
         <motion.div
           aria-hidden="true"
-          style={{ x: px, y: py, willChange: "transform" }}
+          style={{ x: px, y: py }}
           className="pointer-events-none fixed left-0 top-0 z-40"
         >
           <AnimatePresence>
             {hover !== null && list[hover] && (
               <motion.div
                 key={list[hover].title}
-                initial={{ opacity: 0, scale: 0.88 }}
+                initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.28, ease: EASE }}
-                className="-ml-[150px] -mt-[100px] h-[200px] w-[300px] overflow-hidden rounded-2xl border border-[var(--line)] bg-neutral-950 shadow-2xl"
+                exit={{ opacity: 0, scale: 0.92 }}
+                transition={{ duration: 0.25, ease: EASE }}
+                className="-ml-[160px] -mt-[110px] h-[220px] w-[320px] overflow-hidden rounded-2xl border border-[var(--line)] bg-neutral-950 shadow-2xl"
               >
                 <ProjectPicture
                   src={list[hover].image}
@@ -940,9 +600,10 @@ function Archive({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Case Study Overlay                                                        */
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
+/*  Case study: side sheet                                                    */
+/* ========================================================================== */
+
 function CaseStudy({
   project,
   index,
@@ -962,13 +623,12 @@ function CaseStudy({
   onClose: () => void;
   onGo: (i: number) => void;
 }) {
-  const navigate = useNavigate();
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  const meta = CATEGORY_META[getCategory(project)];
-  const domainUrl = getDomainUrl(project);
+  const category = getCategory(project);
+  const liveHref = project.galleryLink ?? project.link;
 
   const latest = useRef({ index, onClose, onGo });
   latest.current = { index, onClose, onGo };
@@ -1014,11 +674,8 @@ function CaseStudy({
     };
   }, []);
 
-  // Instant reset so smooth scrolling never fights newly swapped project content
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [project.title]);
 
   useEffect(() => {
@@ -1028,377 +685,231 @@ function CaseStudy({
     img.src = nextImage;
   }, [nextImage]);
 
-  const { scrollY, scrollYProgress } = useScroll({ container: scrollRef });
-  const heroY = useTransform(scrollY, [0, 600], ["0%", "10%"]);
+  const { scrollYProgress } = useScroll({ container: scrollRef });
   const progress = useSpring(scrollYProgress, { stiffness: 180, damping: 28 });
 
   return (
-    <motion.div
+    <div
       ref={rootRef}
       role="dialog"
       aria-modal="true"
       aria-label={project.title}
       data-lenis-prevent
-      initial={reduced ? { opacity: 0 } : { clipPath: "inset(100% 0% 0% 0%)" }}
-      animate={reduced ? { opacity: 1 } : { clipPath: "inset(0% 0% 0% 0%)" }}
-      exit={reduced ? { opacity: 0 } : { clipPath: "inset(0% 0% 100% 0%)" }}
-      transition={{ duration: 0.65, ease: EASE }}
-      className="fixed inset-0 z-[100] bg-[var(--page)] text-[var(--ink)]"
+      className="fixed inset-0 z-[100]"
     >
+      {/* Backdrop */}
       <motion.div
-        aria-hidden="true"
-        style={{ scaleX: progress }}
-        className="absolute inset-x-0 top-0 z-40 h-[3px] origin-left bg-[#B39CFF]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.4 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
       />
 
-      <div ref={scrollRef} data-lenis-prevent className="h-full overflow-y-auto overscroll-contain">
-        <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--page)]/95">
-          <Container>
-            <div className="flex h-16 items-center justify-between">
-              <button
-                ref={closeRef}
-                type="button"
-                onClick={onClose}
-                className="group flex items-center gap-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--muted)] transition-colors duration-200 hover:text-[var(--ink)] focus-visible:outline-none"
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition-transform duration-300 group-hover:-translate-x-1">
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                </span>
-                <span>Back to Projects</span>
-              </button>
+      {/* Sheet */}
+      <motion.aside
+        initial={reduced ? { opacity: 0 } : { x: "100%" }}
+        animate={reduced ? { opacity: 1 } : { x: 0 }}
+        exit={reduced ? { opacity: 0 } : { x: "100%" }}
+        transition={{ duration: 0.65, ease: EASE }}
+        className="absolute inset-y-0 right-0 flex w-full flex-col bg-[var(--page)] text-[var(--ink)] shadow-2xl sm:w-[min(1080px,94vw)] sm:rounded-l-[2rem]"
+      >
+        <motion.div
+          aria-hidden="true"
+          style={{ scaleX: progress }}
+          className="absolute inset-x-0 top-0 z-30 h-0.5 origin-left bg-[#5b5b5b]"
+        />
 
-              <div className="hidden items-center gap-2 font-mono text-xs tabular-nums tracking-widest text-[var(--muted)] sm:flex">
-                <span className="font-bold text-[var(--ink)]">{pad(index + 1)}</span>
-                <span className="text-[var(--line)]">/</span>
-                <span>{pad(total)}</span>
-              </div>
+        <header className="z-20 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-[var(--line)] px-5 sm:h-[4.5rem] sm:px-8">
+          <p className="truncate text-sm text-[var(--muted)]">
+            <span className="font-medium text-[var(--ink)]">
+              {index + 1} of {total}
+            </span>
+            <span aria-hidden="true" className="mx-2 opacity-40">/</span>
+            {CATEGORY_LABEL[category]}
+          </p>
 
-              <div className="flex items-center gap-2">
-                {total > 1 && (
-                  <div className="mr-1 flex items-center gap-1.5 border-r border-[var(--line)] pr-3">
-                    <button
-                      type="button"
-                      onClick={() => onGo(index - 1)}
-                      aria-label="Previous project"
-                      className="grid h-8 w-8 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-[color,border-color,transform] duration-200 hover:border-[var(--ink)] hover:text-[var(--ink)] active:scale-90"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onGo(index + 1)}
-                      aria-label="Next project"
-                      className="grid h-8 w-8 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] transition-[color,border-color,transform] duration-200 hover:border-[var(--ink)] hover:text-[var(--ink)] active:scale-90"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                )}
-
-                {project.link ? (
-                  <a
-                    href={project.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => playClick()}
-                    className="btn-neo-base btn-neo-primary inline-flex h-9 items-center gap-2 px-4 text-xs font-bold"
-                  >
-                    <span>Launch Live</span>
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                  </a>
-                ) : project.galleryLink ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playClick();
-                      onClose();
-                      navigate(project.galleryLink!);
-                    }}
-                    className="btn-neo-base btn-neo-primary inline-flex h-9 items-center gap-2 px-4 text-xs font-bold"
-                  >
-                    <span>Exhibition</span>
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                  </button>
-                ) : project.github ? (
-                  <a
-                    href={project.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => playClick()}
-                    className="btn-neo-base btn-neo-secondary inline-flex h-9 items-center gap-2 px-4 text-xs font-bold"
-                  >
-                    <GithubIcon className="h-3.5 w-3.5" />
-                    <span>Source</span>
-                  </a>
-                ) : null}
-              </div>
-            </div>
-          </Container>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onGo(index - 1)}
+              aria-label="Previous project"
+              className="grid h-10 w-10 place-items-center rounded-full border border-[var(--line)] outline-none transition-colors hover:border-[var(--ink)] focus-visible:ring-2 focus-visible:ring-[#5b5b5b]"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onGo(index + 1)}
+              aria-label="Next project"
+              className="grid h-10 w-10 place-items-center rounded-full border border-[var(--line)] outline-none transition-colors hover:border-[var(--ink)] focus-visible:ring-2 focus-visible:ring-[#5b5b5b]"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={onClose}
+              aria-label="Close case study"
+              className="ml-1 grid h-10 w-10 place-items-center rounded-full bg-[var(--ink)] text-[var(--page)] outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-[#5b5b5b] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--page)]"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </header>
 
-        <Container>
-          <motion.div
-            key={project.title}
-            initial={reduced ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: EASE }}
-            className="py-10 sm:py-14"
-          >
-            <div className="pb-8">
-              <div className="mb-4 flex flex-wrap items-center gap-3 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-semibold",
-                    meta.badgeClass,
-                  )}
-                >
-                  <span className={cn("h-1.5 w-1.5 rounded-full", meta.dotColor)} />
-                  {meta.label}
-                </span>
-                <span className="text-[var(--line)]">•</span>
-                <span>{project.year}</span>
-                <span className="text-[var(--line)]">•</span>
-                <span className="truncate">{domainUrl}</span>
-              </div>
-
-              <h1 className="font-sans text-5xl font-bold leading-[0.95] tracking-tight text-[var(--ink)] sm:text-6xl md:text-8xl">
-                <SplitWords text={project.title} reduced={reduced} delay={0.12} inView={false} />
-              </h1>
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div key={project.title} className="px-5 pb-20 pt-10 sm:px-10 sm:pt-14">
+            <div className="max-w-3xl">
+              <h2 className="text-4xl font-semibold leading-[1.02] tracking-tight sm:text-6xl">
+                {project.title}
+              </h2>
+              <p className="mt-6 text-lg leading-relaxed text-[var(--muted)] sm:text-xl">
+                {project.description}
+              </p>
             </div>
 
-            <Reveal reduced={reduced} rootRef={scrollRef}>
-              <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-2xl">
-                <div className="flex h-11 items-center justify-between border-b border-[var(--line)] bg-[var(--surface-strong)] px-4">
-                  <div className="flex items-center gap-2">
-                    <span className="h-3 w-3 rounded-full bg-red-500/80" />
-                    <span className="h-3 w-3 rounded-full bg-amber-500/80" />
-                    <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
-                  </div>
-                  <div className="flex max-w-[190px] items-center gap-1.5 truncate rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 py-1 font-mono text-xs text-[var(--muted)] sm:max-w-xs">
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#1E90FF]" />
-                    <span className="truncate">https://{domainUrl}</span>
-                  </div>
-                  <div className="hidden font-mono text-xs text-[var(--muted)] sm:block">
-                    Case Study
-                  </div>
-                </div>
+            <div className="mt-10 aspect-[16/9] overflow-hidden rounded-[1.5rem] border border-[var(--line)] bg-neutral-950">
+              <ProjectPicture
+                src={project.image}
+                alt={project.title}
+                eager
+                className="h-full w-full object-cover object-top"
+              />
+            </div>
 
-                <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-950 sm:aspect-[21/9]">
-                  <motion.img
-                    src={project.image}
-                    alt={project.title}
-                    width={1600}
-                    height={900}
-                    decoding="async"
-                    style={{
-                      y: reduced ? 0 : heroY,
-                      scale: reduced ? 1 : 1.12,
-                      willChange: "transform",
-                    }}
-                    className="h-full w-full object-cover object-top"
-                  />
-                </div>
-              </div>
-            </Reveal>
+            {project.metrics.length > 0 && (
+              <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 border-y border-[var(--line)] py-8 md:grid-cols-4">
+                {project.metrics.map((m) => (
+                  <div key={m.label}>
+                    <dd className="text-3xl font-semibold tabular-nums tracking-tight sm:text-4xl">
+                      <CountUp value={m.value} disabled={reduced} rootRef={scrollRef} />
+                    </dd>
+                    <dt className="mt-1 text-sm text-[var(--muted)]">{m.label}</dt>
+                  </div>
+                ))}
+              </dl>
+            )}
 
-            <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16">
-              <aside className="lg:col-span-4">
-                <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 lg:sticky lg:top-24">
-                  <h3 className="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
-                    Project Overview
-                  </h3>
+            <div className="mt-14 grid grid-cols-1 gap-12 lg:grid-cols-12">
+              <div className="space-y-12 lg:col-span-7">
+                <section>
+                  <h3 className="text-xl font-semibold tracking-tight">How it works</h3>
+                  <p className="mt-3 max-w-[62ch] text-base leading-relaxed text-[var(--muted)]">
+                    {project.impact}
+                  </p>
+                </section>
 
-                  <dl className="divide-y divide-[var(--line)] border-y border-[var(--line)] font-mono text-xs">
-                    {[
-                      ["Role", project.role],
-                      ["Timeline", project.year],
-                      ["Domain", meta.badge],
-                      ["Status", "Production"],
-                    ].map(([k, v]) => (
-                      <div key={k} className="flex items-baseline justify-between gap-4 py-3.5">
-                        <dt className="uppercase tracking-wider text-[var(--muted)]">{k}</dt>
-                        <dd className="text-right font-semibold text-[var(--ink)]">{v}</dd>
-                      </div>
+                <section>
+                  <h3 className="text-xl font-semibold tracking-tight">What was delivered</h3>
+                  <ul className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+                    {project.features.map((f) => (
+                      <li key={f} className="flex gap-3 py-4 text-[15px] leading-relaxed">
+                        <span aria-hidden="true" className={cn("mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-current", ACCENT_TEXT)} />
+                        <span>{f}</span>
+                      </li>
                     ))}
+                  </ul>
+                </section>
+              </div>
+
+              <aside className="lg:col-span-5">
+                <div className="space-y-6 rounded-[1.5rem] border border-[var(--line)] bg-[var(--surface)] p-6 lg:sticky lg:top-6">
+                  <dl className="space-y-5 text-sm">
+                    <div>
+                      <dt className="text-[var(--muted)]">Role</dt>
+                      <dd className="mt-1 text-base font-medium">{project.role}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[var(--muted)]">Year</dt>
+                      <dd className="mt-1 text-base font-medium">{project.year}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[var(--muted)]">Built with</dt>
+                      <dd className="mt-2 flex flex-wrap gap-1.5">
+                        {project.stack.map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-full border border-[var(--line)] px-2.5 py-1 text-xs text-[var(--muted)]"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </dd>
+                    </div>
                   </dl>
 
-                  <div className="mt-6">
-                    <span className="mb-2 block font-mono text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-                      Technologies
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {project.stack.map((t) => (
-                        <span
-                          key={t}
-                          className="rounded-full border border-[var(--line)] bg-[var(--surface-strong)] px-2.5 py-1 font-mono text-xs font-medium text-[var(--ink)]"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-8 flex flex-col gap-2.5">
+                  <div className="flex flex-col gap-2.5 border-t border-[var(--line)] pt-5">
                     {project.galleryLink ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          playClick();
-                          onClose();
-                          navigate(project.galleryLink!);
-                        }}
-                        className="btn-neo-base btn-neo-primary flex h-11 w-full items-center justify-between px-5 text-xs font-bold"
+                      <Link
+                        to={project.galleryLink}
+                        onClick={() => playClick()}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--ink)] text-sm font-medium text-[var(--page)] outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#5b5b5b]"
                       >
-                        <span>Open Canva Showcase</span>
+                        Open gallery
                         <ArrowUpRight className="h-4 w-4" />
-                      </button>
-                    ) : project.link ? (
+                      </Link>
+                    ) : liveHref ? (
                       <a
-                        href={project.link}
+                        href={liveHref}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => playClick()}
-                        className="btn-neo-base btn-neo-primary flex h-11 w-full items-center justify-between px-5 text-xs font-bold"
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--ink)] text-sm font-medium text-[var(--page)] outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#5b5b5b]"
                       >
-                        <span>Launch Live Demo</span>
+                        Visit live site
                         <ArrowUpRight className="h-4 w-4" />
                       </a>
                     ) : null}
-
                     {project.github && (
                       <a
                         href={project.github}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => playClick()}
-                        className="btn-neo-base btn-neo-secondary flex h-11 w-full items-center justify-between px-5 text-xs font-semibold"
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[var(--line)] text-sm font-medium outline-none transition-colors hover:border-[var(--ink)] focus-visible:ring-2 focus-visible:ring-[#5b5b5b]"
                       >
-                        <span className="flex items-center gap-2">
-                          <GithubIcon className="h-4 w-4" />
-                          <span>View Source Code</span>
-                        </span>
-                        <ArrowUpRight className="h-3.5 w-3.5 text-[var(--muted)]" />
+                        <GithubIcon />
+                        View source
                       </a>
                     )}
                   </div>
                 </div>
               </aside>
-
-              <div className="space-y-12 lg:col-span-8">
-                <Reveal reduced={reduced} rootRef={scrollRef}>
-                  <h2 className="mb-3 font-mono text-xs font-bold uppercase tracking-wider text-[#7654D6] dark:text-[#B39CFF]">
-                    Mission & Impact
-                  </h2>
-                  <p className="text-xl font-medium leading-relaxed tracking-tight text-[var(--ink)] sm:text-2xl">
-                    {project.description}
-                  </p>
-                </Reveal>
-
-                {project.metrics.length > 0 && (
-                  <Reveal reduced={reduced} rootRef={scrollRef}>
-                    <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
-                      <h3 className="mb-6 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
-                        <TrendingUp className="h-4 w-4 text-[#7654D6] dark:text-[#B39CFF]" />
-                        <span>Key Performance Indicators</span>
-                      </h3>
-                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
-                        {project.metrics.map((m) => (
-                          <div key={m.label} className="border-l-2 border-[#B39CFF] pl-4">
-                            <div className="font-sans text-4xl font-bold tabular-nums tracking-tight text-[var(--ink)] sm:text-5xl">
-                              <CountUp value={m.value} disabled={reduced} rootRef={scrollRef} />
-                            </div>
-                            <div className="mt-1.5 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
-                              {m.label}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Reveal>
-                )}
-
-                <Reveal reduced={reduced} rootRef={scrollRef}>
-                  <h3 className="mb-3 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
-                    Engineering Architecture
-                  </h3>
-                  <p className="text-base leading-relaxed text-[var(--muted)] sm:text-lg">
-                    {project.impact}
-                  </p>
-                </Reveal>
-
-                <div>
-                  <Reveal reduced={reduced} rootRef={scrollRef}>
-                    <h3 className="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
-                      Core Deliverables
-                    </h3>
-                  </Reveal>
-                  <div className="space-y-3">
-                    {project.features.map((f, i) => (
-                      <Reveal
-                        key={f}
-                        reduced={reduced}
-                        rootRef={scrollRef}
-                        delay={Math.min(i, 3) * 0.05}
-                      >
-                        <div className="flex items-start gap-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-[#B39CFF]/40">
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--surface-strong)] font-mono text-xs font-bold text-[#7654D6] dark:text-[#B39CFF]">
-                            {pad(i + 1)}
-                          </span>
-                          <p className="text-sm font-medium leading-relaxed text-[var(--ink)] sm:text-base">
-                            {f}
-                          </p>
-                        </div>
-                      </Reveal>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </div>
-          </motion.div>
-        </Container>
 
-        {total > 1 && (
-          <div className="border-t border-[var(--line)] bg-[var(--surface)] py-12 sm:py-16">
-            <Container>
+            {total > 1 && (
               <button
                 type="button"
                 onClick={() => onGo(index + 1)}
-                className="group flex w-full flex-col items-start justify-between gap-4 text-left sm:flex-row sm:items-center"
+                className="group mt-20 flex w-full items-center justify-between gap-6 border-t border-[var(--line)] pt-8 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#5b5b5b]"
               >
-                <div>
-                  <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
-                    <span>
-                      Next Project ({pad(((index + 1) % total) + 1)} / {pad(total)})
-                    </span>
-                    <ArrowUpRight className="h-3.5 w-3.5 text-[#7654D6] transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 dark:text-[#B39CFF]" />
-                  </span>
-                  <span className="mt-2 block font-sans text-3xl font-bold tracking-tight text-[var(--ink)] transition-colors duration-200 group-hover:text-[#7654D6] dark:group-hover:text-[#B39CFF] sm:text-4xl md:text-6xl">
+                <span>
+                  <span className="text-sm text-[var(--muted)]">Next project</span>
+                  <span className="mt-1 block text-3xl font-semibold tracking-tight transition-transform duration-500 ease-out group-hover:translate-x-2 sm:text-5xl">
                     {nextTitle}
                   </span>
-                </div>
-                <div className="btn-neo-base btn-neo-secondary inline-flex h-11 items-center gap-3 px-6 text-xs font-bold">
-                  <span>Explore Case Study</span>
-                  <ArrowRight className="h-4 w-4" />
-                </div>
+                </span>
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full border border-[var(--line)] transition-colors duration-300 group-hover:border-[var(--ink)] group-hover:bg-[var(--ink)] group-hover:text-[var(--page)]">
+                  <ArrowRight className="h-5 w-5" />
+                </span>
               </button>
-            </Container>
+            )}
           </div>
-        )}
-      </div>
-    </motion.div>
+        </div>
+      </motion.aside>
+    </div>
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Main Section                                                              */
-/* -------------------------------------------------------------------------- */
-const MARQUEE_WORDS = ["Web Systems", "Data & ML", "Visual Direction", "Brand Identity"];
+/* ========================================================================== */
+/*  Projects section                                                          */
+/* ========================================================================== */
 
 export function Projects() {
   const reduced = usePrefersReducedMotion();
   const desktop = useIsDesktop();
-  const sectionRef = useRef<HTMLElement>(null);
-  const headRef = useRef<HTMLDivElement>(null);
 
   const [filter, setFilter] = useState<FilterCategory>("all");
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -1413,14 +924,6 @@ export function Projects() {
     [],
   );
 
-  // headline: the two lines drift in opposite directions as you scroll past
-  const { scrollYProgress: headScroll } = useScroll({
-    target: headRef,
-    offset: ["start end", "end start"],
-  });
-  const line1X = useTransform(headScroll, [0, 1], ["14%", "-14%"]);
-  const line2X = useTransform(headScroll, [0, 1], ["-14%", "14%"]);
-
   const openCase = useCallback((idx: number) => {
     playClick();
     setOpenIndex(idx);
@@ -1430,9 +933,8 @@ export function Projects() {
     (i: number) => {
       const n = list.length;
       if (!n) return;
-      const target = ((i % n) + n) % n;
       playTab();
-      setOpenIndex(target);
+      setOpenIndex(((i % n) + n) % n);
     },
     [list.length],
   );
@@ -1453,174 +955,93 @@ export function Projects() {
 
   const openProject = openIndex !== null ? list[openIndex] : undefined;
   const nextProject = openIndex !== null ? list[(openIndex + 1) % list.length] : undefined;
-  const usePinnedDesktop = desktop && !reduced && list.length > 1;
 
   return (
     <section
-      ref={sectionRef}
       id="work"
-      className="relative scroll-mt-16 bg-[var(--page)] pt-14 transition-colors duration-500 sm:scroll-mt-20 sm:pt-20 lg:scroll-mt-24"
+      className="relative scroll-mt-16 bg-[var(--page)] pb-24 pt-20 transition-colors duration-500 sm:scroll-mt-20 sm:pb-32 sm:pt-28 lg:scroll-mt-24"
     >
-      <style>{STYLES}</style>
+      {/* Header */}
+      <Container>
+        <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
+          <h2 className="text-[clamp(2.75rem,8vw,7rem)] font-semibold leading-[0.95] tracking-[-0.04em] text-[var(--ink)] lg:col-span-8">
+            <RevealLine reduced={reduced}>Selected work,</RevealLine>
+            <RevealLine reduced={reduced} delay={0.1}>
+              built with intent.
+            </RevealLine>
+          </h2>
 
-      {/* ───────────── Intro ───────────── */}
-      <div ref={headRef} className="overflow-hidden">
-        <Container>
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-4 font-mono text-xs uppercase tracking-widest text-[var(--muted)]">
-            <span className="flex items-center gap-2.5">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#B39CFF] opacity-75 motion-reduce:animate-none" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B39CFF]" />
-              </span>
-              <span className="font-bold text-[var(--ink)]">[02 // Selected Work & Systems]</span>
-            </span>
-            <span>Index — {pad(projects.length)} case studies</span>
-          </div>
-        </Container>
-
-        <div className="select-none font-sans font-bold uppercase leading-[0.82] tracking-tighter">
-          <motion.div
-            style={reduced ? undefined : { x: line1X, willChange: "transform" }}
-            className="whitespace-nowrap text-[clamp(4.5rem,17vw,16rem)] text-[var(--ink)]"
-          >
-            Selected
-          </motion.div>
-          <motion.div
-            style={reduced ? undefined : { x: line2X, willChange: "transform" }}
-            className="flex items-baseline justify-end gap-[2vw] whitespace-nowrap pr-[4vw] text-[clamp(4.5rem,17vw,16rem)]"
-          >
-            <span className="mb-[1.5vw] hidden max-w-[22ch] self-end text-right font-mono text-xs font-normal normal-case leading-relaxed tracking-normal text-[var(--muted)] md:block">
-              Scalable web architectures, predictive intelligence pipelines and bespoke brand
-              systems — built with precision.
-            </span>
-            <span className="prj-outline-accent font-serif font-normal italic normal-case tracking-normal">
-              Work
-            </span>
-          </motion.div>
+          <p className="max-w-[38ch] text-base leading-relaxed text-[var(--muted)] lg:col-span-4 lg:justify-self-end lg:pb-3">
+            Web products, data pipelines and brand systems. {pad(projects.length)} projects, each with
+            the story behind it.
+          </p>
         </div>
 
-        {/* Filters */}
-        <Container>
-          <div
-            role="group"
-            aria-label="Filter project categories"
-            className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-[var(--line)] pt-5"
-          >
-            <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-[var(--muted)]">
-              Filter
-            </span>
-            {FILTERS.map(({ key, label }) => {
-              const on = filter === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => changeFilter(key)}
-                  className={cn(
-                    "relative pb-1.5 font-sans text-base font-semibold tracking-tight transition-colors duration-200 sm:text-lg",
-                    on ? "text-[var(--ink)]" : "text-[var(--muted)] hover:text-[var(--ink)]",
-                  )}
-                >
-                  {label}
-                  <sup className="ml-1 font-mono text-[10px] font-bold tabular-nums text-[#7654D6] dark:text-[#B39CFF]">
-                    {pad(counts[key])}
-                  </sup>
-                  {on && (
-                    <motion.span
-                      layoutId="activeFilterLine"
-                      aria-hidden="true"
-                      className="absolute inset-x-0 bottom-0 h-[2px] bg-[#B39CFF]"
-                      transition={
-                        reduced
-                          ? { duration: 0 }
-                          : { type: "spring", stiffness: 420, damping: 34 }
-                      }
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </Container>
-      </div>
+        <div className="mt-12 sm:mt-16">
+          <FilterBar filter={filter} counts={counts} reduced={reduced} onChange={changeFilter} />
+        </div>
+      </Container>
 
-      {/* ───────────── Gallery ───────────── */}
-      {list.length === 0 ? (
-        <Container>
-          <div className="my-10 rounded-2xl border border-dashed border-[var(--line)] p-8 py-20 text-center sm:my-16 sm:py-24">
-            <Layers className="mx-auto mb-3 h-8 w-8 text-[var(--muted)] opacity-60" />
-            <p className="font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
-              No projects found in this domain
-            </p>
-            <button
-              type="button"
-              onClick={() => changeFilter("all")}
-              className="btn-neo-base btn-neo-secondary mt-5 inline-flex h-10 items-center justify-center px-6 text-xs font-bold"
-            >
-              Reset to All Projects
-            </button>
-          </div>
-        </Container>
-      ) : usePinnedDesktop ? (
-        <Gallery key={`${filter}-d`} list={list} reduced={reduced} desktop onOpen={openCase} />
-      ) : (
-        <Container>
-          <Gallery
-            key={`${filter}-${desktop ? "s" : "m"}`}
+      {/* Featured */}
+      <div className="mt-10 sm:mt-14">
+        {list.length === 0 ? (
+          <Container>
+            <div className="rounded-[2rem] border border-dashed border-[var(--line)] px-6 py-24 text-center">
+              <p className="text-lg font-medium text-[var(--ink)]">Nothing in this category yet</p>
+              <p className="mt-1 text-sm text-[var(--muted)]">Try another filter to see more projects.</p>
+              <button
+                type="button"
+                onClick={() => changeFilter("all")}
+                className="mt-6 inline-flex h-11 items-center rounded-full bg-[var(--ink)] px-5 text-sm font-medium text-[var(--page)] outline-none focus-visible:ring-2 focus-visible:ring-[#5b5b5b]"
+              >
+                Show all work
+              </button>
+            </div>
+          </Container>
+        ) : (
+          <FeaturedStack
+            key={filter}
             list={list}
-            reduced={reduced}
             desktop={desktop}
+            reduced={reduced}
             onOpen={openCase}
           />
-        </Container>
-      )}
-
-      {/* ───────────── Marquee ───────────── */}
-      <div className="mt-16 sm:mt-24">
-        <BigMarquee words={MARQUEE_WORDS} />
+        )}
       </div>
 
-      {/* ───────────── Archive ───────────── */}
+      {/* Archive */}
       {list.length > 0 && (
         <Container>
-          <div className="pb-16 pt-16 sm:pb-20 sm:pt-24">
+          <div className="mt-28 sm:mt-40">
             <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-              <h3 className="font-sans text-3xl font-bold tracking-tight text-[var(--ink)] sm:text-5xl">
-                Full{" "}
-                <span className="font-serif font-normal italic text-[#7654D6] dark:text-[#B39CFF]">
-                  Archive
-                </span>
+              <h3 className="text-3xl font-semibold tracking-tight text-[var(--ink)] sm:text-5xl">
+                All projects
               </h3>
-              <span className="font-mono text-xs uppercase tracking-widest text-[var(--muted)]">
-                {desktop ? "Hover to preview • Click to open" : "Tap to open"}
-              </span>
+              <p className="text-sm text-[var(--muted)]">
+                {desktop ? "Hover to preview, click to open" : "Tap to open"}
+              </p>
             </div>
+
             <Archive list={list} desktop={desktop} reduced={reduced} onOpen={openCase} />
 
-            <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--line)] pt-6 font-mono text-xs text-[var(--muted)]">
-              <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF]" />
-                <span>Ayush Singh — Portfolio Edition 2026</span>
-              </div>
-
-              <div className="flex items-center gap-4">
+            <div className="mt-12 flex flex-wrap items-center justify-between gap-4 text-sm text-[var(--muted)]">
+              <p>Ayush Singh, Portfolio 2026</p>
+              <div className="flex items-center gap-6">
                 <Link
                   to="/canva-gallery"
                   onClick={() => playClick()}
-                  className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors duration-200 hover:text-[#7654D6] hover:underline dark:hover:text-[#B39CFF]"
+                  className="inline-flex items-center gap-1.5 underline-offset-4 outline-none transition-colors hover:text-[var(--ink)] hover:underline focus-visible:text-[var(--ink)] focus-visible:underline"
                 >
-                  <span>Canva Exhibition Gallery</span>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-[#7654D6] dark:text-[#B39CFF]" />
+                  Canva gallery
+                  <ArrowUpRight className="h-3.5 w-3.5" />
                 </Link>
-                <span className="text-[var(--line)]">|</span>
                 <Link
                   to="/resume"
                   onClick={() => playClick()}
-                  className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors duration-200 hover:text-[#7654D6] hover:underline dark:hover:text-[#B39CFF]"
+                  className="inline-flex items-center gap-1.5 underline-offset-4 outline-none transition-colors hover:text-[var(--ink)] hover:underline focus-visible:text-[var(--ink)] focus-visible:underline"
                 >
-                  <span>Verified Résumé</span>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-[#7654D6] dark:text-[#B39CFF]" />
+                  Résumé
+                  <ArrowUpRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             </div>
@@ -1631,6 +1052,7 @@ export function Projects() {
       <AnimatePresence>
         {openProject && openIndex !== null && nextProject && typeof document !== "undefined" && (
           <CaseStudy
+            key="case-study"
             project={openProject}
             index={openIndex}
             total={list.length}
@@ -1645,4 +1067,3 @@ export function Projects() {
     </section>
   );
 }
-

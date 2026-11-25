@@ -141,35 +141,14 @@ export function CommandShortcuts() {
             className="fixed bottom-6 left-1/2 z-50 pointer-events-none"
           >
             <div className="border border-[var(--ink)] bg-[var(--ink)] text-[var(--page)] px-4 py-2 text-xs font-medium flex items-center gap-2 rounded-xl shadow-2xl">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--ink)] dark:bg-[var(--ink)]" />
               <span>{toastMessage}</span>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Floating Minimal Brutalist Shortcuts Capsule Trigger */}
-      <motion.button
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        type="button"
-        onClick={() => {
-          playClick();
-          setIsOpen((prev) => !prev);
-        }}
-        aria-label="Toggle keyboard shortcuts menu"
-        className="btn-neo-base fixed bottom-6 right-6 z-40 hidden sm:inline-flex h-9 items-center gap-2.5 px-3.5 rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] font-mono text-[11px] uppercase tracking-wider transition-colors duration-200 hover:border-[var(--ink)] hover:bg-[var(--surface-strong)]"
-      >
-        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--ink)] text-[var(--page)] text-[10px] font-bold">
-          ⌘
-        </span>
-        <span className="text-[11px] font-semibold text-[var(--ink)]">
-          Shortcuts
-        </span>
-        <kbd className="rounded border border-[var(--line)] bg-[var(--surface-strong)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--muted)]">
-          ?
-        </kbd>
-      </motion.button>
+      {/* Keyboard shortcut modal triggered via ? or Cmd/Ctrl+K (no floating corner pill) */}
 
       {/* Modal Guide */}
       <AnimatePresence>
@@ -232,7 +211,7 @@ export function CommandShortcuts() {
                     className="flex items-center justify-between rounded-xl border border-transparent hover:border-[var(--line)] hover:bg-[var(--surface-strong)]/80 px-3 py-2 text-xs transition-colors"
                   >
                     <span className="flex items-center gap-2.5 text-[var(--muted)] hover:text-[var(--ink)]">
-                      <span className="text-[#1E90FF] dark:text-[#B39CFF]">{item.icon}</span>
+                      <span className="text-[var(--ink)] dark:text-[var(--ink)]">{item.icon}</span>
                       <span className="text-[11px] uppercase tracking-wider">{item.label}</span>
                     </span>
                     <kbd className="min-w-[24px] text-center rounded-md border border-[var(--line)] bg-[var(--page)] px-2 py-0.5 text-[10px] font-bold text-[var(--ink)] shadow-xs">
@@ -244,8 +223,8 @@ export function CommandShortcuts() {
 
               <div className="mt-5 pt-3 border-t border-[var(--line)] flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-[var(--muted)]">
                 <span>Press [ Esc ] to close</span>
-                <span className="flex items-center gap-1.5 text-[#1E90FF] dark:text-[#B39CFF]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF] animate-pulse" />
+                <span className="flex items-center gap-1.5 text-[var(--ink)] dark:text-[var(--ink)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--ink)] animate-pulse" />
                   Audio feedback active
                 </span>
               </div>

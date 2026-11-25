@@ -7,6 +7,8 @@ import { ScrollManager } from "./components/ScrollManager";
 import "./styles/index.css";
 
 const App = lazy(() => import("./App"));
+const About = lazy(() => import("./pages/About"));
+const ProjectsPage = lazy(() => import("./pages/ProjectsPage"));
 const CanvaGallery = lazy(() => import("./pages/CanvaGallery"));
 const Resume = lazy(() => import("./pages/Resume"));
 
@@ -26,6 +28,8 @@ createRoot(document.getElementById("root")!).render(
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/canva-gallery" element={<CanvaGallery />} />
           <Route path="/resume" element={<Resume />} />
           <Route path="*" element={<Navigate to="/" replace />} />

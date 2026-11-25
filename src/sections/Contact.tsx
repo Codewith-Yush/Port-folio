@@ -52,11 +52,11 @@ function SocialButton({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="group inline-flex h-10 items-center justify-between gap-3.5 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 text-xs font-medium text-[var(--ink)] transition-colors hover:border-[#B39CFF] hover:bg-[var(--surface-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B39CFF] sm:h-11 sm:gap-4 sm:px-4 sm:text-sm"
+      className="group inline-flex h-10 items-center justify-between gap-3.5 rounded-[4px] border border-[var(--line)] bg-[var(--surface)] px-3.5 text-xs font-medium text-[var(--ink)] transition-colors hover:border-[var(--ink)] hover:bg-[var(--surface-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5b5b5b] sm:h-11 sm:gap-4 sm:px-4 sm:text-sm"
     >
       <span>{label}</span>
-      <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] text-[var(--ink)] sm:h-8 sm:w-8">
-        <span className="text-xs transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#FF0099]">
+      <span className="inline-flex h-7 w-7 items-center justify-center rounded-[2.5px] border border-[var(--line)] bg-[var(--surface-strong)] text-[var(--ink)] sm:h-8 sm:w-8">
+        <span className="text-xs transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--ink)]">
           ↗
         </span>
       </span>
@@ -79,7 +79,7 @@ function FloatingField({
   autoComplete?: string;
 }) {
   const base =
-    "peer w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 pb-2.5 pt-6 text-sm text-[var(--ink)] placeholder-transparent transition-colors duration-200 focus:border-[var(--flame)] focus:bg-[var(--surface-strong)] focus:outline-none sm:px-4 sm:pb-3 sm:pt-7 sm:text-base";
+    "peer w-full rounded-[4px] border border-[var(--line)] bg-[var(--surface)] px-3.5 pb-2.5 pt-6 text-sm text-[var(--ink)] placeholder-transparent transition-colors duration-200 focus:border-[var(--flame)] focus:bg-[var(--surface-strong)] focus:outline-none sm:px-4 sm:pb-3 sm:pt-7 sm:text-base";
 
   return (
     <div className="relative">
@@ -227,18 +227,15 @@ export function Contact() {
     <section
       id="contact"
       ref={sectionRef}
-      className="relative flex min-h-[100svh] flex-col justify-center scroll-mt-16 overflow-hidden border-t border-[var(--line)] bg-[var(--page)] py-12 text-[var(--ink)] sm:scroll-mt-20 sm:py-16 md:scroll-mt-24 lg:py-14 xl:py-18"
+      className="relative flex min-h-[100svh] flex-col justify-center scroll-mt-16 overflow-hidden border-t border-[var(--line)] bg-[var(--page)] py-[var(--section-high)] text-[var(--ink)] sm:scroll-mt-20 md:scroll-mt-24"
     >
       <style>{CSS}</style>
 
       <Container className="relative z-10 my-auto">
-        {/* Architectural Sub-bar */}
-        <div className="mb-6 flex items-center justify-between border-b border-[var(--line)] pb-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] sm:mb-8 sm:pb-3 sm:text-[11px]">
-          <span className="flex items-center gap-2.5">
-            <span className="h-2 w-2 rounded-full bg-[#B39CFF]" aria-hidden="true" />
-            <span className="font-semibold text-[var(--ink)]">[05 // INITIATE TRANSMISSION]</span>
-          </span>
-          <span className="hidden sm:inline text-[#1E90FF] font-medium">[SLA // RESPONSE WITHIN 12H]</span>
+        {/* Editorial Header */}
+        <div className="mb-10 flex items-center justify-between border-b border-[var(--line)] pb-4 font-mono text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
+          <span>Contact</span>
+          <span className="hidden sm:inline">Response within 12h</span>
         </div>
 
         <div className="flex flex-col items-start gap-8 lg:flex-row lg:gap-12 xl:gap-16">
@@ -308,13 +305,17 @@ export function Contact() {
                   [ENGAGEMENT]
                 </dt>
                 <dd className="flex items-center gap-2 font-sans font-bold text-[var(--ink)]">
-                  <span className="h-2 w-2 rounded-full bg-[#1E90FF]" />
-                  Open for Q2/Q3 Roles
+                  <span className="h-2 w-2 rounded-full bg-[var(--ink)]" />
+                  Open for Freelance &amp; Full-time Roles
                 </dd>
               </div>
             </dl>
 
             <div className="flex flex-wrap gap-2 sm:gap-2.5">
+              <SocialButton
+                href={`mailto:${CONTACT_EMAIL}?subject=15-min%20Intro%20Call%20with%20Ayush`}
+                label="Book 15-min Call"
+              />
               <SocialButton href="https://linkedin.com/in/ayush-singh-643a4b25a" label="LinkedIn" />
               <SocialButton href="https://github.com/codewith-Yush" label="GitHub" />
             </div>
@@ -339,11 +340,11 @@ export function Contact() {
                   ref={successRef}
                   tabIndex={-1}
                   role="status"
-                  className="flex min-h-[22rem] flex-col items-start justify-center rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 shadow-sm focus:outline-none sm:min-h-[26rem] sm:p-10"
+                  className="flex min-h-[22rem] flex-col items-start justify-center rounded-[4px] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-sm focus:outline-none sm:min-h-[26rem] sm:p-10"
                 >
                   <svg
                     viewBox="0 0 52 52"
-                    className="h-12 w-12 text-[#1E90FF] dark:text-[#B39CFF] sm:h-14 sm:w-14"
+                    className="h-12 w-12 text-[var(--ink)] sm:h-14 sm:w-14"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2.5"
@@ -368,7 +369,7 @@ export function Contact() {
                       setPhase("idle");
                       setErrorMessage("");
                     }}
-                    className="mt-6 inline-flex h-10 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--surface-strong)] px-5 text-xs font-semibold text-[var(--ink)] transition-colors hover:border-[var(--flame)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--flame)] sm:mt-8 sm:h-11 sm:px-6 sm:text-sm"
+                    className="mt-6 inline-flex h-[46px] items-center justify-center rounded-[4px] border border-[var(--line)] bg-[var(--surface-strong)] px-5 text-xs font-semibold text-[var(--ink)] transition-colors hover:border-[var(--flame)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--flame)] sm:mt-8 sm:px-6 sm:text-sm"
                   >
                     Send another
                   </motion.button>
@@ -382,12 +383,8 @@ export function Contact() {
                   transition={{ duration: 0.35, ease: "easeOut" }}
                   onSubmit={handleSubmit}
                   aria-busy={sending}
-                  className="relative rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[6px_6px_0px_var(--line)] transition-all duration-200 hover:border-[var(--ink)] sm:p-7 md:p-8"
+                  className="relative rounded-[4px] border border-[var(--line)] bg-[var(--surface)] p-5 transition-colors duration-200 hover:border-[var(--ink)]/40 sm:p-7 md:p-10"
                 >
-                  {/* Corner crosshairs */}
-                  <span className="brutal-corner-cross left-3 top-2.5">+</span>
-                  <span className="brutal-corner-cross right-3 top-2.5">+</span>
-
                   {/* Web3Forms fields */}
                   <input type="hidden" name="access_key" value={WEB3FORMS_KEY ?? ""} />
                   <input
@@ -404,9 +401,9 @@ export function Contact() {
                     autoComplete="off"
                   />
 
-                  <div className="mb-5 flex items-center justify-between border-b border-[var(--line)] pb-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--muted)] sm:mb-6 sm:text-[11px]">
-                    <span>[NEW INQUIRY]</span>
-                    <span>[TRANSMISSION READY]</span>
+                  <div className="mb-5 flex items-center justify-between border-b border-[var(--line)] pb-3 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--muted)] sm:mb-6">
+                    <span>Project Inquiry</span>
+                    <span>Direct</span>
                   </div>
 
                   <div className="grid gap-4 sm:gap-5">
@@ -421,7 +418,7 @@ export function Contact() {
                         {PROJECT_TYPES.map((t) => (
                           <label key={t} className="cursor-pointer">
                             <input type="radio" name="project_type" value={t} className="peer sr-only" />
-                            <span className="inline-flex items-center rounded-full border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-1.5 text-xs text-[var(--muted)] transition-colors duration-200 hover:border-[var(--flame)] hover:text-[var(--ink)] peer-checked:border-[var(--flame)] peer-checked:bg-[var(--flame)] peer-checked:text-black font-semibold peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--flame)] sm:px-3.5 sm:py-2">
+                            <span className="inline-flex items-center rounded-[2.5px] border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-1.5 text-xs text-[var(--muted)] transition-colors duration-200 hover:border-[var(--flame)] hover:text-[var(--ink)] peer-checked:border-[var(--flame)] peer-checked:bg-[var(--flame)] peer-checked:text-black font-semibold peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--flame)] sm:px-3.5 sm:py-2">
                               {t}
                             </span>
                           </label>
@@ -454,7 +451,7 @@ export function Contact() {
                             "Send message"
                           )}
                         </span>
-                        <span className="btn-icon-pod h-7 w-7 rounded-full bg-[var(--page)] text-[var(--ink)] dark:bg-black dark:text-[#B39CFF] sm:h-8 sm:w-8">
+                        <span className="btn-icon-pod h-7 w-7 rounded-[2.5px] bg-[var(--page)] text-[var(--ink)] dark:bg-black dark:text-[var(--muted)] sm:h-8 sm:w-8">
                           <span className="text-xs font-bold transition-transform duration-300 group-hover:translate-x-0.5 sm:text-sm">
                             →
                           </span>

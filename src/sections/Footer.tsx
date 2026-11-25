@@ -1,26 +1,29 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import {
   ArrowUpRight,
   ArrowUp,
   Copy,
   Check,
-  Terminal,
   Clock,
-  Sparkles,
   Command,
 } from "lucide-react";
 import { Container } from "../components/Container";
 import { navItems, personalInfo } from "../data/portfolio";
+import { useMagnetic } from "../hooks/useMagnetic";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { playClick, playSuccess } from "../utils/soundEffects";
 import { scrollToSection } from "../utils/scrollToSection";
 
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
 const EMAIL = personalInfo.email || "ayushsingh7360@gmail.com";
 const FIRST_NAME = "AYUSH";
-const LAST_NAME = "SINGH";
-const FULL_NAME = `${FIRST_NAME} ${LAST_NAME}`;
+const FULL_NAME = FIRST_NAME;
 const ASCII_CHARS = "01<>/\\[]{}#$%@!?*+=~";
 
 const SOCIALS = [
@@ -55,13 +58,6 @@ const MARQUEE_ITEMS = [
   "NEW DELHI, INDIA [IST]",
 ];
 
-const TECH_SPEC = [
-  { label: "Core Engine", value: "React 19 · Vite · TypeScript" },
-  { label: "Motion Layer", value: "GSAP 3 · Framer Motion 14" },
-  { label: "Design System", value: "Electric Lavender · #0D0D0D" },
-  { label: "Audio Engine", value: "Synthesized Web Audio API" },
-];
-
 const CSS = `
 @keyframes ft-marquee {
   0% { transform: translate3d(0, 0, 0); }
@@ -88,7 +84,7 @@ const CSS = `
   bottom: -2px;
   height: 1px;
   width: 100%;
-  background: var(--flame, #B39CFF);
+  background: var(--flame, #5b5b5b);
   transform: scaleX(0);
   transform-origin: right;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -102,16 +98,16 @@ const CSS = `
   transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s ease;
 }
 .ft-signature-last {
-  -webkit-text-stroke: 1.5px currentColor;
+  -webkit-text-stroke: 1.5px var(--ink, #f2ede4);
   color: transparent;
   transition: color 0.35s cubic-bezier(0.16, 1, 0.3, 1), -webkit-text-stroke-color 0.35s ease;
 }
 .group:hover .ft-signature-first {
-  color: var(--flame, #B39CFF);
+  color: var(--muted, #a3a3a3);
 }
 .group:hover .ft-signature-last {
-  color: var(--flame, #B39CFF);
-  -webkit-text-stroke-color: var(--flame, #B39CFF);
+  color: var(--ink, #f2ede4);
+  -webkit-text-stroke-color: var(--ink, #f2ede4);
 }
 @media (prefers-reduced-motion: reduce) {
   .ft-marquee-track {
@@ -165,8 +161,8 @@ function FooterClock() {
   return (
     <div className="flex items-center gap-2.5 font-mono text-xs tabular-nums text-[var(--ink)]">
       <span className="relative flex h-2 w-2 shrink-0">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1E90FF] opacity-60" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-[#1E90FF]" />
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#252525] opacity-60" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-[#252525]" />
       </span>
       <span className="font-semibold">{time || "12:00:00 PM"}</span>
       <span className="rounded bg-[var(--surface-strong)] px-1.5 py-0.5 text-[10px] uppercase font-bold tracking-wider text-[var(--muted)]">
@@ -179,7 +175,7 @@ function FooterClock() {
 function SectionTag({ index, label }: { index: string; label: string }) {
   return (
     <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--muted)]">
-      <span className="text-[#B39CFF] font-bold">[{index}]</span>
+      <span className="text-[var(--muted)] font-bold">[{index}]</span>
       <span>{label}</span>
     </div>
   );
@@ -188,10 +184,32 @@ function SectionTag({ index, label }: { index: string; label: string }) {
 export function Footer() {
   const reducedMotion = usePrefersReducedMotion();
   const footerRef = useRef<HTMLElement>(null);
+  const topMagnetic = useMagnetic<HTMLButtonElement>(0.22, reducedMotion);
+
+  useGSAP(
+    () => {
+      if (reducedMotion || !footerRef.current) return;
+      gsap.fromTo(
+        ".footer-wordmark-svg",
+        { yPercent: 26, opacity: 0.35 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: "top 80%",
+            end: "bottom bottom",
+            scrub: true,
+          },
+        },
+      );
+    },
+    { scope: footerRef, dependencies: [reducedMotion] },
+  );
   const [copied, setCopied] = useState(false);
   const [isDecoding, setIsDecoding] = useState(false);
   const [scrambledFirst, setScrambledFirst] = useState(FIRST_NAME);
-  const [scrambledLast, setScrambledLast] = useState(LAST_NAME);
 
   // Tactile ASCII Decryption Effect on Hover
   const handleScrambleStart = useCallback(() => {
@@ -205,7 +223,7 @@ export function Footer() {
     const interval = window.setInterval(() => {
       iteration += 1;
 
-      // Scramble First Name
+      // Scramble Name
       setScrambledFirst(
         FIRST_NAME.split("")
           .map((_, index) => {
@@ -217,22 +235,9 @@ export function Footer() {
           .join("")
       );
 
-      // Scramble Last Name
-      setScrambledLast(
-        LAST_NAME.split("")
-          .map((_, index) => {
-            if (index < Math.floor((iteration / maxIterations) * LAST_NAME.length)) {
-              return LAST_NAME[index];
-            }
-            return ASCII_CHARS[Math.floor(Math.random() * ASCII_CHARS.length)];
-          })
-          .join("")
-      );
-
       if (iteration >= maxIterations) {
         window.clearInterval(interval);
         setScrambledFirst(FIRST_NAME);
-        setScrambledLast(LAST_NAME);
         setIsDecoding(false);
       }
     }, 38);
@@ -266,7 +271,17 @@ export function Footer() {
   return (
     <footer
       ref={footerRef}
-      className="relative overflow-hidden border-t border-[var(--line)] bg-[var(--page)] text-[var(--ink)]"
+      style={
+        {
+          "--page": "#252525",
+          "--surface": "#1e1e1e",
+          "--surface-strong": "#2f2f2f",
+          "--ink": "#f2ede4",
+          "--muted": "#a3a3a3",
+          "--line": "rgba(242, 237, 228, 0.16)",
+        } as React.CSSProperties
+      }
+      className="relative overflow-hidden border-t border-[var(--line)] bg-[#252525] text-[#f2ede4]"
       aria-label="Site Footer and Architectural Colophon"
     >
       <style>{CSS}</style>
@@ -283,10 +298,10 @@ export function Footer() {
               {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, idx) => (
                 <span
                   key={idx}
-                  className="flex items-center gap-12 whitespace-nowrap font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted)] hover:text-[#B39CFF] transition-colors"
+                  className="flex items-center gap-12 whitespace-nowrap font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted)] hover:text-[var(--muted)] transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#B39CFF] opacity-80" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--ink)] opacity-80" />
                     {item}
                   </span>
                   <span className="h-px w-6 bg-[var(--line)]" />
@@ -313,22 +328,26 @@ export function Footer() {
           <div className="flex flex-col justify-between gap-6 lg:col-span-4">
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--surface)] font-mono text-xs font-black tracking-tighter text-[var(--ink)] shadow-sm">
-                  AS
+                <span className="flex h-10 w-10 items-center justify-center rounded-[4px] border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)]">
+                  <svg viewBox="0 0 36 36" className="h-5 w-5 fill-none stroke-current" aria-hidden="true">
+                    <rect x="2" y="2" width="32" height="32" rx="2.5" strokeWidth="2.4" />
+                    <path d="M11 26L18 10L25 26" strokeWidth="2.6" strokeLinecap="square" strokeLinejoin="miter" />
+                    <path d="M13.5 21H22.5" strokeWidth="2.4" strokeLinecap="square" />
+                  </svg>
                 </span>
                 <div>
-                  <h3 className="font-sans text-lg font-bold tracking-tight text-[var(--ink)]">
+                  <h3 className="font-display text-xl font-semibold tracking-tight text-[var(--ink)]">
                     {personalInfo.name}
                   </h3>
                   <p className="font-mono text-xs text-[var(--muted)]">
-                    Creative Technologist & Full Stack
+                    Creative Technologist &amp; Full Stack
                   </p>
                 </div>
               </div>
 
               <p className="max-w-sm text-sm leading-relaxed text-[var(--muted)]">
-                Engineering high-performance web systems, creative shaders, and resilient data
-                architectures. Committed to clarity, accessibility, and out-of-distribution craft.
+                Engineering high-performance web systems, creative interfaces, and resilient data
+                architectures.
               </p>
             </div>
 
@@ -341,7 +360,7 @@ export function Footer() {
                 <a
                   href={`mailto:${EMAIL}`}
                   onClick={() => playClick("interactive")}
-                  className="ft-link font-mono text-xs sm:text-sm font-semibold text-[var(--ink)] hover:text-[#B39CFF] transition-colors"
+                  className="ft-link font-mono text-xs sm:text-sm font-semibold text-[var(--ink)] hover:text-[var(--muted)] transition-colors"
                 >
                   {EMAIL}
                 </a>
@@ -350,14 +369,14 @@ export function Footer() {
                   onClick={handleCopyEmail}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="group relative inline-flex items-center gap-1 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1 text-[11px] font-mono text-[var(--muted)] transition-colors hover:border-[#B39CFF] hover:text-[var(--ink)]"
+                  className="group relative inline-flex items-center gap-1 rounded-[2.5px] border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1 text-[11px] font-mono text-[var(--muted)] transition-colors hover:border-[var(--ink)] hover:text-[var(--ink)]"
                   title="Copy email to clipboard"
                   aria-label="Copy email address"
                 >
                   {copied ? (
                     <>
-                      <Check className="h-3 w-3 text-[#B39CFF]" />
-                      <span className="text-[#B39CFF] font-semibold">Copied!</span>
+                      <Check className="h-3 w-3 text-[var(--muted)]" />
+                      <span className="text-[var(--muted)] font-semibold">Copied!</span>
                     </>
                   ) : (
                     <>
@@ -388,12 +407,12 @@ export function Footer() {
                           className="group flex items-center justify-between text-[var(--muted)] transition-colors hover:text-[var(--ink)]"
                         >
                           <span className="flex items-center gap-2.5">
-                            <span className="font-mono text-[10px] text-[var(--line)] group-hover:text-[#B39CFF] transition-colors">
+                            <span className="font-mono text-[10px] text-[var(--line)] group-hover:text-[var(--muted)] transition-colors">
                               {labelIndex}
                             </span>
                             <span className="ft-link font-medium">{item.label}</span>
                           </span>
-                          <span className="font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100 text-[#B39CFF]">
+                          <span className="font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100 text-[var(--muted)]">
                             →
                           </span>
                         </Link>
@@ -408,12 +427,12 @@ export function Footer() {
                           className="group flex items-center justify-between text-[var(--muted)] transition-colors hover:text-[var(--ink)]"
                         >
                           <span className="flex items-center gap-2.5">
-                            <span className="font-mono text-[10px] text-[var(--line)] group-hover:text-[#B39CFF] transition-colors">
+                            <span className="font-mono text-[10px] text-[var(--line)] group-hover:text-[var(--muted)] transition-colors">
                               {labelIndex}
                             </span>
                             <span className="ft-link font-medium">{item.label}</span>
                           </span>
-                          <span className="font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100 text-[#B39CFF]">
+                          <span className="font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100 text-[var(--muted)]">
                             →
                           </span>
                         </a>
@@ -436,14 +455,14 @@ export function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => playClick("interactive")}
-                    className="group flex flex-col gap-0.5 rounded-lg border border-transparent p-1 -m-1 transition-colors hover:border-[var(--line)] hover:bg-[var(--surface)]"
+                    className="group flex flex-col gap-0.5 rounded-[4px] border border-transparent p-1.5 -m-1.5 transition-colors hover:border-[var(--line)] hover:bg-[var(--surface)]"
                     aria-label={`${soc.name}: ${soc.handle}`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="ft-link font-semibold text-[var(--ink)] group-hover:text-[#B39CFF] transition-colors">
+                      <span className="ft-link font-semibold text-[var(--ink)] group-hover:text-[var(--muted)] transition-colors">
                         {soc.name}
                       </span>
-                      <ArrowUpRight className="h-3.5 w-3.5 text-[var(--muted)] transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#FF0099]" />
+                      <ArrowUpRight className="h-3.5 w-3.5 text-[var(--muted)] transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--ink)]" />
                     </div>
                     <div className="flex items-center justify-between font-mono text-[11px] text-[var(--muted)]">
                       <span>{soc.handle}</span>
@@ -463,9 +482,9 @@ export function Footer() {
               <SectionTag index="03" label="STATUS" />
 
               {/* Live Engagement Badge */}
-              <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3.5 shadow-sm">
-                <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-[#1E90FF]">
-                  <span className="h-2 w-2 rounded-full bg-[#1E90FF] animate-pulse" />
+              <div className="rounded-[4px] border border-[var(--line)] bg-[var(--surface)] p-3.5">
+                <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-[var(--ink)]">
+                  <span className="h-2 w-2 rounded-full bg-[#f2ede4] animate-pulse" />
                   AVAILABLE
                 </div>
                 <p className="mt-1 text-xs text-[var(--muted)] leading-relaxed">
@@ -474,7 +493,7 @@ export function Footer() {
               </div>
 
               {/* Local Clock */}
-              <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3.5 shadow-sm">
+              <div className="rounded-[4px] border border-[var(--line)] bg-[var(--surface)] p-3.5">
                 <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-[var(--muted)] mb-1.5">
                   <Clock className="h-3 w-3" />
                   <span>LOCAL TIME</span>
@@ -485,76 +504,11 @@ export function Footer() {
           </div>
         </motion.div>
 
-        {/* ── 2. THE MONUMENTAL SIGNATURE EXPERIENCE ── */}
-        <motion.section
-          initial={reducedMotion ? false : { opacity: 0, y: 20 }}
-          whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-30px" }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="group relative isolate mt-10 overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:mt-12 sm:p-10 md:p-12 transition-all duration-500 hover:border-[#B39CFF]/40 shadow-sm"
-          onMouseEnter={handleScrambleStart}
-          onTouchStart={handleScrambleStart}
-          aria-label="Ayush Singh Monumental Signature"
-        >
-          {/* Ambient luminous glow behind the signature */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-20 -top-20 -z-10 h-72 w-72 rounded-full bg-[#B39CFF]/15 blur-[100px] transition-opacity duration-700 group-hover:opacity-100 opacity-40"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -left-20 -bottom-20 -z-10 h-72 w-72 rounded-full bg-[#1E90FF]/15 blur-[100px] transition-opacity duration-700 group-hover:opacity-100 opacity-40"
-          />
-
-          {/* Top header bar within card */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--line)] pb-4 font-mono text-[10px] text-[var(--muted)] sm:text-[11px] sm:pb-5">
-            <div className="flex items-center gap-2 uppercase tracking-[0.2em]">
-              <Terminal className="h-3.5 w-3.5 text-[#B39CFF]" />
-              <span>COLOPHON SPECIFICATION // REPO ID: AYUSH-SINGH</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="hidden sm:inline-block uppercase tracking-[0.18em]">
-                {isDecoding ? "DECODING TRANSMISSION..." : "HOVER TO DECRYPT SIGNATURE"}
-              </span>
-              <Sparkles className="h-3.5 w-3.5 text-[#B39CFF] transition-transform duration-500 group-hover:rotate-45" />
-            </div>
-          </div>
-
-          {/* Monumental Headline Name */}
-          <div className="py-6 sm:py-8 md:py-10 select-none">
-            <h2
-              className="m-0 flex flex-wrap items-baseline gap-x-[0.25em] font-sans font-black uppercase leading-[0.85] tracking-[-0.05em] sm:tracking-[-0.075em] text-[clamp(2.8rem,11.5vw,9.5rem)]"
-              aria-label={FULL_NAME}
-            >
-              <span className="ft-signature-first whitespace-nowrap text-[var(--ink)]">
-                {scrambledFirst}
-              </span>
-              <span className="ft-signature-last whitespace-nowrap">
-                {scrambledLast}
-              </span>
-            </h2>
-          </div>
-
-          {/* Technical Colophon Specifications Grid */}
-          <div className="grid grid-cols-2 gap-3.5 border-t border-[var(--line)] pt-4 sm:grid-cols-4 sm:gap-4 sm:pt-5 font-mono text-xs text-[var(--muted)]">
-            {TECH_SPEC.map((spec) => (
-              <div key={spec.label} className="flex flex-col gap-1">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--muted)]/80">
-                  {spec.label}
-                </span>
-                <span className="font-sans text-xs font-semibold text-[var(--ink)]">
-                  {spec.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* ── 3. BOTTOM UTILITY & BACK-TO-TOP BAR ── */}
+        {/* ── 2. BOTTOM UTILITY & BACK-TO-TOP BAR ── */}
         <div className="mt-12 flex flex-col items-start justify-between gap-6 border-t border-[var(--line)] pt-8 text-xs text-[var(--muted)] sm:flex-row sm:items-center">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span className="font-sans font-medium">
-              © {currentYear} Ayush Singh. All rights reserved.
+              © {currentYear} Ayush. All rights reserved.
             </span>
             <span className="hidden sm:inline text-[var(--line)]">/</span>
             <span className="font-mono text-[11px] text-[var(--muted)]">
@@ -563,24 +517,53 @@ export function Footer() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1 font-mono text-[10px] text-[var(--muted)]">
+            <div className="hidden md:flex items-center gap-2 rounded-[2.5px] border border-[var(--line)] bg-[var(--surface)] px-3 py-1 font-mono text-[10px] text-[var(--muted)]">
               <Command className="h-2.5 w-2.5" />
-              <span>Press ⌘K or Ctrl+K for quick menu</span>
+              <span>Press ⌘K or ? for shortcuts</span>
             </div>
 
             {/* Back to top magnetic button */}
             <motion.button
+              ref={topMagnetic.ref}
+              onMouseMove={topMagnetic.onMouseMove}
+              onMouseLeave={topMagnetic.onMouseLeave}
               type="button"
               onClick={scrollToTop}
               whileHover={reducedMotion ? {} : { y: -2, scale: 1.02 }}
               whileTap={reducedMotion ? {} : { scale: 0.96 }}
-              className="group inline-flex items-center gap-2.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--ink)] shadow-sm transition-all duration-300 hover:border-[#B39CFF] hover:bg-[var(--surface-strong)]"
+              className="group inline-flex items-center gap-2.5 rounded-[2.5px] border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--ink)] shadow-sm transition-all duration-300 hover:border-[var(--ink)] hover:bg-[var(--surface-strong)] will-change-transform"
               aria-label="Scroll back to top of page"
             >
               <span>TOP</span>
-              <ArrowUp className="h-3.5 w-3.5 text-[#B39CFF] transition-transform duration-300 group-hover:-translate-y-0.5" />
+              <ArrowUp className="h-3.5 w-3.5 text-[var(--muted)] transition-transform duration-300 group-hover:-translate-y-0.5" />
             </motion.button>
           </div>
+        </div>
+
+        {/* ── 3. UNBOXED FULL-BLEED MONUMENTAL WORDMARK (matching jeppesen.dev) ── */}
+        <div
+          aria-label={FULL_NAME}
+          onMouseEnter={handleScrambleStart}
+          onTouchStart={handleScrambleStart}
+          className="mt-10 select-none overflow-hidden pb-2 sm:mt-14 sm:pb-4"
+        >
+          <svg
+            viewBox="0 0 1000 185"
+            className="footer-wordmark-svg block h-auto w-full fill-[var(--ink)] will-change-transform"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <text
+              x="500"
+              y="168"
+              textAnchor="middle"
+              textLength="992"
+              lengthAdjust="spacing"
+              className="font-display font-extrabold uppercase"
+              style={{ fontSize: "212px", letterSpacing: "-0.04em" }}
+            >
+              {scrambledFirst}
+            </text>
+          </svg>
         </div>
       </Container>
     </footer>

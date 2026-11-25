@@ -14,48 +14,49 @@ export function SkillMeter({ name, level, tier = "Advanced", tags, index = 0 }: 
 
   return (
     <motion.div
-      initial={reducedMotion ? false : { opacity: 0, y: 16 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 12 }}
       whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, delay: index * 0.05, ease: "easeOut" }}
-      className="group/skill border-b border-[var(--line)] pb-2.5 sm:pb-3 last:border-b-0 last:pb-0"
+      viewport={{ once: true, amount: "some" }}
+      transition={{ duration: 0.45, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}
+      className="group/skill border-b border-[var(--line)] pb-3 last:border-b-0 last:pb-0"
     >
-      <div className="mb-1 sm:mb-1.5 flex items-center justify-between gap-2">
-        <span className="font-sans text-xs font-bold tracking-tight text-[var(--ink)] sm:text-sm">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="font-sans text-sm font-medium tracking-tight text-[var(--ink)]">
           {name}
         </span>
         <div className="flex items-center gap-2">
-          <span className="font-mono text-[10px] tabular-nums text-[var(--muted)]">
+          <span className="font-mono text-[11px] tabular-nums text-[var(--muted)]">
             {level}%
           </span>
-          <span className="inline-flex items-center rounded-sm border border-[var(--line)] bg-[var(--surface-strong)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider font-semibold text-[var(--ink)]">
+          <span className="inline-flex items-center rounded-[2.5px] border border-[var(--line)] bg-[var(--surface-strong)] px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-[var(--ink)]">
             {tier}
           </span>
         </div>
       </div>
 
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--line)]">
+      {/* Clean 1px architectural hairline meter matching jeppesen.dev */}
+      <div className="h-[2px] w-full overflow-hidden bg-[var(--line)]">
         <motion.div
-          className="h-full rounded-full bg-[#1E90FF] dark:bg-[#B39CFF]"
+          className="h-full bg-[var(--ink)]"
           initial={reducedMotion ? { width: `${level}%` } : { width: "0%" }}
           whileInView={{ width: `${level}%` }}
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={{ once: true, amount: "some" }}
           transition={{
-            duration: 1.1,
-            delay: reducedMotion ? 0 : 0.1 + index * 0.04,
+            duration: 0.9,
+            delay: reducedMotion ? 0 : 0.08 + index * 0.04,
             ease: [0.16, 1, 0.3, 1],
           }}
         />
       </div>
 
       {tags && tags.length > 0 && (
-        <div className="mt-1.5 sm:mt-2 flex flex-wrap gap-1.5">
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
           {tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-md border border-[var(--line)] bg-[var(--surface-strong)] px-2 py-0.5 font-mono text-[10px] text-[var(--muted)] transition-colors duration-200 hover:border-[#B39CFF]/40 hover:text-[#B39CFF]"
+              className="rounded-[2.5px] border border-[var(--line)] bg-transparent px-2 py-0.5 font-mono text-[10px] text-[var(--muted)] transition-colors duration-200 hover:border-[var(--ink)] hover:text-[var(--ink)]"
             >
-              #{tag}
+              {tag}
             </span>
           ))}
         </div>

@@ -1,4 +1,5 @@
-import { scrollToTarget } from "../hooks/useSmoothScroll";
+import { getLenis, scrollToTarget } from "../hooks/useSmoothScroll";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 /**
  * Unified Smooth Scroll Helper for Antigravity Portfolio
@@ -15,7 +16,7 @@ export function scrollToSection(
     onComplete?: () => void;
   } = {}
 ) {
-  const { smooth = true, updateHistory = true, onComplete } = options;
+  const { smooth = true, updateHistory = false, onComplete } = options;
 
   if (typeof window === "undefined") return;
 
@@ -40,10 +41,18 @@ export function scrollToSection(
 
   if (!element) return;
 
+  // Ensure Lenis and GSAP have the latest document height before computing target offset
+  getLenis()?.resize();
+  ScrollTrigger.refresh();
+
+  // Offset by fixed header height so section headings are never clipped under the header
+  const headerEl = document.querySelector<HTMLElement>("header");
+  const headerOffset = headerEl ? -Math.round(headerEl.getBoundingClientRect().height + 8) : -72;
+
   scrollToTarget(element, {
-    offset: 0,
+    offset: headerOffset,
     immediate: !smooth,
-    duration: 1.2,
+    duration: 1.05,
     onComplete: () => {
       if (updateHistory) {
         window.history.pushState(null, "", hash);

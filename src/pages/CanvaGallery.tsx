@@ -428,7 +428,7 @@ function Lightbox({
   const handleShare = async () => {
     soundManager.pop();
     const shareData = {
-      title: `${item.label} by Ayush Singh`,
+      title: `${item.label} by Ayush`,
       text: item.subtitle,
       url: window.location.href,
     };
@@ -643,7 +643,7 @@ function Lightbox({
                 <span className="block text-[9px] font-bold uppercase tracking-widest text-black/40 dark:text-white/40">
                   Production
                 </span>
-                <span className="font-semibold text-[#B39CFF]">
+                <span className="font-semibold text-[var(--ink)]">
                   Canva Pro Studio
                 </span>
               </div>
@@ -891,7 +891,7 @@ function GalleryCard({
 
             {/* Mobile always visible minimal label */}
             <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent sm:hidden pointer-events-none">
-              <p className="text-[0.6rem] font-mono font-bold uppercase tracking-widest text-[#B39CFF]">
+              <p className="text-[0.6rem] font-mono font-bold uppercase tracking-widest text-[var(--ink)]">
                 {item.cat}
               </p>
               <p
@@ -1306,7 +1306,7 @@ export default function CanvaGallery() {
                 className="inline-block w-2.5 h-2.5 rounded-full bg-[#10B981]"
                 style={{ boxShadow: "0 0 16px rgba(16,185,129,0.6)" }}
               />
-              Ayush Singh
+              Ayush
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
@@ -1334,7 +1334,7 @@ export default function CanvaGallery() {
                 onClick={handleToggleSound}
                 title={`Sound effects: ${soundEnabled ? "Enabled" : "Muted"}`}
                 className={`flex h-9 px-3 items-center justify-center gap-1.5 rounded-full border text-[11px] font-mono font-bold backdrop-blur-md transition-all active:scale-95 ${soundEnabled
-                    ? "border-[#B39CFF]/40 bg-[#B39CFF]/10 text-[#1E90FF] dark:text-[#B39CFF]"
+                    ? "border-[var(--ink)]/40 bg-[var(--ink)]/10 text-[var(--ink)] dark:text-[var(--ink)]"
                     : "border-black/10 dark:border-white/10 bg-transparent text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
                   }`}
               >
@@ -1358,10 +1358,10 @@ export default function CanvaGallery() {
         {/* ── Hero Header ── */}
         <div className="relative z-10 max-w-[1400px] mx-auto px-[5%] pt-[140px] pb-6 text-center">
           {/* Eyebrow Pill */}
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/15 bg-black/[0.03] dark:bg-white/[0.04] px-5 py-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-[#B39CFF] backdrop-blur-md">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/15 bg-black/[0.03] dark:bg-white/[0.04] px-5 py-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--ink)] backdrop-blur-md">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#B39CFF] opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B39CFF] shadow-[0_0_8px_#B39CFF]" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--ink)] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--ink)] shadow-[0_0_8px_var(--ink)]" />
             </span>
             <span>Award-Winning Canva Visuals</span>
           </div>
@@ -1748,7 +1748,7 @@ export default function CanvaGallery() {
           <div className="max-w-[1400px] mx-auto px-[5%]">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50 dark:text-white/40">
-                © {new Date().getFullYear()} Ayush Singh
+                © {new Date().getFullYear()} Ayush
               </span>
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#10B981]">
                 Canva Pro Gallery · {DESIGNS.length} Works

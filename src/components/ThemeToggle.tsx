@@ -33,7 +33,7 @@ export function ThemeToggle() {
             className="flex items-center justify-center"
           >
             {isDark ? (
-              <Sun className="h-4 w-4 text-[#B39CFF]" />
+              <Sun className="h-4 w-4 text-[var(--ink)]" />
             ) : (
               <Moon className="h-4 w-4 text-[var(--ink)]" />
             )}

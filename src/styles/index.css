@@ -3,87 +3,85 @@
 @tailwind utilities;
 
 :root {
+  --site-margin: clamp(1rem, 0.4718rem + 2.2535vw, 2.5rem);
+  --gutter: clamp(0.75rem, 0.5739rem + 0.7512vw, 1.25rem);
+  --section-low: clamp(3rem, 2.3rem + 3vw, 5rem);
+  --section-medium: clamp(4rem, 3rem + 4vw, 7rem);
+  --section-high: clamp(5rem, 3rem + 8vw, 10rem);
+  --radius-sm: 2.5px;
+  --radius-lg: 4px;
+}
+
+:root {
   color-scheme: light;
-  --page: #F7F5F5;
-  /* Soft Off-White Studio Canvas */
-  --surface: #FFFFFF;
-  /* Clean White Card Surface */
-  --surface-strong: #EFECEB;
-  /* Subtle Neutral Tinted Step */
-  --surface-elevated: #E5E2E0;
-  /* High Depth Card Step */
-  --ink: #2C2C2C;
-  /* Dark Charcoal Primary Typography */
-  --muted: #666666;
-  /* Legible Secondary Typography */
-  --line: rgba(0, 0, 0, 0.08);
-  /* Hairline Architectural Divider */
+  --page: #f2ede4;
+  --surface: #e9e2d5;
+  --surface-strong: #dfd7c8;
+  --surface-elevated: #d5ccb9;
+  --ink: #252525;
+  --muted: #5b5b5b;
+  --line: rgba(37, 37, 37, 0.14);
 
-  /* Final Master Color Palette */
-  --lavender: #B39CFF;
-  /* Main Accent: Electric Lavender */
-  --electric-blue: #1E90FF;
-  /* Secondary Accent: Electric Blue */
-  --vivid-pink: #FF0099;
-  /* Hover Accent: Vivid Pink */
+  --lavender: #252525;
+  --electric-blue: #5b5b5b;
+  --vivid-pink: #252525;
 
-  /* Semantic Aliases */
-  --flame: #B39CFF;
-  --ember: #1E90FF;
-  --blush: #FF0099;
-  --accent: #B39CFF;
-  --accent-secondary: #1E90FF;
-  --accent-hover: #FF0099;
+  --flame: #252525;
+  --ember: #5b5b5b;
+  --blush: #252525;
+  --accent: #252525;
+  --accent-secondary: #5b5b5b;
+  --accent-hover: #252525;
 
-  --coral: #1E90FF;
-  --coral-hover: #FF0099;
-  --coral-soft: rgba(179, 156, 255, 0.12);
-  --coral-glow: rgba(179, 156, 255, 0.2);
-  --inverse: #0D0D0D;
-  --shadow-rgb: 0 0 0;
-  --cursor-ring: rgba(44, 44, 44, 0.45);
+  --coral: #252525;
+  --coral-hover: #5b5b5b;
+  --coral-soft: rgba(37, 37, 37, 0.06);
+  --coral-glow: rgba(37, 37, 37, 0.12);
+  --inverse: #f2ede4;
+  --shadow-rgb: 37 37 37;
+  --cursor-ring: rgba(37, 37, 37, 0.45);
 }
 
 .dark {
   color-scheme: dark;
-  --page: #0D0D0D;
-  /* Dominant Almost-Black Background */
-  --surface: #141416;
-  /* Deep Architectural Matte Charcoal Card */
-  --surface-strong: #1C1C20;
-  /* Elevated Dark Card Surface */
-  --surface-elevated: #24242A;
-  /* Raised Floating Panel Surface */
-  --ink: #FFFFFF;
-  /* Crisp White Primary Typography */
-  --muted: #9E9EA8;
-  /* High-Contrast Technical Slate */
-  --line: rgba(255, 255, 255, 0.10);
-  /* Razor-sharp architectural hairlines */
+  --page: #252525;
+  --surface: #1e1e1e;
+  --surface-strong: #2f2f2f;
+  --surface-elevated: #383838;
+  --ink: #f2ede4;
+  --muted: #a3a3a3;
+  --line: rgba(242, 237, 228, 0.16);
 
-  /* Final Master Color Palette */
-  --lavender: #B39CFF;
-  /* Main Accent: Electric Lavender */
-  --electric-blue: #1E90FF;
-  /* Secondary Accent: Electric Blue */
-  --vivid-pink: #FF0099;
-  /* Hover Accent: Vivid Pink */
+  --lavender: #f2ede4;
+  --electric-blue: #a3a3a3;
+  --vivid-pink: #f2ede4;
 
-  /* Semantic Aliases */
-  --flame: #B39CFF;
-  --ember: #1E90FF;
-  --blush: #FF0099;
-  --accent: #B39CFF;
-  --accent-secondary: #1E90FF;
-  --accent-hover: #FF0099;
+  --flame: #f2ede4;
+  --ember: #a3a3a3;
+  --blush: #f2ede4;
+  --accent: #f2ede4;
+  --accent-secondary: #a3a3a3;
+  --accent-hover: #f2ede4;
 
-  --coral: #1E90FF;
-  --coral-hover: #FF0099;
-  --coral-soft: rgba(179, 156, 255, 0.16);
-  --coral-glow: rgba(179, 156, 255, 0.28);
-  --inverse: #FFFFFF;
+  --coral: #f2ede4;
+  --coral-hover: #d5ccb9;
+  --coral-soft: rgba(242, 237, 228, 0.08);
+  --coral-glow: rgba(242, 237, 228, 0.16);
+  --inverse: #252525;
   --shadow-rgb: 0 0 0;
-  --cursor-ring: rgba(179, 156, 255, 0.65);
+  --cursor-ring: rgba(242, 237, 228, 0.55);
+}
+
+.jeppesen-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.04;
+  contain: strict;
+  will-change: transform;
+  transform: translateZ(0);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 * {
@@ -306,11 +304,11 @@ footer {
 
 /* ── Architectural Minimalist Buttons & Controls ── */
 .btn-neo-base {
-  position: relative;
+  
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 9999px;
+  border-radius: 4px;
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
@@ -326,15 +324,15 @@ footer {
 }
 
 .btn-neo-primary {
-  background: #0D0D0D;
-  color: #FFFFFF;
-  border: 1px solid #0D0D0D;
+  background: var(--ink, #252525);
+  color: var(--page, #f2ede4);
+  border: 1px solid var(--ink, #252525);
 }
 
 .btn-neo-primary:hover {
-  background: #B39CFF;
-  color: #0D0D0D;
-  border-color: #B39CFF;
+  background: var(--muted, #5b5b5b);
+  color: var(--page, #f2ede4);
+  border-color: var(--muted, #5b5b5b);
 }
 
 .dark .btn-neo-primary {
@@ -398,11 +396,11 @@ footer {
 
 /* Tactile Control Squircle for Theme/Sound/Actions */
 .btn-neo-control {
-  position: relative;
+  
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 2.5px;
   border: 1px solid var(--line);
   background: var(--surface);
   color: var(--ink);

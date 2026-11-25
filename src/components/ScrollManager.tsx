@@ -60,7 +60,14 @@ export function ScrollManager() {
       const targetId = location.hash;
 
       if (targetId === "#hero" || targetId === "#") {
-        scrollToSection("#hero", { smooth: !isNewPath });
+        scrollToSection("#hero", {
+          smooth: !isNewPath,
+          onComplete: () => {
+            if (location.pathname === "/" && window.location.hash) {
+              window.history.replaceState(null, "", "/");
+            }
+          },
+        });
         return () => clearTimeout(refreshTimer);
       }
 
@@ -89,7 +96,14 @@ export function ScrollManager() {
 
           // Once position has stabilized across consecutive checks
           if (stableChecks >= 2 || attempts > 15) {
-            scrollToSection(targetId, { smooth: !isNewPath });
+            scrollToSection(targetId, {
+              smooth: !isNewPath,
+              onComplete: () => {
+                if (location.pathname === "/" && window.location.hash) {
+                  window.history.replaceState(null, "", "/");
+                }
+              },
+            });
             return;
           }
         }

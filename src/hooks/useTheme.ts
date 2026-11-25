@@ -6,13 +6,9 @@ const storageKey = "portfolio-theme";
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") {
-    return "dark";
+    return "light";
   }
 
-  // Check sessionStorage first:
-  // Any user opening the portfolio in a new tab/browser will have null,
-  // guaranteeing dark mode opens by default.
-  // In-session manual toggles persist while browsing the site.
   try {
     const session = window.sessionStorage.getItem(storageKey);
     if (session === "light" || session === "dark") {
@@ -22,8 +18,8 @@ function getInitialTheme(): Theme {
     // Fallback safe
   }
 
-  // Default is strictly Dark Mode
-  return "dark";
+  // Default to jeppesen.dev warm bone light theme
+  return "light";
 }
 
 export function useTheme() {

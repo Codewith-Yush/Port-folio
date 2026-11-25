@@ -11,9 +11,9 @@ export default {
         blush: "var(--blush)",
         coral: "var(--coral)",
         "coral-hover": "var(--coral-hover)",
-        lavender: "#B39CFF",
-        "electric-blue": "#1E90FF",
-        "vivid-pink": "#FF0099",
+        lavender: "#252525",
+        "electric-blue": "#5b5b5b",
+        "vivid-pink": "#252525",
         page: "var(--page)",
         surface: "var(--surface)",
         "surface-strong": "var(--surface-strong)",
@@ -24,8 +24,8 @@ export default {
       },
       fontFamily: {
         sans: [
-          '"Plus Jakarta Sans"',
-          '"Space Grotesk"',
+          '"Author"',
+          '"Clash Grotesk"',
           "ui-sans-serif",
           "system-ui",
           "-apple-system",
@@ -34,12 +34,12 @@ export default {
           "sans-serif",
         ],
         display: [
-          '"Syne"',
-          '"Space Grotesk"',
+          '"Clash Grotesk"',
+          '"Author"',
           "sans-serif",
         ],
         grotesk: [
-          '"Space Grotesk"',
+          '"Clash Grotesk"',
           "sans-serif",
         ],
         serif: [

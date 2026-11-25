@@ -111,12 +111,12 @@ export function useSmoothScroll() {
 
     // Initialize Lenis with optimized physics curves
     const lenis = new Lenis({
-      duration: 1.2, // Cinematic weighted momentum
+      duration: 1.05, // Silky weighted momentum without input lag
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Exponential deceleration
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 0.95, // Refined mouse wheel step sensitivity
+      wheelMultiplier: 1.0, // Responsive wheel step sensitivity
       touchMultiplier: 1.5,
       syncTouch: false, // Preserves 120Hz native touch momentum on iOS/Android
       autoResize: true,

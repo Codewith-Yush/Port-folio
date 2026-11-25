@@ -31,70 +31,71 @@ html.has-custom-cursor [contenteditable="true"] { cursor: text !important; }
   z-index: 2147483000;
   pointer-events: none;
   contain: layout style;
+  mix-blend-mode: difference;
 }
 .cur-layer { position: absolute; left: 0; top: 0; will-change: transform; }
 
 .cur-dot {
-  width: 8px;
-  height: 8px;
-  margin: -4px 0 0 -4px;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
   border-radius: 50%;
-  background: var(--lavender, #B39CFF);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out;
+  background: #ffffff;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out;
 }
 
 .cur-ring {
-  width: 40px;
-  height: 40px;
-  margin: -20px 0 0 -20px;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
   border-radius: 50%;
-  border: 1px solid var(--cursor-ring, rgba(179, 156, 255, 0.65));
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
   transition:
-    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
     opacity 0.25s ease-out,
-    background-color 0.3s ease-out,
-    border-color 0.3s ease-out;
+    background-color 0.25s ease-out,
+    border-color 0.25s ease-out;
 }
 
 .cur-label {
   position: absolute;
   left: 0;
   top: 0;
-  width: 88px;
-  height: 88px;
-  margin: -44px 0 0 -44px;
+  width: 76px;
+  height: 76px;
+  margin: -38px 0 0 -38px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: #B39CFF;
-  color: #0D0D0D;
-  font: 700 11px/1 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: 0.18em;
+  background: #ffffff;
+  color: #000000;
+  font: 700 10px/1 "Author", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   transform: scale(0);
   opacity: 0;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out;
+  transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out;
 }
 
 .cur-pulse {
   position: absolute;
   left: 0;
   top: 0;
-  width: 40px;
-  height: 40px;
-  margin: -20px 0 0 -20px;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
   border-radius: 50%;
-  border: 1px solid #B39CFF;
+  border: 1.5px solid #ffffff;
   opacity: 0;
 }
 
 /* ---- states ---- */
 .cur-root[data-state="link"] .cur-ring {
-  transform: scale(1.55);
-  background-color: rgba(179, 156, 255, 0.14);
-  border-color: #B39CFF;
+  transform: scale(1.45);
+  background-color: rgba(255, 255, 255, 0.18);
+  border-color: #ffffff;
 }
-.cur-root[data-state="link"] .cur-dot { transform: scale(0.5); }
+.cur-root[data-state="link"] .cur-dot { transform: scale(0.4); }
 
 .cur-root[data-state="label"] .cur-ring { transform: scale(0.5); opacity: 0; }
 .cur-root[data-state="label"] .cur-dot { opacity: 0; }
