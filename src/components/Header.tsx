@@ -121,7 +121,7 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Right: Talk to Ayush + Menu (always high-contrast over both #f2ede4 and #252525) */}
+          {/* Right: Talk to me + Menu (always high-contrast over both #f2ede4 and #252525) */}
           <div className="pointer-events-auto flex items-center gap-2">
             <a
               ref={talkMagnetic.ref}
@@ -132,7 +132,7 @@ export function Header() {
               className="inline-flex h-[34px] items-center gap-2 rounded-[2.5px] border border-[#f2ede4]/25 bg-[#252525] px-3.5 text-[13px] font-semibold text-[#f2ede4] shadow-sm transition-opacity duration-200 hover:opacity-85 will-change-transform sm:h-[35px]"
             >
               <ArrowUpRight className="h-3.5 w-3.5" />
-              <span>Talk to Ayush</span>
+              <span>Talk to me</span>
             </a>
 
             <button

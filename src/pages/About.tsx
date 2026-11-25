@@ -51,9 +51,20 @@ const FAQS = [
 
 function BrandMonogram({ className = "h-28 w-28" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 120 120" className={className} fill="none" stroke="currentColor" aria-hidden="true">
+    <svg
+      viewBox="0 0 120 120"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      aria-hidden="true"
+    >
       <rect x="10" y="10" width="100" height="100" rx="4" strokeWidth="4" />
-      <path d="M36 86L60 32L84 86" strokeWidth="5.5" strokeLinecap="square" strokeLinejoin="miter" />
+      <path
+        d="M36 86L60 32L84 86"
+        strokeWidth="5.5"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
+      />
       <path d="M44 69H76" strokeWidth="5" strokeLinecap="square" />
     </svg>
   );
@@ -133,7 +144,8 @@ export default function About() {
                   Ayush
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--muted)] sm:text-base">
-                  Full Stack Developer, Creative Technologist &amp; Data Science Student.
+                  Full Stack Developer, Creative Technologist &amp; Data Science
+                  Student.
                 </p>
               </div>
 
@@ -142,25 +154,33 @@ export default function About() {
                   <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--muted)]">
                     Based in
                   </dt>
-                  <dd className="mt-1 font-medium text-[var(--ink)]">New Delhi, India</dd>
+                  <dd className="mt-1 font-medium text-[var(--ink)]">
+                    New Delhi, India
+                  </dd>
                 </div>
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--muted)]">
                     Focus
                   </dt>
-                  <dd className="mt-1 font-medium text-[var(--ink)]">Web, Data &amp; AI</dd>
+                  <dd className="mt-1 font-medium text-[var(--ink)]">
+                    Web, Data &amp; AI
+                  </dd>
                 </div>
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--muted)]">
                     Stack
                   </dt>
-                  <dd className="mt-1 font-medium text-[var(--ink)]">React, TS, Python</dd>
+                  <dd className="mt-1 font-medium text-[var(--ink)]">
+                    React, TS, Python
+                  </dd>
                 </div>
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--muted)]">
                     Status
                   </dt>
-                  <dd className="mt-1 font-medium text-[var(--ink)]">Open to roles</dd>
+                  <dd className="mt-1 font-medium text-[var(--ink)]">
+                    Open to roles
+                  </dd>
                 </div>
               </dl>
             </article>
@@ -191,8 +211,13 @@ export default function About() {
                   </span>
                   <ul className="mt-4 space-y-3">
                     {skillGroups.map((g, i) => (
-                      <li key={g.title} className="border-b border-white/10 pb-2.5 last:border-none">
-                        <span className="font-mono text-[10px] text-[#a3a3a3]">0{i + 1}</span>
+                      <li
+                        key={g.title}
+                        className="border-b border-white/10 pb-2.5 last:border-none"
+                      >
+                        <span className="font-mono text-[10px] text-[#a3a3a3]">
+                          0{i + 1}
+                        </span>
                         <p className="font-display text-base font-semibold text-[#f2ede4]">
                           {g.title}
                         </p>
@@ -209,7 +234,11 @@ export default function About() {
                         type="button"
                         onClick={() => {
                           playClick();
-                          setTIdx((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+                          setTIdx(
+                            (i) =>
+                              (i - 1 + TESTIMONIALS.length) %
+                              TESTIMONIALS.length,
+                          );
                         }}
                         aria-label="Previous testimonial"
                         className="inline-flex h-8 w-8 items-center justify-center rounded-[2.5px] border border-white/20 text-[#f2ede4] transition-colors hover:border-white"
@@ -313,7 +342,7 @@ export default function About() {
             onClick={() => playClick()}
             className="mt-8 inline-flex h-[46px] items-center gap-2.5 rounded-[4px] bg-[var(--ink)] px-6 text-sm font-semibold text-[var(--page)] transition-opacity hover:opacity-85"
           >
-            <span>Talk to Ayush</span>
+            <span>Talk to me</span>
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </section>
