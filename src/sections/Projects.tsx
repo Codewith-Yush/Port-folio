@@ -959,7 +959,7 @@ export function Projects() {
   return (
     <section
       id="work"
-      className="relative scroll-mt-16 bg-[var(--page)] pb-24 pt-20 transition-colors duration-500 sm:scroll-mt-20 sm:pb-32 sm:pt-28 lg:scroll-mt-24"
+      className="relative scroll-mt-16 bg-[var(--page)] py-[var(--section-low)] transition-colors duration-500 sm:scroll-mt-20 lg:scroll-mt-24"
     >
       {/* Header */}
       <Container>

@@ -21,7 +21,7 @@ export function Services() {
   return (
     <section
       id="services"
-      className="relative scroll-mt-16 overflow-hidden bg-[var(--page)] py-[var(--section-high)] text-[var(--ink)] transition-colors duration-300 sm:scroll-mt-20 lg:scroll-mt-24"
+      className="relative scroll-mt-16 overflow-hidden bg-[var(--page)] py-[var(--section-low)] text-[var(--ink)] transition-colors duration-300 sm:scroll-mt-20 lg:scroll-mt-24"
     >
       <Container className="relative z-10">
         {/* Editorial Header matching jeppesen.dev */}

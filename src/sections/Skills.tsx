@@ -54,7 +54,7 @@ export function Skills() {
     >
       <div
         ref={surfaceRef}
-        className="flex min-h-[100svh] flex-col justify-center bg-[#252525] py-[var(--section-high)] will-change-transform"
+        className="flex flex-col justify-center bg-[#252525] py-[var(--section-low)] will-change-transform"
       >
         <Container className="relative z-10 my-auto">
           {/* Editorial 12-Col Header matching jeppesen.dev */}

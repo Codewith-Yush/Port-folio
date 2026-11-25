@@ -227,7 +227,7 @@ export function Contact() {
     <section
       id="contact"
       ref={sectionRef}
-      className="relative flex min-h-[100svh] flex-col justify-center scroll-mt-16 overflow-hidden border-t border-[var(--line)] bg-[var(--page)] py-[var(--section-high)] text-[var(--ink)] sm:scroll-mt-20 md:scroll-mt-24"
+      className="relative flex flex-col justify-center scroll-mt-16 overflow-hidden border-t border-[var(--line)] bg-[var(--page)] py-[var(--section-low)] text-[var(--ink)] sm:scroll-mt-20 md:scroll-mt-24"
     >
       <style>{CSS}</style>
 

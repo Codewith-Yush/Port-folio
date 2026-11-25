@@ -51,7 +51,7 @@ export function WriteOnText({ text, eyebrow, className }: WriteOnTextProps) {
     <section
       ref={containerRef}
       className={cn(
-        "relative w-full bg-[var(--page)] px-[var(--site-margin)] py-[var(--section-high)] text-[var(--ink)] transition-colors duration-300",
+        "relative w-full bg-[var(--page)] px-[var(--site-margin)] py-[var(--section-low)] text-[var(--ink)] transition-colors duration-300",
         className,
       )}
     >
